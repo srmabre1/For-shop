@@ -2,25 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>mautasim</title>
+<title>Invoice</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- html2pdf library (BEST for mobile) -->
+<!-- html2pdf (mobile friendly) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
-body{font-family:Arial;background:#f0f0f0;padding:10px}
-.invoice{background:#fff;max-width:850px;margin:auto;padding:15px;border:2px solid #000}
+body{font-family:Arial;background:#eee;padding:10px}
+.invoice{background:#fff;max-width:900px;margin:auto;padding:15px;border:2px solid #000}
 .center{text-align:center}
 .box{border:1px solid #000;padding:8px;margin-top:8px}
 .flex{display:flex;gap:10px}
 .flex>div{width:50%}
-input{width:100%;padding:5px;box-sizing:border-box;margin:2px 0}
+input{width:100%;padding:5px;margin:2px 0;box-sizing:border-box}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #000;padding:6px;text-align:center}
-button{padding:10px 15px;margin-top:10px;width:100%}
 .right{text-align:right}
+button{padding:10px;margin-top:10px;width:100%}
 canvas{border:1px solid #000;touch-action:none}
+.footer{text-align:center;margin-top:10px;font-size:12px}
 </style>
 </head>
 <body>
@@ -33,8 +34,9 @@ canvas{border:1px solid #000;touch-action:none}
 <b>Shop Name</b>
 <input value="NAVEED TEXTILES">
 <b>Address</b>
-<input value="Takiya Khurhama"<div class="flex">
-<div><b>Phone</b><input value="99064 03030"></div>
+<input value="Takiya Khurhama">
+<div class="flex">
+<div><b>Phone</b><input value="9906403030 / 9906851124"></div>
 <div><b>Email</b><input value="naveedtextiles14@gmail.com"></div>
 </div>
 </div>
@@ -48,13 +50,15 @@ canvas{border:1px solid #000;touch-action:none}
 </div>
 <div>
 <b>Invoice Details</b>
-<input placeholder="Bill No">
+<input placeholder="Invoice No">
 <input type="date">
 </div>
 </div>
 
 <table id="items">
-<tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr>
+<tr>
+<th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
+</tr>
 <tr>
 <td>1</td>
 <td><input></td>
@@ -67,8 +71,8 @@ canvas{border:1px solid #000;touch-action:none}
 <button onclick="addRow()">Add Item</button>
 
 <div class="box right">
-Discount % <input id="disc" value="0" oninput="calc()" style="width:80px"><br>
-GST % <input id="gst" value="0" oninput="calc()" style="width:80px"><br>
+Discount % <input id="disc" type="number" value="0" oninput="calc()" style="width:80px"><br>
+GST % <input id="gst" type="number" value="0" oninput="calc()" style="width:80px"><br>
 <h3 id="total">Total: ₹0</h3>
 </div>
 
@@ -78,7 +82,7 @@ GST % <input id="gst" value="0" oninput="calc()" style="width:80px"><br>
 <button onclick="clearSign()">Clear Signature</button>
 </div>
 
-<div class="box center">Web built by Mautasim</div>
+<div class="footer">Web built by Mautasim</div>
 
 </div>
 
@@ -86,69 +90,56 @@ GST % <input id="gst" value="0" oninput="calc()" style="width:80px"><br>
 
 <script>
 function addRow(){
-let t=document.getElementById('items');
-let r=t.insertRow();
-r.innerHTML=`<td>${t.rows.length-1}</td><td><input></td><td><input type='number' oninput='calc()'></td><td><input type='number' oninput='calc()'></td><td class='amt'>0</td>`;
+const t=document.getElementById('items');
+const r=t.insertRow();
+r.innerHTML=`<td>${t.rows.length-1}</td>
+<td><input></td>
+<td><input type=number oninput=calc()></td>
+<td><input type=number oninput=calc()></td>
+<td class=amt>0</td>`;
 }
 
 function calc(){
 let sum=0;
 document.querySelectorAll('#items tr').forEach((r,i)=>{
 if(i>0){
-let q=r.cells[2].firstChild.value||0;
-let p=r.cells[3].firstChild.value||0;
+let q=r.cells[2].querySelector('input').value||0;
+let p=r.cells[3].querySelector('input').value||0;
 let a=q*p;
 r.cells[4].innerText=a;
 sum+=a;
 }
 });
 let d=sum*(disc.value/100);
-let g=sum*(gst.value/100);
-document.getElementById('total').innerText='Total: ₹'+(sum+g-d);
+let g=(sum-d)*(gst.value/100);
+document.getElementById('total').innerText='Total: ₹'+Math.round(sum-d+g);
 }
 
-// Signature (mobile + mouse)
-let c=document.getElementById('sign'),ctx=c.getContext('2d'),draw=false;
-c.addEventListener('mousedown',()=>draw=true);
-c.addEventListener('mouseup',()=>{draw=false;ctx.beginPath();});
-c.addEventListener('mousemove',e=>{if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();}});
-
-c.addEventListener('touchstart',e=>{draw=true;let t=e.touches[0];ctx.moveTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop);});
-c.addEventListener('touchmove',e=>{if(draw){let t=e.touches[0];ctx.lineTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop);ctx.stroke();}});
-c.addEventListener('touchend',()=>{draw=false;ctx.beginPath();});
-
+// Signature (mouse + touch)
+const c=document.getElementById('sign'),ctx=c.getContext('2d');let draw=false;
+c.onmousedown=()=>draw=true;
+c.onmouseup=()=>{draw=false;ctx.beginPath()};
+c.onmousemove=e=>{if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()}};
+c.addEventListener('touchstart',e=>{draw=true;let t=e.touches[0];ctx.moveTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop)});
+c.addEventListener('touchmove',e=>{if(draw){let t=e.touches[0];ctx.lineTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop);ctx.stroke()}});
+c.addEventListener('touchend',()=>{draw=false;ctx.beginPath()});
 function clearSign(){ctx.clearRect(0,0,c.width,c.height)}
 
 function downloadPDF(){
-  const bill = document.getElementById('bill');
-
-  const clone = bill.cloneNode(true);
-
-  // convert inputs to text
-  clone.querySelectorAll('input').forEach(inp => {
-    const span = document.createElement('span');
-    span.innerText = inp.value || ' ';
-    span.style.display = 'inline-block';
-    span.style.minWidth = '60px';
-    inp.parentNode.replaceChild(span, inp);
-  });
-
-  html2pdf()
-    .set({
-      margin: 5,
-      filename: 'Invoice.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        windowWidth: bill.scrollWidth,   // 🔥 FIX
-        windowHeight: bill.scrollHeight  // 🔥 FIX
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    })
-    .from(clone)
-    .save();
+const bill=document.getElementById('bill');
+const clone=bill.cloneNode(true);
+clone.querySelectorAll('input').forEach(i=>{
+let s=document.createElement('span');
+s.innerText=i.value;
+i.parentNode.replaceChild(s,i);
+});
+html2pdf().set({
+filename:'Invoice.pdf',
+html2canvas:{scale:2},
+jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+}).from(clone).save();
 }
-
 </script>
+
 </body>
 </html>
