@@ -2,43 +2,38 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Invoice</title>
+<title>Invoice Billing</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- html2pdf (mobile friendly) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
 <style>
-body{font-family:Arial;background:#eee;padding:10px}
-.invoice{background:#fff;max-width:900px;margin:auto;padding:15px;border:2px solid #000}
+body{font-family:Arial;background:#f2f2f2;padding:10px}
+#bill{background:#fff;border:2px solid #000;max-width:900px;margin:auto;padding:15px}
 .center{text-align:center}
-.box{border:1px solid #000;padding:8px;margin-top:8px}
 .flex{display:flex;gap:10px}
-.flex>div{width:50%}
-input{width:100%;padding:5px;margin:2px 0;box-sizing:border-box}
+.box{border:1px solid #000;padding:8px;margin-top:8px}
+input{width:100%;padding:4px}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #000;padding:6px;text-align:center}
 .right{text-align:right}
-button{padding:10px;margin-top:10px;width:100%}
 canvas{border:1px solid #000;touch-action:none}
-.footer{text-align:center;margin-top:10px;font-size:12px}
+button{padding:10px;margin-top:10px;width:100%}
+.logo{max-height:80px}
 </style>
 </head>
 <body>
 
-<div class="invoice" id="bill">
+<div id="bill">
 
-<h2 class="center">TAX INVOICE</h2>
+<div class="center">
+<img id="logoPreview" class="logo"><br>
+<h2>TAX INVOICE</h2>
+</div>
 
 <div class="box">
-<b>Shop Name</b>
-<input value="NAVEED TEXTILES">
-<b>Address</b>
-<input value="Takiya Khurhama">
-<div class="flex">
-<div><b>Phone</b><input value="9906403030 / 9906851124"></div>
-<div><b>Email</b><input value="naveedtextiles14@gmail.com"></div>
-</div>
+<b>Shop Name</b><input value="NAVEED TEXTILES">
+<b>Address</b><input value="Takiya Khurhama">
+<b>Phone</b><input value="9906403030">
+<b>Email</b><input value="naveedtextiles14@gmail.com">
 </div>
 
 <div class="box flex">
@@ -56,9 +51,7 @@ canvas{border:1px solid #000;touch-action:none}
 </div>
 
 <table id="items">
-<tr>
-<th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
-</tr>
+<tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr>
 <tr>
 <td>1</td>
 <td><input></td>
@@ -71,8 +64,8 @@ canvas{border:1px solid #000;touch-action:none}
 <button onclick="addRow()">Add Item</button>
 
 <div class="box right">
-Discount % <input id="disc" type="number" value="0" oninput="calc()" style="width:80px"><br>
-GST % <input id="gst" type="number" value="0" oninput="calc()" style="width:80px"><br>
+Discount % <input id="disc" value="0" oninput="calc()"><br>
+GST % <input id="gst" value="0" oninput="calc()"><br>
 <h3 id="total">Total: ₹0</h3>
 </div>
 
@@ -82,64 +75,62 @@ GST % <input id="gst" type="number" value="0" oninput="calc()" style="width:80px
 <button onclick="clearSign()">Clear Signature</button>
 </div>
 
-<div class="footer">Web built by Mautasim</div>
+<div class="center box">Web built by Mautasim</div>
 
+</div>
+
+<div class="box">
+<b>Upload Logo</b>
+<input type="file" accept="image/*" onchange="loadLogo(event)">
 </div>
 
 <button onclick="downloadPDF()">Download PDF</button>
 
 <script>
 function addRow(){
-const t=document.getElementById('items');
-const r=t.insertRow();
-r.innerHTML=`<td>${t.rows.length-1}</td>
-<td><input></td>
-<td><input type=number oninput=calc()></td>
-<td><input type=number oninput=calc()></td>
-<td class=amt>0</td>`;
+let t=document.getElementById('items');
+let r=t.insertRow();
+r.innerHTML=`<td>${t.rows.length-1}</td><td><input></td><td><input type=number oninput=calc()></td><td><input type=number oninput=calc()></td><td class=amt>0</td>`;
 }
 
 function calc(){
 let sum=0;
 document.querySelectorAll('#items tr').forEach((r,i)=>{
 if(i>0){
-let q=r.cells[2].querySelector('input').value||0;
-let p=r.cells[3].querySelector('input').value||0;
-let a=q*p;
-r.cells[4].innerText=a;
-sum+=a;
+let q=r.cells[2].firstChild.value||0;
+let p=r.cells[3].firstChild.value||0;
+let a=q*p;r.cells[4].innerText=a;sum+=a;
 }
 });
 let d=sum*(disc.value/100);
-let g=(sum-d)*(gst.value/100);
-document.getElementById('total').innerText='Total: ₹'+Math.round(sum-d+g);
+let g=sum*(gst.value/100);
+document.getElementById('total').innerText='Total: ₹'+(sum-d+g);
 }
 
-// Signature (mouse + touch)
-const c=document.getElementById('sign'),ctx=c.getContext('2d');let draw=false;
-c.onmousedown=()=>draw=true;
-c.onmouseup=()=>{draw=false;ctx.beginPath()};
-c.onmousemove=e=>{if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()}};
+let c=document.getElementById('sign'),ctx=c.getContext('2d'),draw=false;
+c.onmousedown=()=>draw=true;c.onmouseup=()=>draw=false;
+c.onmousemove=e=>{if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();}};
 c.addEventListener('touchstart',e=>{draw=true;let t=e.touches[0];ctx.moveTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop)});
-c.addEventListener('touchmove',e=>{if(draw){let t=e.touches[0];ctx.lineTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop);ctx.stroke()}});
-c.addEventListener('touchend',()=>{draw=false;ctx.beginPath()});
+c.addEventListener('touchmove',e=>{if(draw){let t=e.touches[0];ctx.lineTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop);ctx.stroke();}});
+c.addEventListener('touchend',()=>draw=false);
 function clearSign(){ctx.clearRect(0,0,c.width,c.height)}
+
+function loadLogo(e){
+document.getElementById('logoPreview').src=URL.createObjectURL(e.target.files[0]);
+}
 
 function downloadPDF(){
 const bill=document.getElementById('bill');
 const clone=bill.cloneNode(true);
 clone.querySelectorAll('input').forEach(i=>{
-let s=document.createElement('span');
-s.innerText=i.value;
-i.parentNode.replaceChild(s,i);
+let s=document.createElement('span');s.innerText=i.value;i.replaceWith(s);
 });
-html2pdf().set({
-filename:'Invoice.pdf',
-html2canvas:{scale:2},
-jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-}).from(clone).save();
+let signImg=document.createElement('img');
+signImg.src=c.toDataURL();
+signImg.style.maxWidth='200px';
+clone.querySelector('canvas').replaceWith(signImg);
+html2pdf().set({margin:5,filename:'Invoice.pdf',html2canvas:{scale:2},jsPDF:{format:'a4'}}).from(clone).save();
 }
 </script>
-
 </body>
 </html>
