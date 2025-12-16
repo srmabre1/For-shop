@@ -28,7 +28,7 @@ canvas{border:1px solid #000}
 <b>Shop Name:</b> <input id="shop" value="NAVEED TEXTILES">
 <b>Address:</b> <input value="takiya khurhama">
 <div class="flex">
-<div><b>Phone:</b><input value="">          </div>
+<div><b>Phone:</b><input value="99064 03030"></div>
 <div><b>Email:</b><input value="naveedtextiles14@gmail.com"></div>
 </div>
 </div>
@@ -100,7 +100,7 @@ let d=sum*(discount.value/100);
 let g=sum*(gst.value/100);
 document.getElementById('total').innerText='Total: ₹'+(sum+g-d);
 }
-
+  
 let c=document.getElementById('sign'),x=c.getContext('2d'),draw=false;
 c.onmousedown=()=>draw=true;
 c.onmouseup=()=>{draw=false;x.beginPath();}
@@ -108,10 +108,18 @@ c.onmousemove=e=>{if(draw){x.lineTo(e.offsetX,e.offsetY);x.stroke();}}
 function clearSign(){x.clearRect(0,0,300,100)}
 
 function downloadPDF(){
-const { jsPDF } = window.jspdf;
-let pdf=new jsPDF('p','mm','a4');
-pdf.html(document.getElementById('bill'),{callback:p=>p.save('Invoice.pdf'),x:5,y:5});
-}
+  const { jsPDF } = window.jspdf;
+  let pdf = new jsPDF('p','mm','a4');
+
+  pdf.html(document.getElementById('bill'), {
+    x: 5,
+    y: 5,
+    callback: function (doc) {
+      // Mobile-friendly way
+      window.open(doc.output('bloburl'), '_blank');
+    }
+  });
+                  }
 </script>
 </body>
 </html>
