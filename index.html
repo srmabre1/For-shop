@@ -240,14 +240,77 @@ canvas.onmousemove=e=>{
 function clearSign(){ctx.clearRect(0,0,canvas.width,canvas.height)}
 
 async function downloadPDF(){
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF();
-  pdf.text(`Shop: ${shopName.value}`,10,10);
-  pdf.text(`Bill No: ${billNo.value}`,10,20);
-  pdf.text(`Grand Total: ₹ ${grandTotal.innerText}`,10,30);
-  pdf.addImage(canvas.toDataURL(),'PNG',10,40,60,25);
-  pdf.save("bill.pdf");
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  let y = 10;
+
+  pdf.setFontSize(14);
+  pdf.text(shopName.value || "Shop Bill", 10, y);
+  y += 8;
+
+  pdf.setFontSize(10);
+  pdf.text(`Bill No: ${billNo.value}`, 10, y);
+  pdf.text(`Date: ${billDate.value}`, 140, y);
+  y += 6;
+
+  pdf.text(`Customer: ${customerName.value}`, 10, y);
+  pdf.text(`Mobile: ${customerMobile.value}`, 140, y);
+  y += 10;
+
+  // Table header
+  pdf.setFontSize(11);
+  pdf.text("Item", 10, y);
+  pdf.text("Qty", 90, y);
+  pdf.text("Price", 110, y);
+  pdf.text("Total", 150, y);
+  y += 4;
+  pdf.line(10, y, 200, y);
+  y += 4;
+
+  let sub = 0;
+
+  document.querySelectorAll("#billTable tbody tr").forEach(row=>{
+    const item = row.children[0].firstChild.value;
+    const qty = row.children[1].firstChild.value;
+    const price = row.children[2].firstChild.value;
+    const total = qty * price;
+
+    pdf.text(item, 10, y);
+    pdf.text(qty.toString(), 90, y);
+    pdf.text(price.toString(), 110, y);
+    pdf.text(total.toFixed(2), 150, y);
+
+    y += 6;
+    sub += total;
+
+    if(y > 270){
+      pdf.addPage();
+      y = 10;
+    }
+  });
+
+  y += 6;
+  pdf.line(10, y, 200, y);
+  y += 6;
+
+  const gstAmt = sub * (gst.value/100);
+  const discAmt = sub * (discount.value/100);
+  const grand = sub + gstAmt - discAmt;
+
+  pdf.text(`Sub Total: ₹ ${sub.toFixed(2)}`, 130, y); y+=6;
+  pdf.text(`GST (${gst.value}%): ₹ ${gstAmt.toFixed(2)}`, 130, y); y+=6;
+  pdf.text(`Discount (${discount.value}%): ₹ ${discAmt.toFixed(2)}`, 130, y); y+=6;
+  pdf.setFontSize(12);
+  pdf.text(`Grand Total: ₹ ${grand.toFixed(2)}`, 130, y);
+
+  // Signature
+  const signImg = signPad.toDataURL("image/png");
+  pdf.addImage(signImg, "PNG", 10, y+10, 60, 25);
+  pdf.text("Authorized Signature", 10, y+38);
+
+  pdf.save("full-bill.pdf");
 }
+
 
 addRow();
 </script>
