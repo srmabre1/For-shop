@@ -121,17 +121,31 @@ function clearSign(){ctx.clearRect(0,0,c.width,c.height)}
 
 // BEST MOBILE PDF
 function downloadPDF(){
+  const bill = document.getElementById('bill');
+
+  // Clone bill so inputs convert to text
+  const clone = bill.cloneNode(true);
+
+  clone.querySelectorAll('input').forEach(inp => {
+    const span = document.createElement('span');
+    span.innerText = inp.value || ' ';
+    span.style.display = 'inline-block';
+    span.style.minWidth = '60px';
+    inp.parentNode.replaceChild(span, inp);
+  });
+
   html2pdf()
     .set({
       margin: 5,
       filename: 'Invoice.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     })
-    .from(document.getElementById('bill'))
+    .from(clone)
     .save();
 }
+
 </script>
 </body>
 </html>
