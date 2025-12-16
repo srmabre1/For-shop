@@ -307,6 +307,9 @@ async function downloadPDF(){
   const signImg = signPad.toDataURL("image/png");
   pdf.addImage(signImg, "PNG", 10, y+10, 60, 25);
   pdf.text("Authorized Signature", 10, y+38);
+pdf.setFontSize(9);
+pdf.setTextColor(120);
+pdf.text("Web built by Mautasim", 105, 290, { align: "center" });
 
   pdf.save("full-bill.pdf");
 }
