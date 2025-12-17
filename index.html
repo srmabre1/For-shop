@@ -24,7 +24,15 @@ button{padding:10px;margin-top:10px;width:100%}
   height:auto;
   display:block;
   margin:0 auto 5px auto;
+  @media print {
+  body {
+    zoom: 1 !important;
+  }
+  #bill {
+    width: 210mm !important;
+  }
 }
+
 
 </style>
 </head>
@@ -142,46 +150,57 @@ function downloadPDF(){
   const bill = document.getElementById("bill");
   const clone = bill.cloneNode(true);
 
-  // convert all inputs to text
+  // Replace inputs with text
   clone.querySelectorAll("input").forEach(input=>{
     const span = document.createElement("span");
     span.innerText = input.value || " ";
     input.replaceWith(span);
   });
 
-  // convert signature canvas to image
+  // Replace signature canvas
   const canvas = document.getElementById("sign");
-  const img = document.createElement("img");
-  img.src = canvas.toDataURL("image/png");
-  img.style.width = "200px";
-  clone.querySelector("canvas")?.replaceWith(img);
-
-  // logo fix
-  const logo = document.getElementById("logoPreview");
-  if(logo && logo.src){
-    const logoImg = document.createElement("img");
-    logoImg.src = logo.src;
-    logoImg.style.maxHeight = "80px";
-    clone.querySelector("#logoPreview")?.replaceWith(logoImg);
+  if(canvas){
+    const img = document.createElement("img");
+    img.src = canvas.toDataURL("image/png");
+    img.style.width = "200px";
+    clone.querySelector("canvas")?.replaceWith(img);
   }
 
-  const opt = {
-    margin: 5,
-    filename: "Invoice.pdf",
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+  // Replace logo
+  const logo = document.getElementById("logoPreview");
+  if(logo && logo.src){
+    const img = document.createElement("img");
+    img.src = logo.src;
+    img.style.maxHeight = "80px";
+    clone.querySelector("#logoPreview")?.replaceWith(img);
+  }
 
-  html2pdf().set(opt).from(clone).save();
+  html2pdf().set({
+    margin: [10, 10, 10, 10],
+    filename: "Invoice.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: {
+      scale: 3,          // 🔥 KEY FIX
+      useCORS: true,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: 1200  // 🔥 FORCE DESKTOP WIDTH
+    },
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait"
+    }
+  }).from(clone).save();
 }
+
 
 </script>
   <script>
   let lastInvoice = localStorage.getItem("lastInvoiceNo");
 
   if (!lastInvoice) {
-    lastInvoice = 1000;   // starting bill number
+    lastInvoice = 25000;   // starting bill number
   } else {
     lastInvoice = parseInt(lastInvoice) + 1;
   }
