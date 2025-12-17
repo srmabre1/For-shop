@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>by mautasim</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- PDF libs -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body{font-family:Arial;background:#eee;padding:10px}
+#bill{background:#fff;border:2px solid #000;max-width:800px;margin:auto;padding:10px}
+.header{text-align:center;border-bottom:2px solid #000;padding-bottom:8px}
+.header img{max-width:120px}
+.box{border:1px solid #000;padding:6px;margin-top:6px}
+.flex{display:flex;justify-content:space-between;gap:6px}
+input{width:100%;box-sizing:border-box;padding:4px}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+th,td{border:1px solid #000;padding:4px;text-align:center}
+.right{text-align:right}
+canvas{border:1px solid #000;touch-action:none}
+.footer{text-align:center;margin-top:10px;font-size:12px}
+button{margin-top:6px;padding:6px;width:100%}
+@media print{
+  body{background:#fff}
+}
+</style>
+
+</head>
+<body>
+
+<div id="bill">
+
+<div class="header">
+<img src="logo.png" alt="Logo">
+<h2>NAVEED TEXTILES</h2>
+</div>
+
+<div class="box">
+<b>Email:</b> naveedtextiles14@gmail.com<br>
+<b>Phone:</b> 9906403030 / 9906851124
+</div>
+
+<div class="box flex">
+<div>
+<b>Bill No</b>
+<input id="invoiceNo" readonly>
+</div>
+<div>
+<b>Date</b>
+<input type="date" id="billDate">
+</div>
+</div>
+
+<table id="items">
+<tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr>
+<tr>
+<td>1</td>
+<td><input></td>
+<td><input type="number" oninput="calc()"></td>
+<td><input type="number" oninput="calc()"></td>
+<td class="amt">0</td>
+</tr>
+</table>
+<button onclick="addRow()">Add Item</button>
+
+<div class="box right">
+Discount % <input id="disc" type="number" value="0" oninput="calc()"><br>
+Paid ₹ <input id="paid" type="number" value="0" oninput="calcBalance()"><br>
+<h3 id="total">Total: ₹0</h3>
+<h3 id="balance">Balance: ₹0</h3>
+</div>
+
+<div class="box">
+<b>Authorized Signature</b><br>
+<canvas id="sign" width="300" height="120"></canvas>
+<button onclick="clearSign()">Clear Signature</button>
+</div>
+
+<div class="footer">Web built by Mautasim</div>
+</div>
+
+<button onclick="downloadPDF()">Download PDF</button> <button onclick="whatsappPDF()">WhatsApp PDF</button>
+
+<script>
+const { jsPDF } = window.jspdf;
+
+function addRow(){
+ const t=document.getElementById('items');
+ const r=t.insertRow();
+ r.innerHTML=`<td>${t.rows.length-1}</td><td><input></td><td><input type=number oninput=calc()></td><td><input type=number oninput=calc()></td><td class=amt>0</td>`;
+}
+
+function calc(){
+ let sum=0;
+ document.querySelectorAll('#items tr').forEach((r,i)=>{
+  if(i>0){
+   let q=r.cells[2].firstChild.value||0;
+   let p=r.cells[3].firstChild.value||0;
+   let a=q*p;
+   r.cells[4].innerText=a;
+   sum+=a;
+  }
+ });
+ let d=sum*(disc.value/100);
+ let total=sum-d;
+ document.getElementById('total').innerText='Total: ₹'+total;
+ calcBalance();
+}
+
+function calcBalance(){
+ let t=parseFloat(total.innerText.replace(/[^0-9]/g,''))||0;
+ let p=parseFloat(paid.value)||0;
+ document.getElementById('balance').innerText='Balance: ₹'+(t-p);
+}
+
+// Signature
+let c=document.getElementById('sign'),ctx=c.getContext('2d'),draw=false;
+c.onmousedown=()=>draw=true;c.onmouseup=()=>draw=false;
+c.onmousemove=e=>{if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();}};
+c.addEventListener('touchstart',e=>{draw=true;let t=e.touches[0];ctx.moveTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop)});
+c.addEventListener('touchmove',e=>{if(draw){let t=e.touches[0];ctx.lineTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop);ctx.stroke();}});
+c.addEventListener('touchend',()=>draw=false);
+function clearSign(){ctx.clearRect(0,0,c.width,c.height)}
+
+// Invoice + date
+let last=localStorage.getItem('inv')||1000;
+last++;localStorage.setItem('inv',last);
+invoiceNo.value='INV-'+last;
+billDate.value=new Date().toISOString().split('T')[0];
+
+async function makePDF(){
+ const clone=bill.cloneNode(true);
+ clone.querySelectorAll('input').forEach(i=>{let s=document.createElement('span');s.innerText=i.value;i.replaceWith(s)});
+ let img=document.createElement('img');img.src=c.toDataURL();img.style.maxWidth='200px';clone.querySelector('canvas').replaceWith(img);
+ document.body.appendChild(clone);
+ const canvasPDF=await html2canvas(clone,{scale:2});
+ document.body.removeChild(clone);
+ const pdf=new jsPDF('p','mm','a4');
+ pdf.addImage(canvasPDF,'PNG',5,5,200,0);
+ return pdf;
+}
+
+async function downloadPDF(){
+ const pdf=await makePDF();
+ pdf.save('Invoice.pdf');
+}
+
+async function whatsappPDF(){
+ const pdf=await makePDF();
+ const blob=pdf.output('blob');
+ const file=new File([blob],'Invoice.pdf',{type:'application/pdf'});
+ if(navigator.share){
+  navigator.share({files:[file],title:'Invoice'});
+ }else alert('WhatsApp sharing not supported');
+}
+</script>
+
+</body>
+</html>
