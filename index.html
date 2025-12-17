@@ -134,26 +134,51 @@ last++;localStorage.setItem('inv',last);
 invoiceNo.value='INV-'+last;
 billDate.value=new Date().toISOString().split('T')[0];
 
-async function makePDF(){
- const clone=bill.cloneNode(true);
- clone.querySelectorAll('input').forEach(i=>{let s=document.createElement('span');s.innerText=i.value;i.replaceWith(s)});
- let img=document.createElement('img');img.src=c.toDataURL();img.style.maxWidth='200px';clone.querySelector('canvas').replaceWith(img);
- document.body.appendChild(clone);
- const canvasPDF=await html2canvas(clone,{scale:2});
- document.body.removeChild(clone);
- const pdf=new jsPDF('p','mm','a4');
- pdf.addImage(canvasPDF,'PNG',5,5,200,0);
- return pdf;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+function downloadPDF(){
+  const bill=document.getElementById("bill");
+
+  const wrapper=document.createElement("div");
+  wrapper.style.width="794px";
+  wrapper.style.background="#fff";
+  wrapper.style.padding="20px";
+
+  const clone=bill.cloneNode(true);
+
+  clone.querySelectorAll("input").forEach(i=>{
+    const span=document.createElement("span");
+    span.innerText=i.value;
+    i.replaceWith(span);
+  });
+
+  const canvas=document.getElementById("sign");
+  if(canvas){
+    const img=document.createElement("img");
+    img.src=canvas.toDataURL("image/png");
+    img.style.width="200px";
+    const c=clone.querySelector("canvas");
+    if(c) c.replaceWith(img);
+  }
+
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  html2pdf().set({
+    margin:5,
+    filename:"Invoice.pdf",
+    html2canvas:{scale:2,windowWidth:794},
+    jsPDF:{unit:"px",format:[794,1123]}
+  }).from(wrapper).save().then(()=>{
+    document.body.removeChild(wrapper);
+  });
 }
 
-async function downloadPDF(){
- const pdf=await makePDF();
- pdf.save('Invoice.pdf');
+function whatsappPDF(){
+  alert("Download PDF first, then share on WhatsApp");
 }
-
-async function whatsappPDF(){
- const pdf=await makePDF();
- const blob=pdf.output('blob');
+</script>
  const file=new File([blob],'Invoice.pdf',{type:'application/pdf'});
  if(navigator.share){
   navigator.share({files:[file],title:'Invoice'});
