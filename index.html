@@ -1,77 +1,92 @@
 <!DOCTYPE html>
-
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>by mautasim</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- html2pdf -->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-<style>
-body{font-family:Arial;background:#f2f2f2;padding:10px}
-#bill{background:#fff;max-width:800px;margin:auto;border:2px solid #000;padding:15px}
-.header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px}
-.header img{max-width:80px}
-.row{display:flex;justify-content:space-between;margin:6px 0}
-input{width:100%;padding:4px}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #000;padding:6px;text-align:center}
-button{padding:8px 12px;margin:5px}
-.total-box{text-align:right;margin-top:10px}
-canvas{border:1px solid #000}
-.footer{text-align:center;margin-top:10px;font-size:12px}
 </style>
-
 </head>
+
+
 <body>
+
 
 <div id="bill">
 
+
 <div class="header">
-<img src="logo.png" id="logoPreview"><br>
-<b>Naveed Textiles</b><br>
-Address: Takiya Khurhama<br>
-Phone: 9906403030 / 9906851124<br>
+<img src="logo.png" class="logo"><br>
+<b>NAVEED TEXTILES</b><br>
 Email: naveedtextiles14@gmail.com
 </div>
 
-<div class="row">
-<div>Bill No: <input id="invoiceNo" readonly></div>
-<div>📅 <input type="date" id="billDate"></div>
-</div>
+
+<hr>
+
+
+<b>Bill No:</b> <span id="invoice"></span><br>
+<b>Date:</b> 📅 <span id="date"></span>
+
+
+<hr>
+
 
 <table id="items">
+<tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr>
 <tr>
-<th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th>
+<td>1</td>
+<td><input></td>
+<td><input type="number" oninput="calc()"></td>
+<td><input type="number" oninput="calc()"></td>
+<td class="amt">0</td>
 </tr>
 </table>
+
+
 <button onclick="addRow()">Add Item</button>
 
-<div class="total-box">
-Discount %: <input id="disc" type="number" value="0" oninput="calc()"><br>
-Paid: <input id="paid" type="number" value="0" oninput="calcBalance()"><br>
-<b id="total">Total: ₹0</b><br>
-<b id="balance">Balance: ₹0</b>
-</div>
 
-<h4>Authorized Signature</h4>
-<canvas id="sign" width="300" height="100"></canvas><br>
+<hr>
+
+
+Discount % <input id="disc" type="number" value="0" oninput="calc()">
+Paid ₹ <input id="paid" type="number" value="0" oninput="calc()">
+
+
+<h3 id="total">Total: ₹0</h3>
+<h3 id="balance">Balance: ₹0</h3>
+
+
+<hr>
+
+
+<b>Authorized Signature</b><br>
+<canvas id="sign" width="300" height="120"></canvas><br>
 <button onclick="clearSign()">Clear Signature</button>
 
-<div class="footer">Web built by Mautasim</div>
+
+<hr>
+
+
+<center>Web built by Mautasim</center>
 </div>
 
-<button onclick="downloadPDF()">Download PDF</button> <button onclick="whatsappPDF()">WhatsApp PDF</button>
+
+<br>
+<button onclick="downloadPDF()">Download PDF</button>
+<button onclick="whatsappPDF()">WhatsApp PDF</button>
+
 
 <script>
+// Invoice + date
+let last = localStorage.getItem('invoice') || 1000;
+last++;
+localStorage.setItem('invoice', last);
+document.getElementById('invoice').innerText = 'INV-' + last;
+document.getElementById('date').innerText = new Date().toISOString().split('T')[0];
+
+
 function addRow(){
 let t=document.getElementById('items');
 let r=t.insertRow();
-r.innerHTML=`<td>${t.rows.length-1}</td><td><input></td><td><input type=number oninput=calc()></td><td><input type=number oninput=calc()></td><td>0</td>`;
+r.innerHTML=`<td>${t.rows.length-1}</td><td><input></td><td><input type=number oninput=calc()></td><td><input type=number oninput=calc()></td><td class=amt>0</td>`;
 }
+
 
 function calc(){
 let sum=0;
@@ -79,49 +94,43 @@ document.querySelectorAll('#items tr').forEach((r,i)=>{
 if(i>0){
 let q=r.cells[2].firstChild.value||0;
 let p=r.cells[3].firstChild.value||0;
-let a=q*p;r.cells[4].innerText=a;sum+=a;
+let a=q*p;
+r.cells[4].innerText=a;
+sum+=a;
 }}
 );
 let d=sum*(disc.value/100);
-document.getElementById('total').innerText='Total: ₹'+(sum-d);
-calcBalance();
+let total=sum-d;
+document.getElementById('total').innerText='Total: ₹'+total;
+let bal=total-(paid.value||0);
+document.getElementById('balance').innerText='Balance: ₹'+(bal>0?bal:0);
 }
 
-function calcBalance(){
-let total=parseFloat(document.getElementById('total').innerText.replace(/[^0-9.]/g,''))||0;
-let paid=parseFloat(document.getElementById('paid').value)||0;
-document.getElementById('balance').innerText='Balance: ₹'+Math.max(total-paid,0);
-}
 
 // Signature
-let c=document.getElementById('sign'),ctx=c.getContext('2d'),draw=false;
-c.onmousedown=e=>{draw=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY)};
-c.onmousemove=e=>{if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()}};
+let c=document.getElementById('sign');
+let ctx=c.getContext('2d');
+let draw=false;
+c.onmousedown=()=>draw=true;
 c.onmouseup=()=>draw=false;
+c.onmousemove=e=>{if(draw){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();}};
 function clearSign(){ctx.clearRect(0,0,c.width,c.height)}
 
-// Invoice No & Date
-let last=localStorage.getItem('inv')||1000;
-last++;localStorage.setItem('inv',last);
-document.getElementById('invoiceNo').value='INV-'+last;
-document.getElementById('billDate').value=new Date().toISOString().split('T')[0];
 
+// PDF
 function downloadPDF(){
-const bill=document.getElementById('bill');
-const clone=bill.cloneNode(true);
-clone.querySelectorAll('input').forEach(i=>{let s=document.createElement('span');s.innerText=i.value;i.replaceWith(s)});
-let img=document.createElement('img');img.src=c.toDataURL();img.style.width='200px';
-clone.querySelector('canvas').replaceWith(img);
-html2pdf().set({filename:'Invoice.pdf',html2canvas:{scale:2,backgroundColor:'#fff'},jsPDF:{format:'a4'}}).from(clone).save();
+html2pdf().set({filename:'Invoice.pdf',html2canvas:{scale:2}}).from(document.getElementById('bill')).save();
 }
+
 
 function whatsappPDF(){
 downloadPDF();
 setTimeout(()=>{
-window.open('https://wa.me/?text=Invoice%20PDF%20generated');
-},2000);
+window.open('https://wa.me/?text=Invoice generated. Please attach PDF');
+},1500);
 }
 </script>
+
 
 </body>
 </html>
