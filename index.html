@@ -38,6 +38,11 @@ button{padding:8px;margin-top:10px;width:100%}
 canvas{border:1px solid #000;width:100%;height:150px;touch-action:none}
 .footer{text-align:center;margin-top:10px;font-size:12px}
 @media print{body{background:#fff}}
+  @media print {
+  button { display: none !important; } /* Hides buttons on the PDF */
+  input { border: none !important; }  /* Removes input boxes for a cleaner look */
+}
+
 </style>
 </head>
 
@@ -216,11 +221,7 @@ async function whatsappPDF() {
         alert('Sharing is not supported on this browser. Please use Download instead.');
     }
 }
-  @media print {
-  button { display: none !important; } /* Hides buttons on the PDF */
-  input { border: none !important; }  /* Removes input boxes for a cleaner look */
-}
-
+  
 </script>
 
 
