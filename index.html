@@ -109,62 +109,120 @@ Phone: 9906403030 / 9906851124
 <button onclick="whatsappPDF()">WhatsApp PDF</button>
 
 <script>
-// Invoice & Date
+// 1. Invoice & Date Logic
 let inv = localStorage.getItem('inv') || 1000;
 inv++;
-localStorage.setItem('inv',inv);
-invoiceNo.value = 'INV-' + inv;
-billDate.value = new Date().toISOString().split('T')[0];
+localStorage.setItem('inv', inv);
+document.getElementById('invoiceNo').value = 'INV-' + inv;
+document.getElementById('billDate').value = new Date().toISOString().split('T')[0];
 
-function addRow(){
- const t=document.getElementById('items');
- const r=t.insertRow();
- r.innerHTML=`<td>${t.rows.length}</td><td><input></td><td><input type=number oninput=calc()></td><td><input type=number oninput=calc()></td><td class=amt>0</td>`;
+// 2. Add Row Function
+function addRow() {
+    const t = document.getElementById('items');
+    const r = t.insertRow();
+    r.innerHTML = `<td>${t.rows.length}</td><td><input></td><td><input type=number oninput=calc()></td><td><input type=number oninput=calc()></td><td class=amt>0</td>`;
 }
 
-function calc(){
- let sum=0;
- document.querySelectorAll('#items tr').forEach(r=>{
-  let q=r.cells[2].querySelector('input').value||0;
-  let p=r.cells[3].querySelector('input').value||0;
-  let a=q*p;
-  r.querySelector('.amt').innerText=a;
-  sum+=a;
- });
- let d=sum*(disc.value||0)/100;
- let g=(sum-d)*(gst.value||0)/100;
- let total=sum-d+g;
- totalEl=`Total: ₹${total}`;
- totalDiv=document.getElementById('total');
- totalDiv.innerText=totalEl;
- balance.innerText='Balance: ₹'+(total-(paid.value||0));
+// 3. Calculation Logic (Fixed to 2 decimal places)
+function calc() {
+    let sum = 0;
+    document.querySelectorAll('#items tr').forEach(r => {
+        let q = r.cells[2].querySelector('input').value || 0;
+        let p = r.cells[3].querySelector('input').value || 0;
+        let a = q * p;
+        r.querySelector('.amt').innerText = a.toFixed(2);
+        sum += a;
+    });
+    let d = sum * (document.getElementById('disc').value || 0) / 100;
+    let g = (sum - d) * (document.getElementById('gst').value || 0) / 100;
+    let total = sum - d + g;
+    document.getElementById('total').innerText = `Total: ₹${total.toFixed(2)}`;
+    document.getElementById('balance').innerText = 'Balance: ₹' + (total - (document.getElementById('paid').value || 0)).toFixed(2);
 }
 
-// Signature
-const canvas=document.getElementById('sign');
-const ctx=canvas.getContext('2d');
-let draw=false;
-function pos(e){const r=canvas.getBoundingClientRect();if(e.touches)return{x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top};return{x:e.offsetX,y:e.offsetY}}
-canvas.onmousedown=e=>{draw=true;ctx.beginPath();let p=pos(e);ctx.moveTo(p.x,p.y)};
-canvas.onmousemove=e=>{if(!draw)return;let p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};
-canvas.onmouseup=()=>draw=false;
-canvas.ontouchstart=e=>{draw=true;ctx.beginPath();let p=pos(e);ctx.moveTo(p.x,p.y)};
-canvas.ontouchmove=e=>{e.preventDefault();if(!draw)return;let p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke()};
-canvas.ontouchend=()=>draw=false;
-function clearSign(){ctx.clearRect(0,0,canvas.width,canvas.height)}
+// 4. Fixed Signature Logic (Fixes the Desktop "Sign Error")
+const canvas = document.getElementById('sign');
+const ctx = canvas.getContext('2d');
+let draw = false;
 
-async function makePDF(){
- const el=document.getElementById('pdfWrapper');
- const c=await html2canvas(el,{scale:2});
- const img=c.toDataURL('image/png');
- const {jsPDF}=window.jspdf;
- const pdf=new jsPDF('p','mm','a4');
- pdf.addImage(img,'PNG',5,5,200,0);
- return pdf;
+function initCanvas() {
+    // This part ensures the drawing matches the mouse position exactly
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#000';
 }
-async function downloadPDF(){const pdf=await makePDF();pdf.save('Invoice.pdf')}
-async function whatsappPDF(){const pdf=await makePDF();const b=pdf.output('blob');const f=new File([b],'Invoice.pdf',{type:'application/pdf'});if(navigator.share){navigator.share({files:[f],title:'Invoice'})}else alert('Share not supported');}
+
+// Initialize canvas on load and when window resizes
+window.addEventListener('load', initCanvas);
+window.addEventListener('resize', initCanvas);
+
+function pos(e) {
+    const r = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - r.left, y: clientY - r.top };
+}
+
+const start = (e) => { draw = true; ctx.beginPath(); let p = pos(e); ctx.moveTo(p.x, p.y); };
+const move = (e) => { if (!draw) return; e.preventDefault(); let p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+const stop = () => { draw = false; };
+
+canvas.addEventListener('mousedown', start);
+canvas.addEventListener('mousemove', move);
+window.addEventListener('mouseup', stop);
+canvas.addEventListener('touchstart', start, {passive: false});
+canvas.addEventListener('touchmove', move, {passive: false});
+canvas.addEventListener('touchend', stop);
+
+function clearSign() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+// 5. Improved PDF Generation (Fixes the Mobile "Cutting Off" Error)
+async function makePDF() {
+    const el = document.getElementById('pdfWrapper');
+    
+    // TEMPORARY: Force the bill to look like desktop so it captures fully
+    const originalWidth = el.style.width;
+    el.style.width = '794px'; 
+
+    const c = await html2canvas(el, {
+        scale: 2, // High quality
+        useCORS: true,
+        logging: false,
+        windowWidth: 794 // Ensures full width capture
+    });
+
+    el.style.width = originalWidth; // Reset back to mobile view
+
+    const img = c.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    
+    // Adjust image to fit A4 width (210mm)
+    pdf.addImage(img, 'PNG', 0, 0, 210, (c.height * 210) / c.width);
+    return pdf;
+}
+
+async function downloadPDF() { const pdf = await makePDF(); pdf.save('Invoice.pdf'); }
+async function whatsappPDF() { 
+    const pdf = await makePDF(); 
+    const b = pdf.output('blob'); 
+    const f = new File([b], 'Invoice.pdf', { type: 'application/pdf' }); 
+    if (navigator.share) { 
+        navigator.share({ files: [f], title: 'Invoice' }).catch(err => console.log(err)); 
+    } else {
+        alert('Sharing is not supported on this browser. Please use Download instead.');
+    }
+}
+  @media print {
+  button { display: none !important; } /* Hides buttons on the PDF */
+  input { border: none !important; }  /* Removes input boxes for a cleaner look */
+}
+
 </script>
+
 
 </body>
 </html>
