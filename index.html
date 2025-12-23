@@ -9,45 +9,50 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{font-family:Arial;background:#f2f2f2;margin:0;padding:10px}
+body{font-family:Arial, sans-serif;background:#f2f2f2;margin:0;padding:10px}
 #pdfWrapper{
   width: 100%;
   max-width: 794px;
   margin: auto;
   background: white;
-  padding: 12px;
+  padding: 15px;
   box-sizing: border-box;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 .header{text-align:center}
 .header img{max-width:120px; border-radius: 50%;}
-.box{border:1px solid #000;padding:8px;margin-top:8px}
+.box{border:1px solid #000;padding:10px;margin-top:10px}
 
 /* Mobile Responsive Flex */
 .flex{display:flex;gap:10px;flex-wrap:wrap; flex-direction: column;}
 @media (min-width: 600px) { .flex { flex-direction: row; } }
 .flex > div{flex:1}
 
-input{width:100%;padding:8px;box-sizing:border-box; border: 1px solid #ccc; border-radius: 4px;}
+input{width:100%;padding:8px;box-sizing:border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;}
 
 /* Scrollable table for small screens */
 .table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
 table{width:100%;border-collapse:collapse; min-width: 500px;}
-th,td{border:1px solid #000;padding:6px;text-align:center}
+th,td{border:1px solid #000;padding:8px;text-align:center}
 
-button{padding:10px;margin-top:10px;width:100%; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;}
+button{padding:12px;margin-top:10px;width:100%; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: 0.3s;}
 .btn-add { background: #607d8b; color: white; }
 .btn-download { background: #4CAF50; color: white; }
 .btn-whatsapp { background: #25D366; color: white; }
 .btn-new { background: #2196F3; color: white; }
+button:active { opacity: 0.8; }
 
-canvas{border:1px solid #000; width:100%; height: 150px; touch-action:none; background: #fafafa;}
-.footer{text-align:center;margin-top:15px;font-size:12px; color: #666;}
+canvas{border:1px solid #000; width:100%; height: 160px; touch-action:none; background: #fafafa; margin-top: 5px;}
+.footer{text-align:center;margin-top:20px;font-size:12px; color: #666;}
 
-/* Print/PDF Hide buttons */
+/* Utility classes */
+.no-print { display: block; }
+
 @media print {
-  button, .no-print { display: none !important; }
-  input { border: none !important; }
+  .no-print { display: none !important; }
+  body { background: white; padding: 0; }
+  #pdfWrapper { box-shadow: none; border: none; width: 100%; }
 }
 </style>
 </head>
@@ -56,8 +61,8 @@ canvas{border:1px solid #000; width:100%; height: 150px; touch-action:none; back
 
 <div id="pdfWrapper">
     <div class="header">
-      <img src="logo.png" alt="Logo">
-      <h2>NAVEED TEXTILES</h2>
+      <img src="logo.png" alt="Naveed Textiles Logo">
+      <h1 style="margin: 10px 0;">NAVEED TEXTILES</h1>
     </div>
 
     <div class="box">
@@ -66,27 +71,33 @@ canvas{border:1px solid #000; width:100%; height: 150px; touch-action:none; back
     </div>
 
     <div class="box flex">
-      <div>Customer Name<input id="custName"></div>
-      <div>Phone<input id="custPhone"></div>
-      <div>Address<input id="custaddress"></div>
+      <div>Customer Name<input id="custName" placeholder="Enter name"></div>
+      <div>Phone<input id="custPhone" placeholder="Enter phone"></div>
+      <div>Address<input id="custaddress" placeholder="Enter address"></div>
     </div>
 
     <div class="box flex">
       <div>Bill No<input id="invoiceNo" readonly></div>
-      <div>Date<input id="billDate" readonly></div>
+      <div>Date<input id="billDate" type="date"></div>
     </div>
 
     <div class="table-container">
         <table>
             <thead>
-                <tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Amount</th></tr>
+                <tr style="background: #f0f0f0;">
+                    <th style="width: 40px;">#</th>
+                    <th>Item Description</th>
+                    <th style="width: 80px;">Qty</th>
+                    <th style="width: 100px;">Price</th>
+                    <th style="width: 120px;">Amount</th>
+                </tr>
             </thead>
             <tbody id="items">
                 <tr>
                     <td>1</td>
-                    <td><input></td>
-                    <td><input type="number" oninput="calc()"></td>
-                    <td><input type="number" oninput="calc()"></td>
+                    <td><input placeholder="Item name"></td>
+                    <td><input type="number" value="1" oninput="calc()"></td>
+                    <td><input type="number" value="0" oninput="calc()"></td>
                     <td class="amt">0.00</td>
                 </tr>
             </tbody>
@@ -101,35 +112,39 @@ canvas{border:1px solid #000; width:100%; height: 150px; touch-action:none; back
       <div>Paid ₹<input id="paid" type="number" value="0" oninput="calc()"></div>
     </div>
 
-    <div class="box" style="background: #f9f9f9;">
-        <h3 id="total" style="margin: 5px 0;">Total: ₹0.00</h3>
-        <h3 id="balance" style="margin: 5px 0; color: #d32f2f;">Balance: ₹0.00</h3>
+    <div class="box" style="background: #fdfdfd;">
+        <h2 id="total" style="margin: 5px 0; color: #2c3e50;">Total: ₹0.00</h2>
+        <h3 id="balance" style="margin: 5px 0; color: #d32f2f;">Balance Due: ₹0.00</h3>
     </div>
 
     <div class="box">
       <h3 style="margin-top: 0;">Authorized Signature</h3>
       <canvas id="sign"></canvas>
-      <button class="no-print" style="background:#eee; color:#333; font-size: 12px; padding: 5px;" onclick="clearSign()">Clear Signature</button>
+      <button class="no-print" style="background:#f1f1f1; color:#333; font-size: 12px; padding: 5px; width: auto; margin-top: 5px;" onclick="clearSign()">Clear Signature</button>
     </div>
 
-    <div class="footer">Built by Mautasim</div>
+    <div class="footer">Web built by Mautasim</div>
 </div>
 
-<div style="max-width: 794px; margin: 10px auto; display: flex; gap: 10px; flex-wrap: wrap;" class="no-print">
+<div style="max-width: 794px; margin: 15px auto; display: flex; gap: 10px; flex-wrap: wrap;" class="no-print">
     <button class="btn-download" style="flex: 1;" onclick="downloadPDF()">Download PDF</button>
-    <button class="btn-whatsapp" style="flex: 1;" onclick="whatsappPDF()">WhatsApp Bill</button>
-    <button class="btn-new" style="flex: 1;" onclick="resetForm()">New Bill</button>
+    <button class="btn-whatsapp" style="flex: 1;" onclick="whatsappPDF()">Share via WhatsApp</button>
+    <button class="btn-new" style="flex: 1;" onclick="resetForm()">New Invoice</button>
 </div>
 
 <div id="historySection" class="no-print" style="max-width: 794px; margin: 20px auto; background: white; padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
-    <h3 style="margin-top:0;">Bill History</h3>
-    <input type="text" id="searchInput" onkeyup="filterHistory()" placeholder="Search Name or Bill No..." style="margin-bottom: 10px;">
+    <h3 style="margin-top:0; border-bottom: 2px solid #2196F3; padding-bottom: 5px;">Invoice History</h3>
+    <input type="text" id="searchInput" onkeyup="filterHistory()" placeholder="Search by name or bill number..." style="margin-bottom: 15px;">
     
     <div style="overflow-x: auto;">
         <table id="historyTable" style="min-width: 100%;">
             <thead>
                 <tr style="background: #eee;">
-                    <th>No</th><th>Date</th><th>Customer</th><th>Total</th><th>Action</th>
+                    <th>Bill No</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Total Amount</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="historyBody"></tbody>
@@ -147,27 +162,32 @@ function init() {
     initCanvas();
 }
 
-function addRow(name='', qty='', price='') {
+function addRow(name='', qty='1', price='0') {
     const t = document.getElementById('items');
     const r = t.insertRow();
-    r.innerHTML = `<td>${t.rows.length}</td><td><input value="${name}"></td><td><input type="number" value="${qty}" oninput="calc()"></td><td><input type="number" value="${price}" oninput="calc()"></td><td class="amt">0.00</td>`;
+    r.innerHTML = `
+        <td>${t.rows.length}</td>
+        <td><input value="${name}"></td>
+        <td><input type="number" value="${qty}" oninput="calc()"></td>
+        <td><input type="number" value="${price}" oninput="calc()"></td>
+        <td class="amt">0.00</td>`;
     calc();
 }
 
 function calc() {
     let sum = 0;
     document.querySelectorAll('#items tr').forEach(r => {
-        let q = r.cells[2].querySelector('input').value || 0;
-        let p = r.cells[3].querySelector('input').value || 0;
+        let q = parseFloat(r.cells[2].querySelector('input').value) || 0;
+        let p = parseFloat(r.cells[3].querySelector('input').value) || 0;
         let a = q * p;
         r.querySelector('.amt').innerText = a.toFixed(2);
         sum += a;
     });
-    let d = sum * (document.getElementById('disc').value || 0) / 100;
-    let g = (sum - d) * (document.getElementById('gst').value || 0) / 100;
+    let d = sum * (parseFloat(document.getElementById('disc').value) || 0) / 100;
+    let g = (sum - d) * (parseFloat(document.getElementById('gst').value) || 0) / 100;
     let total = sum - d + g;
     document.getElementById('total').innerText = `Total: ₹${total.toFixed(2)}`;
-    document.getElementById('balance').innerText = 'Balance: ₹' + (total - (document.getElementById('paid').value || 0)).toFixed(2);
+    document.getElementById('balance').innerText = 'Balance Due: ₹' + (total - (parseFloat(document.getElementById('paid').value) || 0)).toFixed(2);
 }
 
 function saveBill() {
@@ -179,17 +199,27 @@ function saveBill() {
     });
 
     const billData = {
-        id: billId, date: document.getElementById('billDate').value,
-        name: document.getElementById('custName').value, phone: document.getElementById('custPhone').value,
-        address: document.getElementById('custaddress').value, items: items,
-        disc: document.getElementById('disc').value, gst: document.getElementById('gst').value,
-        paid: document.getElementById('paid').value, total: document.getElementById('total').innerText
+        id: billId, 
+        date: document.getElementById('billDate').value,
+        name: document.getElementById('custName').value, 
+        phone: document.getElementById('custPhone').value,
+        address: document.getElementById('custaddress').value, 
+        items: items,
+        disc: document.getElementById('disc').value, 
+        gst: document.getElementById('gst').value,
+        paid: document.getElementById('paid').value, 
+        total: document.getElementById('total').innerText
     };
 
     let history = JSON.parse(localStorage.getItem('billHistory') || '[]');
     const idx = history.findIndex(b => b.id === billId);
-    if (idx > -1) { history[idx] = billData; } 
-    else { history.push(billData); inv++; localStorage.setItem('inv', inv); }
+    if (idx > -1) { 
+        history[idx] = billData; 
+    } else { 
+        history.push(billData); 
+        inv++; 
+        localStorage.setItem('inv', inv); 
+    }
     
     localStorage.setItem('billHistory', JSON.stringify(history));
     loadHistory();
@@ -201,9 +231,15 @@ function loadHistory() {
     body.innerHTML = '';
     history.slice().reverse().forEach(bill => {
         const row = body.insertRow();
-        row.innerHTML = `<td>${bill.id}</td><td>${bill.date}</td><td>${bill.name}</td><td>${bill.total}</td>
-        <td><button onclick="editBill('${bill.id}')" style="background:orange; color:white; padding:4px; width:auto; margin:2px;">Edit</button>
-        <button onclick="deleteBill('${bill.id}')" style="background:red; color:white; padding:4px; width:auto; margin:2px;">Del</button></td>`;
+        row.innerHTML = `
+            <td>${bill.id}</td>
+            <td>${bill.date}</td>
+            <td>${bill.name || 'N/A'}</td>
+            <td>${bill.total}</td>
+            <td>
+                <button onclick="editBill('${bill.id}')" style="background:orange; color:white; padding:5px 10px; width:auto; margin:2px;">Edit</button>
+                <button onclick="deleteBill('${bill.id}')" style="background:red; color:white; padding:5px 10px; width:auto; margin:2px;">Del</button>
+            </td>`;
     });
 }
 
@@ -212,6 +248,7 @@ function editBill(id) {
     const b = history.find(x => x.id === id);
     if (!b) return;
     document.getElementById('invoiceNo').value = b.id;
+    document.getElementById('billDate').value = b.date;
     document.getElementById('custName').value = b.name;
     document.getElementById('custPhone').value = b.phone;
     document.getElementById('custaddress').value = b.address;
@@ -220,11 +257,12 @@ function editBill(id) {
     document.getElementById('paid').value = b.paid;
     document.getElementById('items').innerHTML = '';
     b.items.forEach(i => addRow(i.name, i.qty, i.price));
+    calc();
     window.scrollTo(0,0);
 }
 
 function deleteBill(id) {
-    if(confirm("Delete this bill?")) {
+    if(confirm("Are you sure you want to delete this invoice?")) {
         let history = JSON.parse(localStorage.getItem('billHistory') || '[]');
         localStorage.setItem('billHistory', JSON.stringify(history.filter(x => x.id !== id)));
         loadHistory();
@@ -240,56 +278,117 @@ function filterHistory() {
 }
 
 function resetForm() {
-    if(!confirm("Start a new bill?")) return;
+    if(!confirm("Clear all fields and start a new bill?")) return;
     inv = parseInt(localStorage.getItem('inv')) || 1000;
     document.getElementById('invoiceNo').value = 'INV-' + (inv + 1);
     document.getElementById('custName').value = '';
+    document.getElementById('custPhone').value = '';
+    document.getElementById('custaddress').value = '';
     document.getElementById('items').innerHTML = '';
     addRow(); 
     document.getElementById('disc').value = 0;
     document.getElementById('gst').value = 0;
     document.getElementById('paid').value = 0;
-    clearSign(); calc();
+    clearSign(); 
+    calc();
 }
 
-// Canvas
+// Signature Canvas Logic
 const canvas = document.getElementById('sign');
 const ctx = canvas.getContext('2d');
 let drawing = false;
-function initCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; ctx.lineWidth = 2; ctx.lineCap = 'round'; }
+
+function initCanvas() { 
+    canvas.width = canvas.offsetWidth; 
+    canvas.height = canvas.offsetHeight; 
+    ctx.lineWidth = 2; 
+    ctx.lineCap = 'round'; 
+    ctx.strokeStyle = '#000';
+}
+
 const getPos = (e) => {
     const r = canvas.getBoundingClientRect();
     const cx = e.touches ? e.touches[0].clientX : e.clientX;
     const cy = e.touches ? e.touches[0].clientY : e.clientY;
     return { x: cx - r.left, y: cy - r.top };
 };
+
 canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
 canvas.addEventListener('mousemove', (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
 window.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }, {passive:false});
-canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, {passive:false});
+
+canvas.addEventListener('touchstart', (e) => { 
+    e.preventDefault(); 
+    drawing = true; 
+    ctx.beginPath(); 
+    const p = getPos(e); 
+    ctx.moveTo(p.x, p.y); 
+}, {passive:false});
+
+canvas.addEventListener('touchmove', (e) => { 
+    e.preventDefault(); 
+    if(!drawing) return; 
+    const p = getPos(e); 
+    ctx.lineTo(p.x, p.y); 
+    ctx.stroke(); 
+}, {passive:false});
+
 function clearSign() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-// PDF
+// PDF GENERATION LOGIC - FIXED FOR FULL CAPTURE
 async function makePDF() {
     const el = document.getElementById('pdfWrapper');
-    const c = await html2canvas(el, { scale: 2, useCORS: true, windowWidth: 794 });
-    const img = c.toDataURL('image/png');
-    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-    pdf.addImage(img, 'PNG', 0, 0, 210, (c.height * 210) / c.width);
+    
+    // Step 1: Force full height capture
+    const c = await html2canvas(el, {
+        scale: 2,           // Improve quality
+        useCORS: true,      // Allow logo images
+        scrollY: -window.scrollY, 
+        windowWidth: 794,   // Capture at standard desktop width
+        height: el.offsetHeight, // Capture actual height of the container
+        onclone: (clonedDoc) => {
+            // Ensure inputs look clean in the capture
+            const clonedWrapper = clonedDoc.getElementById('pdfWrapper');
+            clonedWrapper.style.boxShadow = 'none';
+            clonedWrapper.style.border = 'none';
+        }
+    });
+
+    const imgData = c.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    
+    // Calculate sizing to fit A4
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     return pdf;
 }
 
-async function downloadPDF() { saveBill(); const pdf = await makePDF(); pdf.save(document.getElementById('invoiceNo').value + '.pdf'); }
+async function downloadPDF() { 
+    saveBill(); 
+    const pdf = await makePDF(); 
+    pdf.save(document.getElementById('invoiceNo').value + '.pdf'); 
+}
+
 async function whatsappPDF() {
-    saveBill(); const pdf = await makePDF();
-    const b = pdf.output('blob');
-    const f = new File([b], 'Invoice.pdf', { type: 'application/pdf' });
-    if (navigator.share) { navigator.share({ files: [f], title: 'Bill' }); } 
-    else { alert("Use Chrome/Safari to share directly."); }
+    saveBill(); 
+    const pdf = await makePDF();
+    const blob = pdf.output('blob');
+    const file = new File([blob], 'Invoice.pdf', { type: 'application/pdf' });
+    
+    if (navigator.share) { 
+        navigator.share({ files: [file], title: 'Invoice from Naveed Textiles' }); 
+    } else { 
+        alert("Web Share is not supported on this browser. Try Chrome on Android."); 
+    }
 }
 
 window.onload = init;
+// Handle window resize for canvas
+window.onresize = initCanvas;
 </script>
 </body>
 </html>
