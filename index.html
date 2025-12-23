@@ -114,14 +114,18 @@ Phone: 9906403030 / 9906851124
 
 <button onclick="downloadPDF()">Download PDF</button>
 <button onclick="whatsappPDF()">WhatsApp PDF</button>
-<script>// --- 1. Initialization ---
+<script> // --- 1. Initialization & State ---
 let inv = parseInt(localStorage.getItem('inv')) || 1000;
-document.getElementById('invoiceNo').value = 'INV-' + (inv + 1);
-document.getElementById('billDate').value = new Date().toISOString().split('T')[0];
-loadHistory();
 
-// --- 2. Core Logic ---
-function addRow(item = '', qty = '', price = '', amt = '0.00') {
+function init() {
+    document.getElementById('invoiceNo').value = 'INV-' + (inv + 1);
+    document.getElementById('billDate').value = new Date().toISOString().split('T')[0];
+    loadHistory();
+    initCanvas();
+}
+
+// --- 2. Core Billing Logic ---
+function addRow(item = '', qty = '', price = '') {
     const t = document.getElementById('items');
     const r = t.insertRow();
     r.innerHTML = `
@@ -129,7 +133,8 @@ function addRow(item = '', qty = '', price = '', amt = '0.00') {
         <td><input value="${item}"></td>
         <td><input type="number" value="${qty}" oninput="calc()"></td>
         <td><input type="number" value="${price}" oninput="calc()"></td>
-        <td class="amt">${amt}</td>`;
+        <td class="amt">0.00</td>`;
+    calc();
 }
 
 function calc() {
@@ -148,7 +153,22 @@ function calc() {
     document.getElementById('balance').innerText = 'Balance: ₹' + (total - (document.getElementById('paid').value || 0)).toFixed(2);
 }
 
-// --- 3. Save & History Logic ---
+function resetForm() {
+    inv = parseInt(localStorage.getItem('inv')) || 1000;
+    document.getElementById('invoiceNo').value = 'INV-' + (inv + 1);
+    document.getElementById('custName').value = '';
+    document.getElementById('custPhone').value = '';
+    document.getElementById('custaddress').value = '';
+    document.getElementById('items').innerHTML = '';
+    addRow(); 
+    document.getElementById('disc').value = 0;
+    document.getElementById('gst').value = 0;
+    document.getElementById('paid').value = 0;
+    clearSign();
+    calc();
+}
+
+// --- 3. History & Editing Logic ---
 function saveBill() {
     const billId = document.getElementById('invoiceNo').value;
     const items = [];
@@ -174,13 +194,14 @@ function saveBill() {
     };
 
     let history = JSON.parse(localStorage.getItem('billHistory') || '[]');
-    // Check if we are updating an existing bill or adding a new one
     const index = history.findIndex(b => b.id === billId);
+    
     if (index > -1) {
         history[index] = billData;
     } else {
         history.push(billData);
-        localStorage.setItem('inv', inv + 1); // Only increment if it's a new bill
+        inv++;
+        localStorage.setItem('inv', inv);
     }
     
     localStorage.setItem('billHistory', JSON.stringify(history));
@@ -191,14 +212,14 @@ function loadHistory() {
     const history = JSON.parse(localStorage.getItem('billHistory') || '[]');
     const body = document.getElementById('historyBody');
     body.innerHTML = '';
-    history.reverse().forEach(bill => {
+    history.slice().reverse().forEach(bill => {
         const row = body.insertRow();
         row.innerHTML = `
             <td>${bill.id}</td>
             <td>${bill.date}</td>
             <td>${bill.name}</td>
             <td>${bill.total}</td>
-            <td><button onclick="editBill('${bill.id}')" style="background:orange; color:white; width:auto; padding:4px 8px;">Edit</button></td>
+            <td><button onclick="editBill('${bill.id}')" style="background:orange; color:white; padding:4px; margin:0; width:auto;">Edit</button></td>
         `;
     });
 }
@@ -208,7 +229,6 @@ function editBill(id) {
     const bill = history.find(b => b.id === id);
     if (!bill) return;
 
-    // Fill fields
     document.getElementById('invoiceNo').value = bill.id;
     document.getElementById('billDate').value = bill.date;
     document.getElementById('custName').value = bill.name;
@@ -218,22 +238,67 @@ function editBill(id) {
     document.getElementById('gst').value = bill.gst;
     document.getElementById('paid').value = bill.paid;
 
-    // Clear and refill items
-    const table = document.getElementById('items');
-    table.innerHTML = '';
+    document.getElementById('items').innerHTML = '';
     bill.items.forEach(item => addRow(item.name, item.qty, item.price));
-    calc();
-    window.scrollTo(0,0);
+    window.scrollTo(0, 0);
 }
 
-// --- 4. Signature & PDF (Updated to trigger Save) ---
-// ... (Keep your existing Signature Canvas code here) ...
+// --- 4. Signature Logic ---
+const canvas = document.getElementById('sign');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+
+function initCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+}
+
+const getPos = (e) => {
+    const r = canvas.getBoundingClientRect();
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: cx - r.left, y: cy - r.top };
+};
+
+canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+canvas.addEventListener('mousemove', (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+window.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }, {passive:false});
+canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, {passive:false});
+
+function clearSign() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+// --- 5. PDF Generation ---
+async function makePDF() {
+    const el = document.getElementById('pdfWrapper');
+    const c = await html2canvas(el, { scale: 2, useCORS: true });
+    const img = c.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    pdf.addImage(img, 'PNG', 0, 0, 210, (c.height * 210) / c.width);
+    return pdf;
+}
 
 async function downloadPDF() { 
-    saveBill(); // Auto-save when downloading
+    saveBill(); 
     const pdf = await makePDF(); 
-    pdf.save(`${document.getElementById('invoiceNo').value}.pdf`); 
+    pdf.save(document.getElementById('invoiceNo').value + '.pdf'); 
 }
+
+async function whatsappPDF() {
+    saveBill();
+    const pdf = await makePDF();
+    const b = pdf.output('blob');
+    const f = new File([b], 'Invoice.pdf', { type: 'application/pdf' });
+    if (navigator.share) {
+        navigator.share({ files: [f], title: 'Invoice' });
+    } else { alert("Share not supported"); }
+}
+
+// Run init on load
+window.onload = init;
 </script>
 
 <hr>
