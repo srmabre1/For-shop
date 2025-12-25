@@ -9,38 +9,39 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{font-family:'Segoe UI', sans-serif; background:#f4f7f6; margin:0; padding:10px}
-#pdfWrapper{ width: 100%; max-width: 794px; margin: auto; background: white; padding: 20px; box-sizing: border-box; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
+body{font-family:Arial, sans-serif;background:#f2f2f2;margin:0;padding:10px}
+#pdfWrapper{
+  width: 100%; max-width: 794px; margin: auto; background: white; padding: 15px; box-sizing: border-box; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
 
-/* BRANDING */
-.header h1 { background: #1a73e8; color: white; padding: 15px; border-radius: 6px; text-align: center; margin: 10px 0; }
-.box{border: 1px solid #ddd; padding:12px; margin-top:12px; border-radius: 5px;}
-.flex{display:flex; gap:12px; flex-wrap:wrap; flex-direction: column;}
+.header{text-align:center}
+.header img{max-width:110px; border-radius: 50%;}
+.header h1 { background: #2196F3; color: white; padding: 10px; border-radius: 5px; margin: 10px 0; }
+
+.box{border:1px solid #000;padding:10px;margin-top:10px}
+.flex{display:flex;gap:10px;flex-wrap:wrap; flex-direction: column;}
 @media (min-width: 600px) { .flex { flex-direction: row; } }
 .flex > div{flex:1}
 
-input{width:100%; padding:10px; box-sizing:border-box; border: 1px solid #ccc; border-radius: 4px;}
-.table-container { width: 100%; overflow-x: auto; margin-top: 15px; }
-table{width:100%; border-collapse:collapse; min-width: 600px;}
-th, td{border: 1px solid #ddd; padding: 10px; text-align: center;}
+input{width:100%;padding:8px;box-sizing:border-box; border: 1px solid #ccc; border-radius: 4px;}
+.table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
+table{width:100%;border-collapse:collapse; min-width: 500px;}
+th,td{border:1px solid #000;padding:8px;text-align:center}
 
-button{padding:12px; margin-top:10px; width:100%; cursor: pointer; border: none; border-radius: 6px; font-weight: bold;}
-.btn-success { background: #28a745; color: white; }
-.btn-primary { background: #1a73e8; color: white; }
+button{padding:12px;margin-top:10px;width:100%; cursor: pointer; border: none; border-radius: 4px; font-weight: bold;}
+.btn-add { background: #607d8b; color: white; }
+.btn-download { background: #4CAF50; color: white; }
+.btn-whatsapp { background: #25D366; color: white; }
+.btn-new { background: #2196F3; color: white; }
 
-canvas{border:1px solid #000; width:100%; height: 150px; background: #fafafa; touch-action: none;}
+canvas{border:1px solid #000; width:100%; height: 160px; touch-action:none; background: #fafafa; margin-top: 5px;}
 
-/* BUILDER IDENTITY - FIXED */
-.builder-tag { 
-    text-align: center; 
-    margin-top: 30px; 
-    padding: 10px; 
-    background: #202124; 
-    color: #f4b400; 
-    font-size: 12px;
-    border-radius: 4px;
-    letter-spacing: 1px;
-}
+/* BUILDER TAG */
+.builder-tag { text-align: center; margin-top: 20px; padding: 10px; background: #f9f9f9; border-top: 1px dashed #ccc; font-size: 14px; }
+.builder-tag strong { color: #2196F3; }
+
+.no-print { display: block; }
+@media print { .no-print { display: none !important; } }
 </style>
 </head>
 
@@ -48,28 +49,41 @@ canvas{border:1px solid #000; width:100%; height: 150px; background: #fafafa; to
 
 <div id="pdfWrapper">
     <div class="header">
-      <h1 id="mainTitle">NAVEED TEXTILES</h1>
+      <img src="logo.png" alt="Logo">
+      <h1>NAVEED TEXTILES</h1>
+    </div>
+
+    <div class="box">
+      <strong>Email:</strong> naveedtextiles14@gmail.com<br>
+      <strong>Phone:</strong> 9906403030 / 9906851124
     </div>
 
     <div class="box flex">
-      <div>Customer Name<input id="custName"></div>
-      <div>Phone<input id="custPhone"></div>
+      <div>Customer Name<input id="custName" placeholder="Enter name"></div>
+      <div>Phone<input id="custPhone" placeholder="Enter phone"></div>
+      <div>Address<input id="custaddress" placeholder="Enter address"></div>
     </div>
 
     <div class="box flex">
-      <div>Bill No<input id="invoiceNo" readonly style="background:#eee;"></div>
+      <div>Bill No<input id="invoiceNo" readonly></div>
       <div>Date<input id="billDate" type="date"></div>
     </div>
 
     <div class="table-container">
         <table>
             <thead>
-                <tr><th>#</th><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+                <tr style="background: #f0f0f0;">
+                    <th style="width: 40px;">#</th>
+                    <th>Item Description</th>
+                    <th style="width: 80px;">Qty</th>
+                    <th style="width: 100px;">Price</th>
+                    <th style="width: 120px;">Amount</th>
+                </tr>
             </thead>
             <tbody id="items">
                 <tr>
                     <td>1</td>
-                    <td><input></td>
+                    <td><input placeholder="Item name"></td>
                     <td><input type="number" value="1" oninput="calc()"></td>
                     <td><input type="number" value="0" oninput="calc()"></td>
                     <td class="amt">0.00</td>
@@ -78,56 +92,65 @@ canvas{border:1px solid #000; width:100%; height: 150px; background: #fafafa; to
         </table>
     </div>
 
-    <button class="no-print" onclick="addRow()">+ Add Line</button>
+    <button class="btn-add no-print" onclick="addRow()">+ Add Item Row</button>
 
-    <div class="box" style="background: #f8f9fa;">
-        <h2 id="total">Total: ₹0.00</h2>
+    <div class="box flex">
+      <div>Discount %<input id="disc" type="number" value="0" oninput="calc()"></div>
+      <div>GST %<input id="gst" type="number" value="0" oninput="calc()"></div>
+      <div>Paid ₹<input id="paid" type="number" value="0" oninput="calc()"></div>
+    </div>
+
+    <div class="box" style="background: #fdfdfd;">
+        <h2 id="total" style="margin: 5px 0;">Total: ₹0.00</h2>
+        <h3 id="balance" style="margin: 5px 0; color: #d32f2f;">Balance Due: ₹0.00</h3>
     </div>
 
     <div class="box">
+      <h3 style="margin-top: 0;">Authorized Signature</h3>
       <canvas id="sign"></canvas>
+      <button class="no-print" style="background:#f1f1f1; color:#333; font-size: 11px; width:auto;" onclick="clearSign()">Clear Signature</button>
     </div>
 
     <div class="builder-tag">
-        SOFTWARE ARCHITECT: MAUTASIM | VERSION 2.0.5
+        Web built by <strong>Mautasim</strong>
     </div>
 </div>
 
-<div style="max-width: 794px; margin: 15px auto; display: flex; gap: 10px;" class="no-print">
-    <button class="btn-success" onclick="processBill('download')">Download & Record</button>
-    <button class="btn-primary" onclick="processBill('whatsapp')">WhatsApp & Record</button>
+<div style="max-width: 794px; margin: 15px auto; display: flex; gap: 10px; flex-wrap: wrap;" class="no-print">
+    <button class="btn-download" style="flex: 1;" onclick="processBill('download')">Download PDF</button>
+    <button class="btn-whatsapp" style="flex: 1;" onclick="processBill('whatsapp')">WhatsApp</button>
+    <button class="btn-new" style="flex: 1;" onclick="resetForm()">New Invoice</button>
+</div>
+
+<div id="historySection" class="no-print" style="max-width: 794px; margin: 20px auto; background: white; padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
+    <h3>Invoice History</h3>
+    <div style="overflow-x: auto;">
+        <table id="historyTable" style="min-width: 100%;">
+            <thead><tr style="background: #eee;"><th>Bill No</th><th>Date</th><th>Customer</th><th>Total</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-// --- BUILDER'S CLOUD RECORDING LOGIC ---
-const BUILDER_NAME = "Mautasim";
-
-async function syncToBuilder(billData) {
-    console.log("Mautasim: Recording transaction...", billData);
-    
-    // NOTE: In a real production app, you would put your Webhook URL here
-    // Example: fetch('https://your-api.com/record', { method: 'POST', body: JSON.stringify(billData) });
-    
-    // For now, we store a 'Master Log' in a separate hidden LocalStorage key 
-    // that the customer doesn't know about.
-    let masterLog = JSON.parse(localStorage.getItem('mautasim_master_records') || '[]');
-    masterLog.push({
-        builder: BUILDER_NAME,
-        timestamp: new Date().toLocaleString(),
-        ...billData
-    });
-    localStorage.setItem('mautasim_master_records', JSON.stringify(masterLog));
-}
-
-// --- STANDARD LOGIC ---
 let inv = parseInt(localStorage.getItem('inv')) || 1000;
 
 function init() {
     document.getElementById('invoiceNo').value = 'INV-' + (inv + 1);
     document.getElementById('billDate').value = new Date().toISOString().split('T')[0];
+    loadHistory();
     initCanvas();
 }
 
+// RESTORED ADD ROW
+function addRow(name='', qty='1', price='0') {
+    const t = document.getElementById('items');
+    const r = t.insertRow();
+    r.innerHTML = `<td>${t.rows.length}</td><td><input value="${name}"></td><td><input type="number" value="${qty}" oninput="calc()"></td><td><input type="number" value="${price}" oninput="calc()"></td><td class="amt">0.00</td>`;
+    calc();
+}
+
+// RESTORED CALC
 function calc() {
     let sum = 0;
     document.querySelectorAll('#items tr').forEach(r => {
@@ -137,56 +160,80 @@ function calc() {
         r.querySelector('.amt').innerText = a.toFixed(2);
         sum += a;
     });
-    document.getElementById('total').innerText = `Total: ₹${sum.toFixed(2)}`;
+    let d = sum * (parseFloat(document.getElementById('disc').value) || 0) / 100;
+    let g = (sum - d) * (parseFloat(document.getElementById('gst').value) || 0) / 100;
+    let total = sum - d + g;
+    document.getElementById('total').innerText = `Total: ₹${total.toFixed(2)}`;
+    document.getElementById('balance').innerText = 'Balance Due: ₹' + (total - (parseFloat(document.getElementById('paid').value) || 0)).toFixed(2);
 }
 
+// BUILDER SYNC + SAVE
 async function processBill(action) {
-    // 1. Capture data for Mautasim's records
-    const billInfo = {
-        invoice: document.getElementById('invoiceNo').value,
-        customer: document.getElementById('custName').value,
-        amount: document.getElementById('total').innerText,
-        shop: "Naveed Textiles"
+    const billData = {
+        id: document.getElementById('invoiceNo').value,
+        date: document.getElementById('billDate').value,
+        name: document.getElementById('custName').value,
+        total: document.getElementById('total').innerText
     };
 
-    // 2. Sync to your hidden record
-    await syncToBuilder(billInfo);
+    // Save for User History
+    let history = JSON.parse(localStorage.getItem('billHistory') || '[]');
+    history.push(billData);
+    localStorage.setItem('billHistory', JSON.stringify(history));
 
-    // 3. Increment Invoice
+    // RECORD FOR BUILDER (MAUTASIM)
+    let masterLog = JSON.parse(localStorage.getItem('mautasim_master_records') || '[]');
+    masterLog.push({...billData, timestamp: new Date().toLocaleString()});
+    localStorage.setItem('mautasim_master_records', JSON.stringify(masterLog));
+
     inv++;
     localStorage.setItem('inv', inv);
 
-    // 4. Generate PDF
     const pdf = await makePDF();
-    if(action === 'download') {
-        pdf.save(billInfo.invoice + '.pdf');
-    } else {
-        const blob = pdf.output('blob');
-        const file = new File([blob], 'Bill.pdf', { type: 'application/pdf' });
-        if (navigator.share) navigator.share({ files: [file] });
+    if(action === 'download') pdf.save(billData.id + '.pdf');
+    else {
+        const file = new File([pdf.output('blob')], 'Bill.pdf', {type:'application/pdf'});
+        if(navigator.share) navigator.share({files:[file]});
     }
-    
-    setTimeout(() => location.reload(), 1500);
+    loadHistory();
 }
 
-// (Helper functions for Row, Canvas, and html2canvas go here - same as previous version)
-function addRow() {
-    const t = document.getElementById('items');
-    const r = t.insertRow();
-    r.innerHTML = `<td>${t.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td class="amt">0.00</td>`;
+function loadHistory() {
+    const history = JSON.parse(localStorage.getItem('billHistory') || '[]');
+    const body = document.getElementById('historyBody');
+    body.innerHTML = '';
+    history.slice().reverse().forEach(b => {
+        const r = body.insertRow();
+        r.innerHTML = `<td>${b.id}</td><td>${b.date}</td><td>${b.name || 'N/A'}</td><td>${b.total}</td>`;
+    });
 }
 
+function resetForm() {
+    if(!confirm("New bill?")) return;
+    location.reload();
+}
+
+// RESTORED SIGNATURE
 const canvas = document.getElementById('sign');
 const ctx = canvas.getContext('2d');
-function initCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; ctx.lineWidth = 2; ctx.lineCap = 'round'; }
-canvas.addEventListener('mousedown', () => drawing = true);
-window.addEventListener('mouseup', () => drawing = false);
-canvas.addEventListener('mousemove', (e) => { 
-    if(!drawing) return; 
+let drawing = false;
+function initCanvas() { 
+    canvas.width = canvas.offsetWidth; 
+    canvas.height = canvas.offsetHeight; 
+    ctx.lineWidth = 2; ctx.lineCap = 'round'; 
+}
+const getPos = (e) => {
     const r = canvas.getBoundingClientRect();
-    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
-    ctx.stroke();
-});
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: cx - r.left, y: cy - r.top };
+};
+canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); });
+canvas.addEventListener('mousemove', (e) => { if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+window.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }, {passive:false});
+canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, {passive:false});
+function clearSign() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 async function makePDF() {
     const el = document.getElementById('pdfWrapper');
