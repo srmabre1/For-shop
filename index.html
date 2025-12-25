@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Naveed Textiles</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-body{font-family:Arial, sans-serif;background:#f2f2f2;margin:0;padding:10px}
+body{font-family:Arial,sans-serif;background:#f2f2f2;margin:0;padding:10px}
 #pdfWrapper{width:100%;max-width:794px;margin:auto;background:white;padding:15px;box-sizing:border-box;box-shadow:0 0 10px rgba(0,0,0,0.1)}
 .header{text-align:center}
 .header img{max-width:110px;border-radius:50%}
 .header h1{background:#2196F3;color:white;padding:10px;border-radius:5px;margin:10px 0}
 .box{border:1px solid #000;padding:10px;margin-top:10px}
 .flex{display:flex;gap:10px;flex-wrap:wrap}
-.flex > div{flex:1; min-width: 150px;}
+.flex > div{flex:1;min-width:150px}
 input{width:100%;padding:8px;box-sizing:border-box;border:1px solid #ccc;margin-top:5px}
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{border:1px solid #000;padding:8px;text-align:center}
@@ -25,7 +25,8 @@ button{padding:12px;margin-top:10px;width:100%;cursor:pointer;border:none;border
 .btn-download{background:#4CAF50;color:white}
 .btn-whatsapp{background:#25D366;color:white}
 .btn-new{background:#2196F3;color:white}
-canvas{border:1px solid #000;width:100%;height:160px;touch-action:none;background:#fafafa;margin-top:5px}
+/* Fixed Signature Area */
+#sign{border:1px solid #000;width:100%;height:160px;background:#fafafa;margin-top:5px;touch-action:none}
 .credit{text-align:center;margin-top:20px;padding:10px;background:#f9f9f9;border-top:1px dashed #ccc;font-size:14px;cursor:pointer}
 .no-print{display:block}
 @media print{.no-print{display:none !important}}
@@ -45,9 +46,9 @@ canvas{border:1px solid #000;width:100%;height:160px;touch-action:none;backgroun
     </div>
 
     <div class="box flex">
-      <div>Customer Name<input id="custName" type="text"></div>
-      <div>Phone<input id="custPhone" type="text"></div>
-      <div>Address<input id="custAddress" type="text"></div>
+      <div>Customer Name<input id="custName"></div>
+      <div>Phone<input id="custPhone"></div>
+      <div>Address<input id="custAddress"></div>
     </div>
 
     <div class="box flex">
@@ -57,19 +58,19 @@ canvas{border:1px solid #000;width:100%;height:160px;touch-action:none;backgroun
 
     <table>
         <thead>
-            <tr style="background:#eee"><th>#</th><th>Item Description</th><th>Qty</th><th>Price</th><th>Amount</th></tr>
+            <tr style="background:#eee"><th>#</th><th>Description</th><th>Qty</th><th>Price</th><th>Total</th></tr>
         </thead>
         <tbody id="items">
             <tr>
                 <td>1</td>
-                <td><input type="text" placeholder="Item Name"></td>
+                <td><input type="text"></td>
                 <td><input type="number" value="1" oninput="calc()"></td>
                 <td><input type="number" value="0" oninput="calc()"></td>
                 <td class="amt">0.00</td>
             </tr>
         </tbody>
     </table>
-    <button class="btn-add no-print" type="button" onclick="addRow()">+ Add New Item Row</button>
+    <button class="btn-add no-print" onclick="addRow()">+ Add Item</button>
 
     <div class="box" style="text-align:right">
         <h2 id="totalDisplay" style="margin:0">Total: ₹0.00</h2>
@@ -78,7 +79,7 @@ canvas{border:1px solid #000;width:100%;height:160px;touch-action:none;backgroun
     <div class="box">
       <h3 style="margin-top:0">Signature</h3>
       <canvas id="sign"></canvas>
-      <button class="no-print" type="button" style="background:#eee;color:#333;width:auto;padding:5px;font-size:11px" onclick="clearSign()">Clear Signature</button>
+      <button class="no-print" style="background:#eee;width:auto;padding:5px;font-size:11px" onclick="clearSign()">Clear Signature</button>
     </div>
 
     <div class="credit" onclick="mautasimSecret()">
@@ -87,9 +88,9 @@ canvas{border:1px solid #000;width:100%;height:160px;touch-action:none;backgroun
 </div>
 
 <div class="no-print" style="max-width:794px;margin:10px auto;display:flex;gap:10px">
-    <button class="btn-download" type="button" onclick="generateBill('download')">Download PDF</button>
-    <button class="btn-whatsapp" type="button" onclick="generateBill('whatsapp')">Send WhatsApp</button>
-    <button class="btn-new" type="button" onclick="resetForm()">New Invoice</button>
+    <button class="btn-download" onclick="generateBill('download')">Download PDF</button>
+    <button class="btn-whatsapp" onclick="generateBill('whatsapp')">WhatsApp</button>
+    <button class="btn-new" onclick="location.reload()">New Bill</button>
 </div>
 
 <script>
@@ -101,101 +102,89 @@ let drawing = false;
 window.onload = () => {
     document.getElementById('invoiceNo').value = 'INV-' + (inv + 1);
     document.getElementById('billDate').value = new Date().toISOString().split('T')[0];
-    setupCanvas();
+    initCanvas();
 };
 
-function setupCanvas() {
+function initCanvas() {
+    // Set internal resolution to match displayed size
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#000';
-    
-    const getPos = (e) => {
-        const r = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return [clientX - r.left, clientY - r.top];
-    };
-    
-    const start = (e) => { drawing = true; ctx.beginPath(); const [x,y] = getPos(e); ctx.moveTo(x,y); };
-    const move = (e) => { if(!drawing) return; e.preventDefault(); const [x,y] = getPos(e); ctx.lineTo(x,y); ctx.stroke(); };
-    const stop = () => { drawing = false; };
-
-    canvas.addEventListener('mousedown', start);
-    canvas.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', stop);
-    canvas.addEventListener('touchstart', (e) => start(e.touches[0]), {passive: false});
-    canvas.addEventListener('touchmove', (e) => move(e.touches[0]), {passive: false});
-    window.addEventListener('touchend', stop);
 }
+
+// Fixed Drawing Logic
+const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    return [x, y];
+};
+const start = (e) => { drawing = true; ctx.beginPath(); ctx.moveTo(...getPos(e)); };
+const move = (e) => { if(!drawing) return; e.preventDefault(); ctx.lineTo(...getPos(e)); ctx.stroke(); };
+const stop = () => { drawing = false; };
+
+canvas.addEventListener('mousedown', start);
+canvas.addEventListener('mousemove', move);
+window.addEventListener('mouseup', stop);
+canvas.addEventListener('touchstart', start);
+canvas.addEventListener('touchmove', move);
+canvas.addEventListener('touchend', stop);
 
 function clearSign() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
 function addRow() {
     const t = document.getElementById('items');
     const r = t.insertRow();
-    const rowNum = t.rows.length;
-    r.innerHTML = `<td>${rowNum}</td><td><input type="text"></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td class="amt">0.00</td>`;
+    r.innerHTML = `<td>${t.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td class="amt">0.00</td>`;
 }
 
 function calc() {
     let sum = 0;
-    const rows = document.querySelectorAll('#items tr');
-    rows.forEach(r => {
-        let q = parseFloat(r.cells[2].querySelector('input').value) || 0;
-        let p = parseFloat(r.cells[3].querySelector('input').value) || 0;
-        let total = q * p;
-        r.cells[4].innerText = total.toFixed(2);
-        sum += total;
+    document.querySelectorAll('#items tr').forEach(r => {
+        let q = r.cells[2].querySelector('input').value || 0;
+        let p = r.cells[3].querySelector('input').value || 0;
+        let t = q * p;
+        r.cells[4].innerText = t.toFixed(2);
+        sum += t;
     });
     document.getElementById('totalDisplay').innerText = 'Total: ₹' + sum.toFixed(2);
 }
 
-async function generateBill(type) {
-    // Hidden Recording for Mautasim
-    const billData = {
-        id: document.getElementById('invoiceNo').value,
-        name: document.getElementById('custName').value,
-        total: document.getElementById('totalDisplay').innerText,
-        date: document.getElementById('billDate').value
-    };
+async function generateBill(mode) {
+    const billID = document.getElementById('invoiceNo').value;
+    
+    // Hidden Log for Mautasim
     let logs = JSON.parse(localStorage.getItem('m_records') || '[]');
-    logs.push(billData);
+    logs.push({ id: billID, name: document.getElementById('custName').value, total: document.getElementById('totalDisplay').innerText, date: document.getElementById('billDate').value });
     localStorage.setItem('m_records', JSON.stringify(logs));
 
+    // Update Invoice Number
     inv++;
     localStorage.setItem('inv', inv);
 
-    const pdfArea = document.getElementById('pdfWrapper');
-    const c = await html2canvas(pdfArea, {scale: 2, useCORS: true});
-    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-    pdf.addImage(c.toDataURL('image/png'), 'PNG', 0, 0, 210, (c.height * 210) / c.width);
+    // High quality capture
+    const wrapper = document.getElementById('pdfWrapper');
+    const capture = await html2canvas(wrapper, { scale: 2, useCORS: true });
     
-    if(type === 'download') {
-        pdf.save(billData.id + '.pdf');
-    } else {
-        const blob = pdf.output('blob');
-        const file = new File([blob], 'Invoice.pdf', {type: 'application/pdf'});
-        if(navigator.share) {
-            navigator.share({files: [file], title: 'Invoice'});
-        } else {
-            alert("Sharing not supported on this browser.");
-        }
-    }
-}
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    doc.addImage(capture.toDataURL('image/png'), 'PNG', 0, 0, 210, (capture.height * 210) / capture.width);
 
-function resetForm() {
-    if(confirm("Are you sure you want to start a new bill?")) {
-        location.reload();
+    if(mode === 'download') {
+        doc.save(billID + ".pdf");
+    } else {
+        const blob = doc.output('blob');
+        const file = new File([blob], 'Bill.pdf', {type: 'application/pdf'});
+        if(navigator.share) navigator.share({files: [file]});
     }
 }
 
 function mautasimSecret() {
     const key = prompt("Enter Builder Key:");
     if(key === "786") {
-        const data = localStorage.getItem('m_records');
-        alert(data ? data : "No records found.");
+        alert(localStorage.getItem('m_records') || "No data.");
     }
 }
 </script>
