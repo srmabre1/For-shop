@@ -1,183 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Naveed Textiles – Billing</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Naveed Textiles – Billing</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<style>
-body{font-family:Arial;background:#f4f6f8;margin:0;padding:10px}
-#bill{width:794px;margin:auto;background:#fff;padding:20px;border:1px solid #000}
-@media(max-width:820px){#bill{transform:scale(.48);transform-origin:top center;margin-bottom:-500px}}
+    <style>
+        :root { --primary: #2196f3; --success: #25d366; --dark: #333; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--dark); }
+        
+        #bill-container { width: 100%; overflow-x: auto; display: flex; justify-content: center; }
+        
+        #bill { 
+            width: 750px; min-height: 900px; background: #fff; padding: 30px; 
+            border: 1px solid #ddd; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
 
-.header{display:flex;align-items:center;gap:15px}
-.logo{width:60px;height:60px;border-radius:8px;background:#2196f3;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold}
-.header h1{margin:0;color:#2196f3}
+        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        
+        .logo-circle { 
+            width: 70px; height: 70px; background: var(--primary); 
+            border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; color: white; font-size: 28px; 
+            font-weight: bold; box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
 
-.box{border:1px solid #000;padding:10px;margin-top:10px}
-.flex{display:flex;gap:10px}
-.flex div{flex:1}
-input{width:100%;padding:6px}
+        .box { border: 1px solid #eee; padding: 15px; margin-top: 15px; border-radius: 8px; background: #fafafa; }
+        .flex { display: flex; gap: 15px; }
+        .flex div { flex: 1; display: flex; flex-direction: column; font-size: 12px; color: #666; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px; font-size: 14px; }
 
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #000;padding:6px;text-align:center}
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f8f9fa; padding: 10px; border: 1px solid #eee; font-size: 13px; text-align: left; }
+        td { border: 1px solid #eee; padding: 8px; }
+        
+        .totalBox { width: 250px; margin-left: auto; margin-top: 20px; }
+        .totalRow { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .grand-total { font-weight: bold; color: var(--primary); font-size: 18px; border-bottom: 2px solid var(--primary); }
 
-.totalBox{width:300px;margin-left:auto;margin-top:10px}
-.totalRow{display:flex;justify-content:space-between;padding:5px;font-weight:bold}
+        #sig { border: 1px dashed #ccc; width: 100%; height: 100px; background: #fff; cursor: crosshair; touch-action: none; }
 
-#sig{border:1px solid #000;width:100%;height:120px;touch-action:none}
+        .btns { max-width: 600px; margin: 20px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 12px; font-weight: bold; border: none; border-radius: 8px; color: #fff; cursor: pointer; transition: 0.3s; }
+        .pdf { background: #607d8b; }
+        .wa { background: var(--success); }
+        .new { background: #f44336; grid-column: span 2; }
 
-.btns{max-width:600px;margin:20px auto;display:flex;flex-direction:column;gap:10px}
-button{padding:14px;font-weight:bold;border:none;border-radius:6px;color:#fff;font-size:16px}
-.pdf{background:#4caf50}
-.wa{background:#25d366}
-.new{background:#2196f3}
-
-/* Birthday overlay */
-#bd{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:9999}
-#card{background:#fff;padding:20px;border-radius:10px;text-align:center;width:280px}
-#scratch{background:#999;color:#999;padding:30px;border-radius:8px;cursor:pointer}
-</style>
+        /* --- Scratch Card Style --- */
+        #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 10000; }
+        #card { background: #fff; padding: 30px; border-radius: 20px; text-align: center; position: relative; width: 300px; }
+        #scratch-container { position: relative; width: 250px; height: 150px; margin: 20px auto; background: #fff3e0; border: 2px dashed #ff9800; border-radius: 10px; }
+        #scratch-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; border-radius: 10px; }
+        .prize-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e65100; font-size: 14px; padding: 10px; }
+        .close-bd { margin-top: 15px; color: #2196f3; font-weight: bold; cursor: pointer; text-decoration: underline; }
+    </style>
 </head>
-
 <body>
 
-<!-- 🎂 Birthday Surprise -->
 <div id="bd">
-  <div id="card">
-    <h2>🎉 Surprise Naveed 😏</h2>
-    <div id="scratch" onclick="reveal()">Scratch here</div>
-    <p id="msg" style="display:none;font-size:14px">
-      Bro you didn’t level up…<br>
+    <div id="card">
+        <h2 style="margin:0">🎉 Surprise Naveed!</h2>
+        <p style="font-size: 13px; color: #666;">Scratch the box to see your message</p>
+        <div id="scratch-container">
+            <div class="prize-text">
+                Bro you didn’t level up…<br>
         You **unlocked a new chapter** 😎<br><br>
         Same attitude ✔<br>
         Same grind ✔<br>
         Bigger wins loading… 📈<br><br>
         Stay real. Stay sharp. 👊 and don't forget me 😁
-    </p>
-  </div>
+            </div>
+            <canvas id="scratch-canvas" width="250" height="150"></canvas>
+        </div>
+        <div class="close-bd" onclick="closeBD()">Done! Let's work</div>
+    </div>
 </div>
 
-<div id="bill">
-  <div class="header">
-    <div class="logo">NT</div>
-    <div>
-      <h1>NAVEED TEXTILES</h1>
-      <div>Phone: 9906403030</div>
+<div id="bill-container">
+    <div id="bill">
+        <div class="header">
+            <div class="logo-area">
+                <div class="logo-circle">NT</div>
+                <div>
+                    <h1 style="margin:0; font-size: 26px;">NAVEED TEXTILES</h1>
+                    <strong>Phone: 9906403030</strong>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div id="inv-display" style="font-weight: bold; color: var(--primary); font-size: 18px;">INV-1000</div>
+                <input type="date" id="date">
+            </div>
+        </div>
+
+        <div class="box flex">
+            <div>CUSTOMER NAME <input id="name" placeholder="Name"></div>
+            <div>PHONE <input id="phone" placeholder="Phone"></div>
+            <div>ADDRESS <input id="addr" placeholder="Address"></div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ITEM</th>
+                    <th>QTY</th>
+                    <th>RATE</th>
+                    <th style="text-align: right;">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody id="rows">
+                <tr>
+                    <td>1</td>
+                    <td><input style="width:90%"></td>
+                    <td><input type="number" value="1" oninput="calc()" style="width:50px"></td>
+                    <td><input type="number" value="0" oninput="calc()" style="width:80px"></td>
+                    <td style="text-align: right; font-weight: bold;" class="rt">0</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button onclick="addRow()" style="background:#eee; color:#333; margin-top:10px; padding: 5px 10px; border-radius: 4px;">+ Add Item</button>
+
+        <div class="totalBox">
+            <div class="totalRow"><span>Grand Total</span><span id="sub-total">0</span></div>
+            <div class="totalRow"><span>Paid</span><span><input id="paid" value="0" oninput="calc()" style="width:80px; text-align:right"></span></div>
+            <div class="totalRow grand-total"><span>Balance</span><span id="bal">0</span></div>
+        </div>
+
+        <div class="box" style="margin-top:40px">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px">
+                <span style="font-size:11px; font-weight:bold">AUTHORIZED SIGNATURE</span>
+                <button onclick="clearSig()" style="background:none; color:var(--primary); font-size:11px; padding:0">Clear</button>
+            </div>
+            <canvas id="sig"></canvas>
+        </div>
     </div>
-  </div>
-
-  <div class="box flex">
-    <div>Name<input id="name"></div>
-    <div>Phone<input id="phone"></div>
-    <div>Address<input id="addr"></div>
-  </div>
-
-  <div class="box flex">
-    <div>Invoice<input id="inv" readonly></div>
-    <div>Date<input type="date" id="date"></div>
-  </div>
-
-  <table>
-    <thead>
-      <tr><th>#</th><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
-    </thead>
-    <tbody id="rows">
-      <tr>
-        <td>1</td>
-        <td><input></td>
-        <td><input type="number" value="1" oninput="calc()"></td>
-        <td><input type="number" value="0" oninput="calc()"></td>
-        <td class="rt">0</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <button onclick="addRow()" style="margin-top:8px">+ Add Row</button>
-
-  <div class="totalBox">
-    <div class="totalRow"><span>Total</span><span id="total">0</span></div>
-    <div class="totalRow"><span>Paid</span><span><input id="paid" value="0" oninput="calc()" style="width:80px"></span></div>
-    <div class="totalRow"><span>Balance / Credit</span><span id="bal">0</span></div>
-  </div>
-
-  <div class="box">
-    Signature
-    <canvas id="sig"></canvas>
-    <button onclick="clearSig()" style="margin-top:5px;font-size:12px">Clear</button>
-  </div>
 </div>
 
 <div class="btns">
-  <button class="pdf" onclick="savePDF()">Download PDF</button>
-  <button class="wa" onclick="shareWA()">Send WhatsApp</button>
-  <button class="new" onclick="location.reload()">New Bill</button>
+    <button class="pdf" onclick="savePDF()">Download PDF</button>
+    <button class="wa" onclick="shareWA()">Send WhatsApp</button>
+    <button class="new" onclick="if(confirm('Clear all and start new bill?')) location.reload()">New Bill</button>
 </div>
 
 <script>
-/* invoice */
-let id=Number(localStorage.ntid||1000)+1
-localStorage.ntid=id
-inv.value="NT-"+id
-date.value=new Date().toISOString().split("T")[0]
+/* --- 1. SETTINGS & INITIALIZATION --- */
+let id = Number(localStorage.ntid || 1000) + 1;
+localStorage.ntid = id;
+document.getElementById('inv-display').innerText = "NT-" + id;
+document.getElementById('date').value = new Date().toISOString().split("T")[0];
 
-/* rows */
-function addRow(){
- let r=rows.insertRow()
- r.innerHTML=`<td>${rows.rows.length}</td>
- <td><input></td>
- <td><input type="number" value="1" oninput="calc()"></td>
- <td><input type="number" value="0" oninput="calc()"></td>
- <td class="rt">0</td>`
-}
-function calc(){
- let t=0
- rows.querySelectorAll("tr").forEach(r=>{
-  let q=r.cells[2].children[0].value||0
-  let p=r.cells[3].children[0].value||0
-  let s=q*p
-  r.querySelector(".rt").innerText=s
-  t+=s
- })
- total.innerText=t
- bal.innerText=(t-(paid.value||0))
+/* --- 2. BIRTHDAY SELF-DESTRUCT LOGIC --- */
+const startDay = new Date("2026-01-18").getTime();
+const now = Date.now();
+const twoDays = 2 * 24 * 60 * 60 * 1000;
+
+if (now >= startDay && (now - startDay) <= twoDays) {
+    if (!localStorage.getItem('naveed_bd_scratched')) {
+        document.getElementById('bd').style.display = 'flex';
+        initScratch();
+    }
+} else {
+    document.getElementById('bd')?.remove(); // Delete from code after 2 days
 }
 
-/* signature */
-const c=sig,ctx=c.getContext("2d")
-c.width=c.offsetWidth;c.height=c.offsetHeight
-let d=false
-c.onmousedown=e=>{d=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY)}
-c.onmousemove=e=>{if(d){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()}}
-window.onmouseup=()=>d=false
-c.ontouchstart=e=>{d=true;let r=c.getBoundingClientRect();ctx.beginPath();ctx.moveTo(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top)}
-c.ontouchmove=e=>{let r=c.getBoundingClientRect();ctx.lineTo(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);ctx.stroke()}
-function clearSig(){ctx.clearRect(0,0,c.width,c.height)}
-
-/* pdf */
-async function savePDF(){
- const {jsPDF}=window.jspdf
- const shot=await html2canvas(bill,{scale:2,width:794})
- const pdf=new jsPDF("p","mm","a4")
- pdf.addImage(shot.toDataURL(),"PNG",0,0,210,shot.height*210/shot.width)
- pdf.save(inv.value+".pdf")
-}
-async function shareWA(){
- const {jsPDF}=window.jspdf
- const shot=await html2canvas(bill,{scale:2,width:794})
- const pdf=new jsPDF()
- pdf.addImage(shot.toDataURL(),"PNG",0,0,210,shot.height*210/shot.width)
- const f=new File([pdf.output("blob")],"Bill.pdf",{type:"application/pdf"})
- navigator.share({files:[f]})
+function closeBD() {
+    document.getElementById('bd').style.display = 'none';
+    localStorage.setItem('naveed_bd_scratched', 'true');
 }
 
-/* 🎂 Birthday – 2 days only */
-const start=new Date("2026-01-18")
-if((Date.now()-start)/(1000*60*60*24)<=2){bd.style.display="flex"}
-function reveal(){scratch.style.display="none";msg.style.display="block"}
+/* --- 3. SCRATCH CARD ENGINE --- */
+function initScratch() {
+    const canvas = document.getElementById('scratch-canvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+
+    ctx.fillStyle = '#C0C0C0'; 
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#666';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('SCRATCH HERE', 125, 80);
+    ctx.globalCompositeOperation = 'destination-out';
+
+    function scratch(e) {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+        ctx.beginPath();
+        ctx.arc(x, y, 25, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    canvas.addEventListener('mousedown', () => isDrawing = true);
+    canvas.addEventListener('touchstart', (e) => { isDrawing = true; e.preventDefault(); });
+    window.addEventListener('mouseup', () => isDrawing = false);
+    window.addEventListener('touchend', () => isDrawing = false);
+    canvas.addEventListener('mousemove', scratch);
+    canvas.addEventListener('touchmove', scratch);
+}
+
+/* --- 4. BILLING LOGIC --- */
+function addRow() {
+    let rows = document.getElementById('rows');
+    let r = rows.insertRow();
+    r.innerHTML = `
+        <td>${rows.rows.length}</td>
+        <td><input style="width:90%"></td>
+        <td><input type="number" value="1" oninput="calc()" style="width:50px"></td>
+        <td><input type="number" value="0" oninput="calc()" style="width:80px"></td>
+        <td style="text-align: right; font-weight: bold;" class="rt">0</td>`;
+}
+
+function calc() {
+    let t = 0;
+    document.querySelectorAll("#rows tr").forEach(r => {
+        let q = r.cells[2].querySelector('input').value || 0;
+        let p = r.cells[3].querySelector('input').value || 0;
+        let s = q * p;
+        r.querySelector(".rt").innerText = s;
+        t += s;
+    });
+    document.getElementById('sub-total').innerText = t;
+    let paidVal = document.getElementById('paid').value || 0;
+    document.getElementById('bal').innerText = t - paidVal;
+}
+
+/* --- 5. SIGNATURE ENGINE --- */
+const sigC = document.getElementById('sig');
+const sCtx = sigC.getContext("2d");
+sigC.width = sigC.offsetWidth; sigC.height = sigC.offsetHeight;
+let drawing = false;
+
+function getPos(e) {
+    const rect = sigC.getBoundingClientRect();
+    return {
+        x: (e.clientX || e.touches[0].clientX) - rect.left,
+        y: (e.clientY || e.touches[0].clientY) - rect.top
+    };
+}
+
+sigC.addEventListener('mousedown', (e) => { drawing = true; sCtx.beginPath(); const p = getPos(e); sCtx.moveTo(p.x, p.y); });
+sigC.addEventListener('touchstart', (e) => { drawing = true; sCtx.beginPath(); const p = getPos(e); sCtx.moveTo(p.x, p.y); e.preventDefault(); });
+window.addEventListener('mouseup', () => drawing = false);
+sigC.addEventListener('mousemove', (e) => {
+    if(!drawing) return;
+    const p = getPos(e);
+    sCtx.lineTo(p.x, p.y);
+    sCtx.lineWidth = 2;
+    sCtx.stroke();
+});
+sigC.addEventListener('touchmove', (e) => {
+    if(!drawing) return;
+    const p = getPos(e);
+    sCtx.lineTo(p.x, p.y);
+    sCtx.stroke();
+});
+
+function clearSig() { sCtx.clearRect(0,0,sigC.width,sigC.height); }
+
+/* --- 6. EXPORT PDF & WHATSAPP --- */
+async function savePDF() {
+    const {jsPDF} = window.jspdf;
+    const canvas = await html2canvas(document.getElementById('bill'), {scale: 2});
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const w = pdf.internal.pageSize.getWidth();
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, (canvas.height * w) / canvas.width);
+    pdf.save(`Bill_${id}.pdf`);
+}
+
+async function shareWA() {
+    const {jsPDF} = window.jspdf;
+    const canvas = await html2canvas(document.getElementById('bill'), {scale: 2});
+    const pdf = new jsPDF();
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, (canvas.height * 210) / canvas.width);
+    const file = new File([pdf.output('blob')], "Bill.pdf", {type: "application/pdf"});
+    if (navigator.share) navigator.share({files: [file]}); else alert("Share not supported. Download PDF instead.");
+}
 </script>
 
 </body>
