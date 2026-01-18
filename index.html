@@ -45,37 +45,43 @@
         .wa { background: var(--success); }
         .new { background: #f44336; }
 
-        /* --- ✨ Animated Birthday Overlay ✨ --- */
+        /* --- Improved Birthday Overlay --- */
         #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 10px; }
         #card { background: #fff; padding: 20px; border-radius: 20px; text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(33, 150, 243, 0.5); }
         
-        #scratch-container { position: relative; width: 280px; height: 220px; margin: 15px auto; background: #000; border: 3px solid #2196f3; border-radius: 15px; overflow: hidden; }
+        #scratch-container { position: relative; width: 280px; height: 260px; margin: 15px auto; background: #1a1a1a; border: 3px solid #ffd700; border-radius: 15px; overflow: hidden; }
         #scratch-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; z-index: 2; }
         
-        /* 🌈 Color Animation for Text */
         .prize-text { 
             position: absolute; inset: 0; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; font-weight: bold; 
-            padding: 15px; font-size: 14px; line-height: 1.5; z-index: 1;
-            animation: textPulse 2s infinite ease-in-out;
+            padding: 10px; font-size: 14px; line-height: 1.4; z-index: 1;
+            color: white;
+            animation: goldPulse 2s infinite ease-in-out;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
         }
 
-        @keyframes textPulse {
-            0% { color: #ff0000; transform: scale(1); }
-            25% { color: #00ff00; }
-            50% { color: #2196f3; transform: scale(1.02); }
-            75% { color: #ff00ff; }
-            100% { color: #ff0000; transform: scale(1); }
+        @keyframes goldPulse {
+            0% { transform: scale(1); color: #ffffff; }
+            50% { transform: scale(1.03); color: #ffd700; }
+            100% { transform: scale(1); color: #ffffff; }
         }
 
-        .close-bd { margin-top: 10px; color: #2196f3; font-weight: bold; cursor: pointer; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        .close-bd { margin-top: 10px; color: #2196f3; font-weight: bold; cursor: pointer; font-size: 16px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
+<audio id="bd-music" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+<audio id="scratch-sound">
+    <source src="https://assets.mixkit.co/active_storage/sfx/2388/2388-preview.mp3" type="audio/mpeg">
+</audio>
+
 <div id="bd">
     <div id="card">
-        <h2 style="margin:0; color: #2196f3; font-family: 'Courier New', Courier, monospace;">✨ LEVEL UP! ✨</h2>
+        <h2 style="margin:0; color: #2196f3;">✨ SURPRISE NAVEED ✨</h2>
         <div id="scratch-container">
             <div class="prize-text">
                 Bro you didn’t level up…<br>
@@ -83,10 +89,10 @@
                 <span>Same attitude ✔</span>
                 <span>Same grind ✔</span>
                 <span>Bigger wins loading… 📈</span><br>
-                <span>Stay real. Stay sharp. 👊</span>
-                <span style="font-size: 12px; margin-top: 5px;">and don't forget me 😁</span>
+                <span>Stay real. Stay sharp. 👊</span><br>
+                <span style="font-size: 13px; color: #ffd700;">and don't forget me 😁</span>
             </div>
-            <canvas id="scratch-canvas" width="280" height="220"></canvas>
+            <canvas id="scratch-canvas" width="280" height="260"></canvas>
         </div>
         <div class="close-bd" onclick="closeBD()">Go to My Bill</div>
     </div>
@@ -156,11 +162,16 @@
 </div>
 
 <script>
-// 1. Birthday Timer
+// 1. Birthday Logic & Sound
 const startDay = new Date("2026-01-18").getTime();
 const now = Date.now();
+const music = document.getElementById('bd-music');
+const scratchSfx = document.getElementById('scratch-sound');
+
 if (now >= startDay && (now - startDay) <= (2 * 24 * 60 * 60 * 1000)) {
     document.getElementById('bd').style.display = 'flex';
+    // Start music on first interaction (browser requirement)
+    window.addEventListener('click', () => music.play(), {once: true});
     initScratch();
 }
 
@@ -169,37 +180,39 @@ function initScratch() {
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
     
-    // Silver scratch layer
     ctx.fillStyle = '#C0C0C0'; 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Add some "scratch me" text
     ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = '#444';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('SCRATCH TO REVEAL 👆', 140, 115);
+    ctx.fillText('SCRATCH TO REVEAL 👆', 140, 130);
     
     ctx.globalCompositeOperation = 'destination-out';
 
     function scratch(e) {
         if (!isDrawing) return;
+        scratchSfx.currentTime = 0;
+        scratchSfx.play();
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
         ctx.beginPath();
-        ctx.arc(x, y, 25, 0, Math.PI * 2);
+        ctx.arc(x, y, 28, 0, Math.PI * 2);
         ctx.fill();
     }
     canvas.addEventListener('mousedown', () => isDrawing = true);
     canvas.addEventListener('touchstart', (e) => { isDrawing = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('touchend', () => isDrawing = false);
     canvas.addEventListener('mousemove', scratch);
     canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
 }
 
-function closeBD() { document.getElementById('bd').style.display = 'none'; }
+function closeBD() { 
+    document.getElementById('bd').style.display = 'none';
+    music.pause();
+}
 
 // 2. Billing Data Logic
 let id = Number(localStorage.ntid || 1010) + 1;
