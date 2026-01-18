@@ -3,74 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naveed Textiles - Premium Portal</title>
+    <title>Naveed Textiles - Premium Invoice System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --accent: #ff6b00; --dark: #1a1a1a; --soft-gray: #f9f9f9; }
-        body { margin: 0; background: #111; font-family: 'Inter', 'Segoe UI', sans-serif; overflow-x: hidden; }
+        :root { --accent: #ff6b00; --dark: #1a1a1a; --soft-bg: #f8f9fa; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #222; font-family: 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
 
-        /* --- SURPRISE GATE --- */
+        /* --- BIRTHDAY GATE --- */
         #birthday-gate {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95);
             z-index: 10000; display: flex; align-items: center; justify-content: center;
         }
         .surprise-card {
-            background: white; padding: 40px; border-radius: 24px; width: 90%; max-width: 400px;
+            background: #fff; padding: 40px; border-radius: 25px; width: 90%; max-width: 420px;
             text-align: center; box-shadow: 0 20px 60px rgba(255,107,0,0.3);
         }
         .unlock-btn {
-            background: var(--dark); color: white; border: none; padding: 15px 40px;
-            border-radius: 50px; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.3s;
+            background: var(--dark); color: #fff; border: none; padding: 15px 45px;
+            border-radius: 50px; font-weight: 800; cursor: pointer; margin-top: 25px; transition: 0.3s;
         }
-        .unlock-btn:hover { background: var(--accent); transform: scale(1.05); }
+        .unlock-btn:hover { background: var(--accent); transform: translateY(-3px); }
 
-        /* --- PREMIUM INVOICE THEME --- */
+        /* --- PREMIUM INVOICE LAYOUT --- */
         #app-portal { display: none; padding: 40px 20px; }
         #invoice-container {
             background: #fff; width: 210mm; min-height: 297mm; margin: auto;
-            position: relative; display: flex; box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            position: relative; display: flex; box-shadow: 0 0 60px rgba(0,0,0,0.5);
         }
 
-        /* Sidebar Styling */
+        /* Dark Side-Bar (Artful Dodger Style) */
         .side-bar {
-            width: 32%; background: var(--dark); color: white; padding: 60px 35px;
-            border-bottom-right-radius: 100px; z-index: 2; position: relative;
+            width: 33%; background: var(--dark); color: #fff; padding: 60px 35px;
+            border-bottom-right-radius: 110px; z-index: 2; position: relative;
         }
-        .side-bar label { color: var(--accent); font-size: 10px; font-weight: 800; display: block; margin-top: 25px; letter-spacing: 1px; }
-        .side-bar input { background: transparent; border: none; color: white; width: 100%; border-bottom: 1px solid #333; padding: 8px 0; outline: none; }
-        
-        /* Main Content Styling */
-        .main-content { width: 68%; padding: 60px 45px; position: relative; display: flex; flex-direction: column; }
-        .invoice-title-bg { font-size: 90px; font-weight: 900; color: #f2f2f2; position: absolute; top: 30px; right: 40px; z-index: 1; pointer-events: none; }
-        
-        .header-top { position: relative; z-index: 2; margin-top: 20px; margin-bottom: 40px; }
-        .currency-select { background: var(--soft-gray); border: 1px solid #ddd; border-radius: 5px; padding: 5px; font-weight: bold; }
+        .logo-box { width: 80px; height: 80px; background: #fff; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .logo-box img { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .logo-fallback { color: var(--dark); font-weight: 900; font-size: 10px; text-align: center; }
 
-        table { width: 100%; border-collapse: collapse; z-index: 2; margin-top: 20px; }
-        th { background: var(--dark); color: white; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .side-bar label { color: var(--accent); font-size: 10px; font-weight: 800; display: block; margin-top: 30px; letter-spacing: 1.5px; }
+        .side-bar input { background: transparent; border: none; color: #fff; width: 100%; border-bottom: 1px solid #333; padding: 8px 0; outline: none; font-size: 13px; }
+
+        /* Main Content Section */
+        .main-content { width: 67%; padding: 60px 45px; position: relative; display: flex; flex-direction: column; }
+        .ghost-title { font-size: 100px; font-weight: 900; color: #f4f4f4; position: absolute; top: 20px; right: 40px; z-index: 1; pointer-events: none; }
+        
+        .header-top { position: relative; z-index: 2; margin-top: 30px; margin-bottom: 45px; }
+        .currency-picker { position: absolute; top: -30px; right: 0; }
+
+        table { width: 100%; border-collapse: collapse; z-index: 2; margin-top: 10px; }
+        th { background: var(--dark); color: #fff; padding: 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 14px; border-bottom: 1px solid #f0f0f0; }
         td input { border: none; width: 100%; outline: none; font-size: 14px; background: transparent; }
 
-        /* Calculation Block */
-        .calc-section { margin-top: 30px; display: flex; justify-content: flex-end; }
-        .calc-table { width: 250px; }
-        .calc-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; align-items: center; }
-        .calc-row input { width: 70px; text-align: right; border: 1px solid #eee; border-radius: 4px; padding: 2px; }
-        .grand-total-box { 
-            background: var(--accent); color: white; padding: 15px; border-radius: 10px; 
-            margin-top: 10px; text-align: center; 
+        /* Financial Calculations Block */
+        .calc-wrapper { margin-top: 40px; display: flex; justify-content: flex-end; }
+        .calc-box { width: 280px; }
+        .calc-line { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; align-items: center; border-bottom: 1px solid #f9f9f9; }
+        .calc-line input { width: 80px; text-align: right; border: 1px solid #eee; border-radius: 4px; padding: 4px; font-weight: bold; }
+        
+        .grand-total-highlight { 
+            background: var(--accent); color: #fff; padding: 20px; border-radius: 12px; 
+            margin-top: 15px; text-align: center; box-shadow: 0 10px 20px rgba(255,107,0,0.2);
         }
 
-        .footer { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
-        .signature-box { text-align: center; width: 180px; }
-        .sig-line { border-top: 2px solid var(--dark); padding-top: 10px; font-weight: 800; font-size: 12px; }
+        .footer-area { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 40px; }
+        .signature-line { width: 200px; border-top: 2px solid var(--dark); text-align: center; padding-top: 10px; font-weight: 800; font-size: 12px; }
 
-        /* Floating Actions */
-        .action-bar { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; z-index: 1000; }
-        .btn { padding: 15px 30px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .btn-add { background: var(--accent); color: white; }
-        .btn-dl { background: #000; color: white; }
+        /* Controls */
+        .action-bar { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; z-index: 5000; }
+        .btn { padding: 16px 32px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.2s; }
+        .btn-add { background: var(--accent); color: #fff; }
+        .btn-save { background: #000; color: #fff; }
+        .btn:active { transform: scale(0.95); }
 
         @media print { .no-print { display: none !important; } }
     </style>
@@ -79,96 +85,105 @@
 
     <div id="birthday-gate">
         <div class="surprise-card">
-            <h2 style="color: var(--dark)">🎉 Surprise Naveed 😉</h2>
-            <p style="margin: 15px 0;">Bro you didn't level up...<br>You <strong>unlocked a new chapter</strong> 😎</p>
-            <p style="font-size: 13px; background: #fff5ee; padding: 10px; border-radius: 10px;">Same attitude ✔️ | Same grind ✔️<br>Bigger wins loading... 📈</p>
-            <button class="unlock-btn" onclick="unlockApp()">OPEN PREMIUM SYSTEM</button>
+            <h2 style="color: var(--dark); margin-bottom: 10px;">🎉 Surprise Naveed 😉</h2>
+            <p style="margin: 10px 0; color: #666;">Bro you didn't level up...<br>You <strong>unlocked a new chapter</strong> 😎</p>
+            <div style="background: #fff8f4; border: 1px dashed var(--accent); padding: 15px; border-radius: 15px; font-size: 13px; color: #444;">
+                Same attitude ✔️ | Same grind ✔️<br>Bigger wins loading... 📈
+            </div>
+            <button class="unlock-btn" onclick="unlockApp()">ACCESS PREMIER SYSTEM</button>
+            <p style="font-size: 11px; margin-top: 15px; color: #999;">Stay real. Stay sharp. 👊 and don't forget me 😊</p>
         </div>
     </div>
 
     <div id="app-portal">
         <div id="invoice-container">
             <div class="side-bar">
-                <h2 style="letter-spacing: 3px; margin-bottom: 5px;">NAVEED</h2>
-                <div style="height: 3px; width: 40px; background: var(--accent); margin-bottom: 20px;"></div>
+                <div class="logo-box">
+                    <img src="logo.png" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="logo-fallback" style="display:none;">NAVEED<br>TEXTILES</div>
+                </div>
+                <h2 style="letter-spacing: 3px; margin: 0; font-size: 20px;">NAVEED</h2>
+                <div style="height: 2px; width: 30px; background: var(--accent); margin: 10px 0 30px 0;"></div>
                 
-                <label>BILLING FROM</label>
-                <p style="font-size: 12px; line-height: 1.5; opacity: 0.8;">
+                <label>FROM</label>
+                <p style="font-size: 12px; line-height: 1.6; opacity: 0.8; margin-bottom: 0;">
                     <strong>Naveed Textiles Co.</strong><br>
-                    Textile Industrial Estate<br>
-                    Phone: +92 300 0000000
+                    Primary Industrial Hub<br>
+                    Contact: +92 300 0000000
                 </p>
 
-                <label>INVOICE TO</label>
-                <input placeholder="Client/Business Name" style="font-size: 16px; font-weight: bold;">
-                <input placeholder="Client Phone/Email">
-                <input placeholder="Billing Address">
+                <label>BILL TO</label>
+                <input placeholder="Client / Company Name" style="font-size: 15px; font-weight: 700;">
+                <input placeholder="Client Contact Number">
+                <input placeholder="Shipping/Billing Address">
 
-                <label>PAYMENT DETAILS</label>
-                <p style="font-size: 11px; line-height: 1.6; opacity: 0.7;">
-                    Bank: Habib Bank Ltd<br>
-                    A/C: 0042 1234 5678 90<br>
-                    IBAN: PK70 HABB 0000...
+                <label>BANKING INFO</label>
+                <p style="font-size: 11px; line-height: 1.8; opacity: 0.7;">
+                    Bank: Allied Bank Ltd<br>
+                    Account: 0110 5566 7788<br>
+                    Branch: Textile Plaza
                 </p>
             </div>
 
             <div class="main-content">
-                <div class="invoice-title-bg">INVOICE</div>
+                <div class="ghost-title">INVOICE</div>
                 
                 <div class="header-top">
-                    <span style="color: #888; font-weight: 800; font-size: 12px; text-transform: uppercase;">Invoice Balance Due</span>
-                    <h1 id="header-total" style="margin: 5px 0; font-size: 42px; color: var(--dark);">₹ 0.00</h1>
-                    <select id="currency" class="currency-select no-print" onchange="calc()">
-                        <option value="₹">PKR (₹)</option>
-                        <option value="$">USD ($)</option>
-                        <option value="£">GBP (£)</option>
-                    </select>
+                    <div class="currency-picker no-print">
+                        <select id="curr-symbol" onchange="calc()" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
+                            <option value="₹">PKR (₹)</option>
+                            <option value="$">USD ($)</option>
+                            <option value="£">GBP (£)</option>
+                        </select>
+                    </div>
+                    <span style="color: #999; font-weight: 800; font-size: 11px; text-transform: uppercase;">Current Balance Due</span>
+                    <h1 id="top-display-total" style="margin: 5px 0; font-size: 48px; color: var(--dark);">₹ 0.00</h1>
                 </div>
 
                 <table>
                     <thead>
                         <tr>
-                            <th width="50">Qty</th>
-                            <th>Item Description</th>
-                            <th width="120" style="text-align: right;">Unit Price</th>
+                            <th width="60">Qty</th>
+                            <th>Description of Goods</th>
+                            <th width="130" style="text-align: right;">Rate</th>
                         </tr>
                     </thead>
                     <tbody id="rows">
                         <tr>
                             <td><input type="number" value="1" oninput="calc()"></td>
-                            <td><input placeholder="E.g. Cotton Fabric Grade A"></td>
-                            <td><input type="number" value="0" oninput="calc()" style="text-align: right; font-weight: bold;"></td>
+                            <td><input placeholder="Item name or service description..."></td>
+                            <td><input type="number" value="0" oninput="calc()" style="text-align: right; font-weight: 800;"></td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div class="calc-section">
-                    <div class="calc-table">
-                        <div class="calc-row">
-                            <span>Sub Total:</span>
-                            <span id="subtotal">0.00</span>
+                <div class="calc-wrapper">
+                    <div class="calc-box">
+                        <div class="calc-line">
+                            <span>Sub-Total:</span>
+                            <span id="label-subtotal">₹ 0.00</span>
                         </div>
-                        <div class="calc-row">
+                        <div class="calc-line">
                             <span>Discount (%):</span>
-                            <input type="number" id="discount-percent" value="0" oninput="calc()">
+                            <input type="number" id="in-discount" value="0" oninput="calc()">
                         </div>
-                        <div class="calc-row">
+                        <div class="calc-line">
                             <span>Amount Paid:</span>
-                            <input type="number" id="amount-paid" value="0" oninput="calc()">
+                            <input type="number" id="in-paid" value="0" oninput="calc()">
                         </div>
-                        <div class="grand-total-box">
-                            <div style="font-size: 11px; text-transform: uppercase; opacity: 0.9;">Total Balance Due</div>
-                            <div id="balance-due" style="font-size: 24px; font-weight: 900;">₹ 0.00</div>
+                        <div class="grand-total-highlight">
+                            <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; opacity: 0.9;">Remaining Balance</div>
+                            <div id="label-balance" style="font-size: 26px; font-weight: 900;">₹ 0.00</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="footer">
-                    <div style="font-size: 11px; color: #999; max-width: 250px;">
-                        <strong>Terms:</strong> Please make payment within 7 days. Goods once sold are not returnable under standard conditions.
+                <div class="footer-area">
+                    <div style="font-size: 11px; color: #aaa; max-width: 280px;">
+                        <strong>Notes:</strong> All payments are due within 15 days. Please include the invoice number on your check or wire transfer.
                     </div>
                     <div class="signature-box">
-                        <div class="sig-line">Authorized Signature</div>
+                        <div class="signature-line">Authorized Signatory</div>
                     </div>
                 </div>
             </div>
@@ -176,58 +191,75 @@
 
         <div class="action-bar no-print">
             <button class="btn btn-add" onclick="addRow()">+ ADD ITEM</button>
-            <button class="btn btn-dl" onclick="makePDF()">DOWNLOAD PDF</button>
+            <button class="btn btn-save" onclick="generatePDF()">DOWNLOAD PDF</button>
         </div>
     </div>
 
     <script>
         function unlockApp() {
-            document.getElementById('birthday-gate').style.display = 'none';
-            document.getElementById('app-portal').style.display = 'block';
+            document.getElementById('birthday-gate').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('birthday-gate').style.display = 'none';
+                document.getElementById('app-portal').style.display = 'block';
+            }, 300);
         }
 
         function addRow() {
-            const tr = `<tr>
+            const tbody = document.getElementById('rows');
+            const row = `<tr>
                 <td><input type="number" value="1" oninput="calc()"></td>
-                <td><input placeholder="Enter product name..."></td>
-                <td><input type="number" value="0" oninput="calc()" style="text-align: right; font-weight: bold;"></td>
+                <td><input placeholder="Item name or service description..."></td>
+                <td><input type="number" value="0" oninput="calc()" style="text-align: right; font-weight: 800;"></td>
             </tr>`;
-            document.getElementById('rows').insertAdjacentHTML('beforeend', tr);
+            tbody.insertAdjacentHTML('beforeend', row);
         }
 
         function calc() {
             let subtotal = 0;
-            const symbol = document.getElementById('currency').value;
+            const symbol = document.getElementById('curr-symbol').value;
             
+            // Calculate item totals
             document.querySelectorAll('#rows tr').forEach(row => {
-                const q = row.cells[0].querySelector('input').value || 0;
-                const p = row.cells[2].querySelector('input').value || 0;
-                subtotal += (q * p);
+                const qty = parseFloat(row.cells[0].querySelector('input').value) || 0;
+                const rate = parseFloat(row.cells[2].querySelector('input').value) || 0;
+                subtotal += (qty * rate);
             });
 
-            const discPerc = document.getElementById('discount-percent').value || 0;
-            const paid = document.getElementById('amount-paid').value || 0;
+            const discPerc = parseFloat(document.getElementById('in-discount').value) || 0;
+            const paidAmt = parseFloat(document.getElementById('in-paid').value) || 0;
             
-            const discAmt = (subtotal * discPerc) / 100;
-            const grandTotal = subtotal - discAmt;
-            const balance = grandTotal - paid;
+            const discValue = (subtotal * discPerc) / 100;
+            const grandTotal = subtotal - discValue;
+            const balance = grandTotal - paidAmt;
 
-            document.getElementById('subtotal').innerText = symbol + " " + subtotal.toLocaleString();
-            document.getElementById('header-total').innerText = symbol + " " + balance.toLocaleString();
-            document.getElementById('balance-due').innerText = symbol + " " + balance.toLocaleString();
+            // Update UI
+            document.getElementById('label-subtotal').innerText = symbol + " " + subtotal.toLocaleString();
+            document.getElementById('top-display-total').innerText = symbol + " " + balance.toLocaleString();
+            document.getElementById('label-balance').innerText = symbol + " " + balance.toLocaleString();
         }
 
-        async function makePDF() {
-            document.querySelectorAll('input').forEach(i => i.setAttribute('value', i.value));
-            const el = document.getElementById('invoice-container');
-            const canvas = await html2canvas(el, { scale: 3, useCORS: true });
+        async function generatePDF() {
+            // Important: Sync input text to visible DOM attributes so html2canvas sees them
+            document.querySelectorAll('input').forEach(input => {
+                input.setAttribute('value', input.value);
+            });
+
+            const element = document.getElementById('invoice-container');
+            const canvas = await html2canvas(element, { 
+                scale: 3, 
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
+            
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfW = pdf.internal.pageSize.getWidth();
-            const pdfH = (canvas.height * pdfW) / canvas.width;
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
-            pdf.save('Naveed_Textiles_Invoice.pdf');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('Naveed_Textiles_Premium_Invoice.pdf');
         }
     </script>
 </body>
