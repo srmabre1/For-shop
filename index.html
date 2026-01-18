@@ -7,59 +7,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --accent: #ff6b00; --dark: #1a1a1a; --gray: #f4f4f4; }
-        body { margin: 0; background: #111; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        :root { --accent: #ff6b00; --dark: #1a1a1a; --soft-gray: #f9f9f9; }
+        body { margin: 0; background: #111; font-family: 'Inter', 'Segoe UI', sans-serif; overflow-x: hidden; }
 
         /* --- SURPRISE GATE --- */
         #birthday-gate {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
             z-index: 10000; display: flex; align-items: center; justify-content: center;
         }
         .surprise-card {
-            background: white; padding: 40px; border-radius: 20px; width: 90%; max-width: 400px;
-            text-align: center; box-shadow: 0 10px 40px rgba(255,107,0,0.4);
+            background: white; padding: 40px; border-radius: 24px; width: 90%; max-width: 400px;
+            text-align: center; box-shadow: 0 20px 60px rgba(255,107,0,0.3);
         }
-        .surprise-card h2 { margin: 0; font-size: 24px; }
-        .surprise-card p { color: #555; line-height: 1.6; }
         .unlock-btn {
-            background: var(--dark); color: white; border: none; padding: 15px 30px;
-            border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 20px;
+            background: var(--dark); color: white; border: none; padding: 15px 40px;
+            border-radius: 50px; font-weight: 800; cursor: pointer; margin-top: 20px; transition: 0.3s;
         }
+        .unlock-btn:hover { background: var(--accent); transform: scale(1.05); }
 
-        /* --- ARTFUL DODGER INVOICE THEME --- */
-        #app-portal { display: none; padding: 20px; }
+        /* --- PREMIUM INVOICE THEME --- */
+        #app-portal { display: none; padding: 40px 20px; }
         #invoice-container {
             background: #fff; width: 210mm; min-height: 297mm; margin: auto;
             position: relative; display: flex; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* Black Sidebar */
+        /* Sidebar Styling */
         .side-bar {
-            width: 35%; background: var(--dark); color: white; padding: 60px 40px;
-            border-bottom-right-radius: 120px; z-index: 2;
+            width: 32%; background: var(--dark); color: white; padding: 60px 35px;
+            border-bottom-right-radius: 100px; z-index: 2; position: relative;
         }
-        .side-bar label { color: var(--accent); font-size: 11px; font-weight: 800; display: block; margin-top: 30px; }
-        .side-bar input { background: transparent; border: none; color: white; width: 100%; border-bottom: 1px solid #333; padding: 5px 0; margin-bottom: 10px; }
-
-        /* Main Content */
-        .main-content { width: 65%; padding: 60px 50px; position: relative; }
-        .invoice-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .invoice-title { font-size: 70px; font-weight: 900; color: #eee; position: absolute; top: 40px; right: 40px; z-index: 1; }
+        .side-bar label { color: var(--accent); font-size: 10px; font-weight: 800; display: block; margin-top: 25px; letter-spacing: 1px; }
+        .side-bar input { background: transparent; border: none; color: white; width: 100%; border-bottom: 1px solid #333; padding: 8px 0; outline: none; }
         
-        .total-badge { position: relative; z-index: 2; margin-top: 80px; }
-        .total-badge span { color: #888; font-weight: bold; }
-        .total-badge h3 { font-size: 48px; margin: 5px 0; color: var(--dark); }
+        /* Main Content Styling */
+        .main-content { width: 68%; padding: 60px 45px; position: relative; display: flex; flex-direction: column; }
+        .invoice-title-bg { font-size: 90px; font-weight: 900; color: #f2f2f2; position: absolute; top: 30px; right: 40px; z-index: 1; pointer-events: none; }
+        
+        .header-top { position: relative; z-index: 2; margin-top: 20px; margin-bottom: 40px; }
+        .currency-select { background: var(--soft-gray); border: 1px solid #ddd; border-radius: 5px; padding: 5px; font-weight: bold; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 50px; z-index: 2; position: relative; }
-        th { background: var(--accent); color: white; padding: 15px; text-align: left; font-size: 12px; text-transform: uppercase; }
-        td { padding: 15px; border-bottom: 1px solid #eee; }
-        td input { border: none; width: 100%; outline: none; font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; z-index: 2; margin-top: 20px; }
+        th { background: var(--dark); color: white; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        td input { border: none; width: 100%; outline: none; font-size: 14px; background: transparent; }
 
-        .grand-total-row { text-align: right; margin-top: 40px; }
-        .grand-total-row div { font-size: 24px; font-weight: 900; color: var(--accent); }
+        /* Calculation Block */
+        .calc-section { margin-top: 30px; display: flex; justify-content: flex-end; }
+        .calc-table { width: 250px; }
+        .calc-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; align-items: center; }
+        .calc-row input { width: 70px; text-align: right; border: 1px solid #eee; border-radius: 4px; padding: 2px; }
+        .grand-total-box { 
+            background: var(--accent); color: white; padding: 15px; border-radius: 10px; 
+            margin-top: 10px; text-align: center; 
+        }
 
-        .signature-area { margin-top: 100px; display: flex; justify-content: flex-end; }
-        .sig-line { width: 200px; border-top: 2px solid #000; text-align: center; padding-top: 10px; font-weight: bold; }
+        .footer { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
+        .signature-box { text-align: center; width: 180px; }
+        .sig-line { border-top: 2px solid var(--dark); padding-top: 10px; font-weight: 800; font-size: 12px; }
 
         /* Floating Actions */
         .action-bar { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; z-index: 1000; }
@@ -67,79 +72,110 @@
         .btn-add { background: var(--accent); color: white; }
         .btn-dl { background: #000; color: white; }
 
-        @media print { .action-bar { display: none; } }
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
 
     <div id="birthday-gate">
         <div class="surprise-card">
-            <h2>🎉 Surprise Naveed 😉</h2>
-            <p>Bro you didn't level up...<br>You **unlocked a new chapter** 😎</p>
-            <p style="font-size: 13px;">Same attitude ✔️<br>Same grind ✔️<br>Bigger wins loading... 📈</p>
-            <p>Stay real. Stay sharp. 👊 and don't forget me 😊</p>
-            <button class="unlock-btn" onclick="unlockApp()">UNLOCK INVOICE SYSTEM</button>
+            <h2 style="color: var(--dark)">🎉 Surprise Naveed 😉</h2>
+            <p style="margin: 15px 0;">Bro you didn't level up...<br>You <strong>unlocked a new chapter</strong> 😎</p>
+            <p style="font-size: 13px; background: #fff5ee; padding: 10px; border-radius: 10px;">Same attitude ✔️ | Same grind ✔️<br>Bigger wins loading... 📈</p>
+            <button class="unlock-btn" onclick="unlockApp()">OPEN PREMIUM SYSTEM</button>
         </div>
     </div>
 
     <div id="app-portal">
         <div id="invoice-container">
             <div class="side-bar">
-                <h2 style="letter-spacing: 2px;">NAVEED</h2>
-                <p style="margin-top:-15px; font-size: 10px; opacity: 0.6;">TEXTILES & CO.</p>
+                <h2 style="letter-spacing: 3px; margin-bottom: 5px;">NAVEED</h2>
+                <div style="height: 3px; width: 40px; background: var(--accent); margin-bottom: 20px;"></div>
+                
+                <label>BILLING FROM</label>
+                <p style="font-size: 12px; line-height: 1.5; opacity: 0.8;">
+                    <strong>Naveed Textiles Co.</strong><br>
+                    Textile Industrial Estate<br>
+                    Phone: +92 300 0000000
+                </p>
 
                 <label>INVOICE TO</label>
-                <input placeholder="Client Name" style="font-size: 18px; font-weight: bold;">
-                <input placeholder="Phone Number">
-                <input placeholder="Address Line 1">
-                <input placeholder="Address Line 2">
+                <input placeholder="Client/Business Name" style="font-size: 16px; font-weight: bold;">
+                <input placeholder="Client Phone/Email">
+                <input placeholder="Billing Address">
 
-                <label>PAYMENT INFO</label>
-                <p style="font-size: 12px; line-height: 1.8; opacity: 0.8;">
-                    Bank: HBL Bank<br>
-                    A/C: 1234 5678 9012<br>
-                    Branch: Textile Market
+                <label>PAYMENT DETAILS</label>
+                <p style="font-size: 11px; line-height: 1.6; opacity: 0.7;">
+                    Bank: Habib Bank Ltd<br>
+                    A/C: 0042 1234 5678 90<br>
+                    IBAN: PK70 HABB 0000...
                 </p>
             </div>
 
             <div class="main-content">
-                <div class="invoice-title">INVOICE</div>
+                <div class="invoice-title-bg">INVOICE</div>
                 
-                <div class="total-badge">
-                    <span>Total Balance Due</span>
-                    <h3 id="top-total">₹0.00</h3>
+                <div class="header-top">
+                    <span style="color: #888; font-weight: 800; font-size: 12px; text-transform: uppercase;">Invoice Balance Due</span>
+                    <h1 id="header-total" style="margin: 5px 0; font-size: 42px; color: var(--dark);">₹ 0.00</h1>
+                    <select id="currency" class="currency-select no-print" onchange="calc()">
+                        <option value="₹">PKR (₹)</option>
+                        <option value="$">USD ($)</option>
+                        <option value="£">GBP (£)</option>
+                    </select>
                 </div>
 
                 <table>
                     <thead>
                         <tr>
-                            <th width="40">Qty</th>
-                            <th>Description</th>
-                            <th width="100">Price</th>
+                            <th width="50">Qty</th>
+                            <th>Item Description</th>
+                            <th width="120" style="text-align: right;">Unit Price</th>
                         </tr>
                     </thead>
                     <tbody id="rows">
                         <tr>
                             <td><input type="number" value="1" oninput="calc()"></td>
-                            <td><input placeholder="Enter product name..."></td>
+                            <td><input placeholder="E.g. Cotton Fabric Grade A"></td>
                             <td><input type="number" value="0" oninput="calc()" style="text-align: right; font-weight: bold;"></td>
                         </tr>
                     </tbody>
                 </table>
 
-                <div class="grand-total-row">
-                    <span style="color: #888; font-size: 14px;">Grand Total</span>
-                    <div id="final-total">₹0.00</div>
+                <div class="calc-section">
+                    <div class="calc-table">
+                        <div class="calc-row">
+                            <span>Sub Total:</span>
+                            <span id="subtotal">0.00</span>
+                        </div>
+                        <div class="calc-row">
+                            <span>Discount (%):</span>
+                            <input type="number" id="discount-percent" value="0" oninput="calc()">
+                        </div>
+                        <div class="calc-row">
+                            <span>Amount Paid:</span>
+                            <input type="number" id="amount-paid" value="0" oninput="calc()">
+                        </div>
+                        <div class="grand-total-box">
+                            <div style="font-size: 11px; text-transform: uppercase; opacity: 0.9;">Total Balance Due</div>
+                            <div id="balance-due" style="font-size: 24px; font-weight: 900;">₹ 0.00</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="signature-area">
-                    <div class="sig-line">Authorized Signature</div>
+                <div class="footer">
+                    <div style="font-size: 11px; color: #999; max-width: 250px;">
+                        <strong>Terms:</strong> Please make payment within 7 days. Goods once sold are not returnable under standard conditions.
+                    </div>
+                    <div class="signature-box">
+                        <div class="sig-line">Authorized Signature</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="action-bar">
-            <button class="btn btn-add" onclick="addRow()">+ ITEM</button>
+        <div class="action-bar no-print">
+            <button class="btn btn-add" onclick="addRow()">+ ADD ITEM</button>
             <button class="btn btn-dl" onclick="makePDF()">DOWNLOAD PDF</button>
         </div>
     </div>
@@ -160,30 +196,36 @@
         }
 
         function calc() {
-            let total = 0;
+            let subtotal = 0;
+            const symbol = document.getElementById('currency').value;
+            
             document.querySelectorAll('#rows tr').forEach(row => {
                 const q = row.cells[0].querySelector('input').value || 0;
                 const p = row.cells[2].querySelector('input').value || 0;
-                total += (q * p);
+                subtotal += (q * p);
             });
-            const fmt = "₹" + total.toLocaleString('en-IN');
-            document.getElementById('top-total').innerText = fmt;
-            document.getElementById('final-total').innerText = fmt;
+
+            const discPerc = document.getElementById('discount-percent').value || 0;
+            const paid = document.getElementById('amount-paid').value || 0;
+            
+            const discAmt = (subtotal * discPerc) / 100;
+            const grandTotal = subtotal - discAmt;
+            const balance = grandTotal - paid;
+
+            document.getElementById('subtotal').innerText = symbol + " " + subtotal.toLocaleString();
+            document.getElementById('header-total').innerText = symbol + " " + balance.toLocaleString();
+            document.getElementById('balance-due').innerText = symbol + " " + balance.toLocaleString();
         }
 
         async function makePDF() {
-            // Fix: Capture input values into the DOM before printing
             document.querySelectorAll('input').forEach(i => i.setAttribute('value', i.value));
-            
             const el = document.getElementById('invoice-container');
             const canvas = await html2canvas(el, { scale: 3, useCORS: true });
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
-            
             const pdfW = pdf.internal.pageSize.getWidth();
             const pdfH = (canvas.height * pdfW) / canvas.width;
-            
             pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
             pdf.save('Naveed_Textiles_Invoice.pdf');
         }
