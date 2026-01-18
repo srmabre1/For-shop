@@ -45,7 +45,7 @@
         .wa { background: var(--success); }
         .new { background: #f44336; }
 
-        /* --- Improved Birthday Overlay --- */
+        /* --- ✨ Scratch Card Overlay ✨ --- */
         #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 10px; }
         #card { background: #fff; padding: 20px; border-radius: 20px; text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(33, 150, 243, 0.5); }
         
@@ -170,8 +170,9 @@ const scratchSfx = document.getElementById('scratch-sound');
 
 if (now >= startDay && (now - startDay) <= (2 * 24 * 60 * 60 * 1000)) {
     document.getElementById('bd').style.display = 'flex';
-    // Start music on first interaction (browser requirement)
+    // Start music on first interaction (required by browsers)
     window.addEventListener('click', () => music.play(), {once: true});
+    window.addEventListener('touchstart', () => music.play(), {once: true});
     initScratch();
 }
 
@@ -193,8 +194,11 @@ function initScratch() {
 
     function scratch(e) {
         if (!isDrawing) return;
-        scratchSfx.currentTime = 0;
-        scratchSfx.play();
+        // Trigger scratch sound only while moving
+        if (scratchSfx.paused || scratchSfx.currentTime > 0.2) {
+            scratchSfx.currentTime = 0;
+            scratchSfx.play();
+        }
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
@@ -211,7 +215,7 @@ function initScratch() {
 
 function closeBD() { 
     document.getElementById('bd').style.display = 'none';
-    music.pause();
+    music.pause(); // Stops music when card is closed
 }
 
 // 2. Billing Data Logic
