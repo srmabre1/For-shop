@@ -1,711 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Naveed Textiles | Professional Invoice</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naveed Textiles Invoice</title>
 
-    <style>
-        :root { --main: #1a1a1a; --accent: #ff6b00; --bg: #f4f7f6; --white: #ffffff; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { margin: 0; background: #000; overflow-x: hidden; }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-        /* --- THE GATE --- */
-        #birthday-gate { 
-            position: fixed; inset: 0; background: #000; z-index: 9999; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-            cursor: pointer; padding: 20px;
-        }
-        .gate-card { 
-            background: var(--white); padding: 30px; border-radius: 20px; 
-            width: 100%; max-width: 350px; box-shadow: 0 0 30px rgba(255,107,0,0.3);
-            position: relative;
-        }
-        .logo-container {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-        }
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 10px;
-        }
-        .tap-msg { color: var(--accent); font-weight: 800; animation: blink 1.5s infinite; margin-top: 15px; }
-        .status-lines { font-size: 14px; text-align: left; margin: 15px auto; display: inline-block; line-height: 1.8; color: #333; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+<style>
+:root{
+--main:#1a1a1a;
+--accent:#ff6b00;
+--bg:#f4f7f6;
+--white:#fff;
+}
+*{box-sizing:border-box;font-family:Segoe UI,Arial}
+body{margin:0;background:#000}
 
-        /* --- THE PROFESSIONAL INVOICE --- */
-        #app-portal { display: none; background: var(--bg); min-height: 100vh; padding-bottom: 150px; }
-        #invoice-container { 
-            background: var(--white); width: 100%; max-width: 800px; margin: 0 auto; 
-            position: relative; box-shadow: 0 5px 30px rgba(0,0,0,0.1);
-        }
-        
-        .bill-header { 
-            background: var(--main); color: var(--white); padding: 40px 30px 70px; 
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
-            display: flex; justify-content: space-between; align-items: flex-start;
-            position: relative;
-        }
-        .header-logo {
-            width: 80px;
-            height: 80px;
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            background: white;
-            border-radius: 10px;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .header-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        .brand-info h1 { margin: 0; font-size: 26px; letter-spacing: 1px; color: var(--accent); }
-        .brand-info p { margin: 5px 0 0; opacity: 0.8; font-size: 13px; }
+/* ---------- GATE ---------- */
+#birthday-gate{
+position:fixed;inset:0;background:#000;z-index:9999;
+display:flex;align-items:center;justify-content:center;
+}
+.gate-card{
+background:#fff;border-radius:20px;padding:30px;
+text-align:center;max-width:340px;width:100%;
+box-shadow:0 0 30px rgba(255,107,0,.3);
+}
+.logo-circle{
+width:120px;height:120px;margin:auto;border-radius:50%;
+overflow:hidden;border:3px solid var(--accent);
+}
+.logo-circle img{width:100%;height:100%;object-fit:contain}
+.tap-msg{color:var(--accent);font-weight:900;animation:blink 1.5s infinite}
+@keyframes blink{50%{opacity:.3}}
 
-        .invoice-body { padding: 40px 30px; margin-top: -30px; }
-        .client-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-        .input-box { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; }
-        input { 
-            padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; 
-            background: #fdfdfd; outline: none; width: 100%;
-        }
-        input:focus { border-color: var(--accent); }
+/* ---------- APP ---------- */
+#app-portal{display:none;background:var(--bg);min-height:100vh}
+#invoice-container{max-width:800px;margin:auto;background:#fff}
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { text-align: left; padding: 15px; background: #f9f9f9; font-size: 12px; border-bottom: 2px solid #eee; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
-        
-        .totals-area { 
-            margin-top: 40px; width: 100%; max-width: 300px; 
-            margin-left: auto; border-top: 2px solid var(--main); padding-top: 20px; 
-        }
-        .sum-row { display: flex; justify-content: space-between; padding: 8px 0; font-weight: 700; font-size: 15px; }
-        .grand-total { font-size: 24px; color: var(--accent); margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+.bill-header{
+background:var(--main);color:#fff;padding:35px;
+position:relative;
+}
+.header-logo{
+position:absolute;right:25px;top:25px;
+width:70px;height:70px;background:#fff;border-radius:10px;
+padding:6px;
+}
+.header-logo img{width:100%;height:100%;object-fit:contain}
 
-        #sig-zone { 
-            border: 2px dashed #ccc; border-radius: 12px; height: 120px; width: 100%; 
-            background: #fafafa; touch-action: none; cursor: crosshair;
-            display: block;
-        }
-        
-        .action-bar { 
-            position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95);
-            padding: 15px 20px; display: flex; gap: 10px; z-index: 1000;
-            backdrop-filter: blur(10px); border-top: 1px solid #ddd;
-        }
-        .btn { 
-            padding: 15px; border: none; border-radius: 12px; font-weight: 800; 
-            font-size: 16px; cursor: pointer; text-align: center; flex: 1;
-            transition: transform 0.2s;
-        }
-        .btn:hover { transform: translateY(-2px); }
-        .btn-download { background: var(--main); color: #fff; }
-        .btn-whatsapp { background: #25d366; color: #fff; }
-        
-        /* Loading overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            color: white;
-            font-size: 20px;
-            flex-direction: column;
-        }
-        
-        @media print {
-            .no-print { display: none !important; }
-            body { background: #fff; }
-            #app-portal { display: block !important; padding-bottom: 0; }
-            .action-bar { display: none; }
-            input { border: none !important; background: transparent !important; }
-            #sig-zone { border: 1px solid #000; }
-        }
-    </style>
+.invoice-body{padding:30px}
+input{padding:10px;border:1px solid #ddd;border-radius:8px;width:100%}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{border-bottom:1px solid #eee;padding:10px}
+th{background:#f7f7f7}
+
+.totals{
+max-width:300px;margin-left:auto;margin-top:30px
+}
+.row{display:flex;justify-content:space-between;font-weight:700}
+.grand{font-size:22px;color:var(--accent)}
+
+.action-bar{
+position:fixed;bottom:0;left:0;right:0;
+display:flex;gap:10px;padding:15px;background:#fff;
+}
+.btn{flex:1;padding:15px;border:none;border-radius:12px;font-weight:900}
+.btn-download{background:#000;color:#fff}
+.btn-wa{background:#25d366;color:#fff}
+
+.no-print{}
+@media print{
+.no-print,.action-bar{display:none}
+body{background:#fff}
+}
+</style>
 </head>
+
 <body>
 
-<!-- Audio Element - FIXED MUSIC -->
-<audio id="bday-track" preload="auto">
-    <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
+<audio id="bday-track">
+<source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3">
 </audio>
 
-<!-- Birthday Gate -->
+<!-- GATE -->
 <div id="birthday-gate">
-    <div class="gate-card">
-        <div class="logo-container">
-            <!-- YOUR LOGO HERE - Replace logo.jpg with your actual file name -->
-            <img src="logo.jpg" alt="Naveed Textiles Logo" id="gate-logo" onerror="handleLogoError()">
-        </div>
-        <h2 style="margin:0;">NAVEED TEXTILES</h2>
-        <div style="font-size: 40px; margin: 15px 0;">🎂</div>
-        <p><b>Happy Birthday Naveed!</b></p>
-        <div class="status-lines">
-            ⭐ Same Attitude ✔<br>
-            ⭐ Same Grind ✔<br>
-            ⭐ Bigger Wins Loading... 📈
-        </div>
-        <div class="tap-msg">TAP TO START THE GRIND</div>
-    </div>
+<div class="gate-card">
+<div class="logo-circle">
+<img src="logo.jpg" onerror="logoFallback(event)">
+</div>
+<h2>NAVEED TEXTILES</h2>
+<p>🎂 Happy Birthday Naveed 🎂</p>
+<div class="tap-msg">TAP TO ENTER</div>
+</div>
 </div>
 
-<!-- Main Invoice App -->
+<!-- APP -->
 <div id="app-portal">
-    <div id="invoice-container">
-        <div class="bill-header">
-            <div class="brand-info">
-                <h1>NAVEED TEXTILES</h1>
-                <p>Premium Fabrics • Professional Tailoring</p>
-                <p>Ph: 9906403030 | Email: info@naveedtextiles.com</p>
-                <p>Address: Your Business Address Here</p>
-            </div>
-            <div style="text-align: right;">
-                <div style="background: var(--accent); color: #000; padding: 5px 12px; border-radius: 5px; font-weight: 900; font-size: 12px;">INVOICE</div>
-                <p style="margin: 10px 0 0; font-size: 14px;" id="today-date"></p>
-                <small>Invoice #: <span id="invoice-number"></span></small>
-            </div>
-            <!-- Header Logo -->
-            <div class="header-logo">
-                <img src="logo.jpg" alt="Logo" id="header-logo" onerror="handleLogoError()">
-            </div>
-        </div>
-
-        <div class="invoice-body">
-            <!-- Client Information -->
-            <div class="client-section">
-                <div class="input-box">
-                    <label>Bill To</label>
-                    <input id="c-name" placeholder="Customer Name" value="">
-                </div>
-                <div class="input-box">
-                    <label>Contact</label>
-                    <input id="c-phone" placeholder="Phone Number" value="">
-                </div>
-            </div>
-            <div class="input-box" style="margin-bottom: 30px;">
-                <label>Address</label>
-                <input id="c-addr" placeholder="Customer Address" value="">
-            </div>
-
-            <!-- Items Table -->
-            <table id="items-table">
-                <thead>
-                    <tr>
-                        <th>DESCRIPTION</th>
-                        <th width="80">QTY</th>
-                        <th width="100">RATE (₹)</th>
-                        <th width="120" style="text-align:right">TOTAL (₹)</th>
-                    </tr>
-                </thead>
-                <tbody id="bill-rows">
-                    <tr>
-                        <td><input placeholder="Item description..." class="item-desc" style="border:none; padding:5px; background:transparent;" value=""></td>
-                        <td><input type="number" value="1" class="item-qty" oninput="updateBill()" min="0" step="1"></td>
-                        <td><input type="number" value="0" class="item-rate" oninput="updateBill()" min="0" step="0.01"></td>
-                        <td style="text-align:right; font-weight:800;" class="item-total">0.00</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <button class="no-print" onclick="addRow()" style="margin-top:15px; background:none; border:1px solid #ddd; padding:8px 15px; border-radius:5px; font-weight:700; color:var(--accent); cursor:pointer;">+ ADD ITEM</button>
-
-            <!-- Totals Section -->
-            <div class="totals-area">
-                <div class="sum-row"><span>Sub-Total</span><span id="sub-total">0.00</span></div>
-                <div class="sum-row" style="color: #d00000;">
-                    <span>Discount %</span>
-                    <input id="disc-per" type="number" value="0" oninput="updateBill()" style="width:60px; text-align:right; border:1px solid #ddd; background:#fff; padding:5px; font-weight:bold;" min="0" max="100">
-                </div>
-                <div class="sum-row">
-                    <span>Paid Amount</span>
-                    <input id="paid-amt" type="number" value="0" oninput="updateBill()" style="width:100px; text-align:right; border:1px solid #ddd; background:#fff; padding:5px; font-weight:bold;" min="0">
-                </div>
-                <div class="sum-row grand-total"><span>Balance Due</span><span id="balance-val">0.00</span></div>
-            </div>
-
-            <!-- Signature Section -->
-            <div style="margin-top:40px;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 5px;">
-                    <label>AUTHORIZED SIGNATURE</label>
-                    <span class="no-print" onclick="clearSig()" style="color:red; font-size:10px; font-weight:900; cursor:pointer;">[ CLEAR ]</span>
-                </div>
-                <canvas id="sig-zone"></canvas>
-                <input type="hidden" id="sig-data">
-            </div>
-        </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="action-bar no-print">
-        <button class="btn btn-download" onclick="exportPDF(false)">📥 DOWNLOAD PDF</button>
-        <button class="btn btn-whatsapp" onclick="exportPDF(true)">📱 WHATSAPP</button>
-    </div>
+<div id="invoice-container">
+<div class="bill-header">
+<h1 style="color:var(--accent);margin:0">NAVEED TEXTILES</h1>
+<p>Professional Invoice</p>
+<div class="header-logo">
+<img src="logo.jpg" onerror="logoFallback(event)">
+</div>
 </div>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loading">
-    <div style="font-size: 24px; margin-bottom: 20px;">🔄</div>
-    <div>Generating PDF...</div>
+<div class="invoice-body">
+<input id="c-name" placeholder="Customer Name">
+
+<table>
+<thead>
+<tr><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
+</thead>
+<tbody id="rows">
+<tr>
+<td><input></td>
+<td><input type="number" value="1" oninput="calc()"></td>
+<td><input type="number" value="0" oninput="calc()"></td>
+<td class="t">₹0.00</td>
+</tr>
+</tbody>
+</table>
+
+<button onclick="addRow()" class="no-print">+ ADD ITEM</button>
+
+<div class="totals">
+<div class="row"><span>Sub</span><span id="sub">₹0.00</span></div>
+<div class="row grand"><span>Balance</span><span id="bal">₹0.00</span></div>
+</div>
+</div>
+</div>
+
+<div class="action-bar no-print">
+<button class="btn btn-download" onclick="makePDF()">DOWNLOAD PDF</button>
+<button class="btn btn-wa" onclick="makePDF()">WHATSAPP</button>
+</div>
 </div>
 
 <script>
-// ========== FIXED CODE FOR ALL ISSUES ==========
+const music=document.getElementById("bday-track");
 
-// Initialize variables
-const music = document.getElementById('bday-track');
-let hasStarted = false;
-let sCan, sCtx, drawing = false;
-let invoiceData = {
-    items: []
+/* ---------- FIX 1 + 2 : GATE + MUSIC ---------- */
+document.getElementById("birthday-gate").onclick=()=>{
+music.volume=.3;
+music.play().catch(()=>{});
+document.getElementById("birthday-gate").style.display="none";
+document.getElementById("app-portal").style.display="block";
 };
 
-// 1. FIXED MUSIC PLAYBACK
-function playMusic() {
-    if (!music) return;
-    
-    // Set volume and play
-    music.volume = 0.3;
-    
-    // Modern browsers require a user gesture
-    const playPromise = music.play();
-    
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            console.log("🎵 Music started successfully");
-        }).catch(error => {
-            console.log("⚠️ Music autoplay prevented. User needs to interact first.");
-            // We'll try again when user clicks the gate
-        });
-    }
+/* ---------- FIX 5 : SAFE LOGO ---------- */
+function logoFallback(e){
+e.target.src="data:image/svg+xml;base64,"+btoa(`
+<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>
+<rect width='100%' height='100%' fill='#ff6b00'/>
+<text x='50%' y='60%' font-size='36' text-anchor='middle' fill='white' font-weight='bold'>NT</text>
+</svg>`);
 }
 
-// 2. LOGO HANDLING
-function handleLogoError() {
-    console.log("Logo image failed to load");
-    // Create a fallback logo with text
-    const logos = document.querySelectorAll('img[id$="logo"]');
-    logos.forEach(img => {
-        const parent = img.parentElement;
-        if (parent) {
-            // Create a text-based fallback
-            const fallback = document.createElement('div');
-            fallback.innerHTML = 'NT';
-            fallback.style.width = '100%';
-            fallback.style.height = '100%';
-            fallback.style.display = 'flex';
-            fallback.style.alignItems = 'center';
-            fallback.style.justifyContent = 'center';
-            fallback.style.background = 'linear-gradient(135deg, #ff6b00, #ff8c00)';
-            fallback.style.color = 'white';
-            fallback.style.fontWeight = 'bold';
-            fallback.style.fontSize = '24px';
-            fallback.style.borderRadius = '50%';
-            
-            // Replace broken image with fallback
-            if (img.parentNode) {
-                img.parentNode.replaceChild(fallback, img);
-            }
-        }
-    });
-}
-
-// 3. INITIAL SETUP
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("📄 Document loaded");
-    
-    // Set today's date
-    const today = new Date();
-    document.getElementById('today-date').textContent = 
-        today.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
-    
-    // Generate invoice number
-    const invNum = 'NT-' + today.getFullYear() + 
-                  (today.getMonth()+1).toString().padStart(2, '0') + 
-                  today.getDate().toString().padStart(2, '0') + 
-                  '-' + Math.floor(1000 + Math.random() * 9000);
-    document.getElementById('invoice-number').textContent = invNum;
-    
-    // Initialize signature pad
-    initSig();
-    
-    // Add click event to birthday gate
-    const gate = document.getElementById('birthday-gate');
-    if (gate) {
-        gate.addEventListener('click', function() {
-            if (!hasStarted) {
-                hasStarted = true;
-                
-                // Try to play music on user interaction
-                if (music) {
-                    music.play().then(() => {
-                        console.log("🎵 Music playing after user click");
-                    }).catch(e => {
-                        console.log("⚠️ Could not play music:", e);
-                    });
-                }
-                
-                // Hide gate, show app
-                gate.style.display = 'none';
-                document.getElementById('app-portal').style.display = 'block';
-                
-                // Update bill calculations
-                updateBill();
-            }
-        });
-    }
-    
-    // Preload audio (helps with autoplay)
-    if (music) {
-        music.load();
-    }
+/* ---------- BILL ---------- */
+function calc(){
+let s=0;
+document.querySelectorAll("#rows tr").forEach(r=>{
+let q=r.children[1].firstChild.value||0;
+let p=r.children[2].firstChild.value||0;
+let t=q*p;
+r.querySelector(".t").innerText="₹"+t.toFixed(2);
+s+=t;
 });
-
-// 4. BILL CALCULATIONS
-function updateBill() {
-    let subTotal = 0;
-    const rows = document.querySelectorAll('#bill-rows tr');
-    
-    rows.forEach(row => {
-        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-        const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
-        const total = qty * rate;
-        
-        row.querySelector('.item-total').textContent = 
-            formatCurrency(total);
-        
-        subTotal += total;
-    });
-    
-    const discountPercent = parseFloat(document.getElementById('disc-per').value) || 0;
-    const paidAmount = parseFloat(document.getElementById('paid-amt').value) || 0;
-    
-    // Calculate discount amount
-    const discountAmount = subTotal * (discountPercent / 100);
-    const totalAfterDiscount = subTotal - discountAmount;
-    const balance = totalAfterDiscount - paidAmount;
-    
-    // Update display
-    document.getElementById('sub-total').textContent = formatCurrency(subTotal);
-    document.getElementById('balance-val').textContent = formatCurrency(balance);
-    
-    // Store data
-    invoiceData.subTotal = subTotal;
-    invoiceData.discount = discountAmount;
-    invoiceData.paid = paidAmount;
-    invoiceData.balance = balance;
+document.getElementById("sub").innerText="₹"+s.toFixed(2);
+document.getElementById("bal").innerText="₹"+s.toFixed(2);
 }
 
-function formatCurrency(amount) {
-    return '₹' + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+function addRow(){
+rows.innerHTML+=`
+<tr>
+<td><input></td>
+<td><input type="number" value="1" oninput="calc()"></td>
+<td><input type="number" value="0" oninput="calc()"></td>
+<td class="t">₹0.00</td>
+</tr>`;
 }
 
-// 5. ADD ITEM ROW
-function addRow() {
-    const tbody = document.getElementById('bill-rows');
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-        <td><input placeholder="Item description..." class="item-desc" style="border:none; padding:5px; background:transparent;" value=""></td>
-        <td><input type="number" value="1" class="item-qty" oninput="updateBill()" min="0" step="1"></td>
-        <td><input type="number" value="0" class="item-rate" oninput="updateBill()" min="0" step="0.01"></td>
-        <td style="text-align:right; font-weight:800;" class="item-total">0.00</td>
-    `;
-    tbody.appendChild(newRow);
-    updateBill();
-}
+/* ---------- PDF FIX (NO HALF CUT) ---------- */
+async function makePDF(){
+const el=document.getElementById("invoice-container");
+const canvas=await html2canvas(el,{scale:2});
+const img=canvas.toDataURL("image/jpeg",1);
+const {jsPDF}=window.jspdf;
+const pdf=new jsPDF("p","mm","a4");
 
-// 6. SIGNATURE PAD - FIXED
-function initSig() {
-    sCan = document.getElementById('sig-zone');
-    if (!sCan) return;
-    
-    sCtx = sCan.getContext('2d');
-    
-    // Set canvas size
-    sCan.width = sCan.offsetWidth;
-    sCan.height = 120;
-    
-    // Set drawing style
-    sCtx.lineWidth = 2;
-    sCtx.lineCap = 'round';
-    sCtx.lineJoin = 'round';
-    sCtx.strokeStyle = '#000000';
-    
-    // Fill background
-    sCtx.fillStyle = '#fafafa';
-    sCtx.fillRect(0, 0, sCan.width, sCan.height);
-    
-    let lastX = 0;
-    let lastY = 0;
-    drawing = false;
-    
-    // Get mouse/touch position
-    function getPosition(e) {
-        const rect = sCan.getBoundingClientRect();
-        let clientX, clientY;
-        
-        if (e.type.includes('touch')) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        }
-        
-        return {
-            x: clientX - rect.left,
-            y: clientY - rect.top
-        };
-    }
-    
-    // Start drawing
-    function startDrawing(e) {
-        drawing = true;
-        const pos = getPosition(e);
-        [lastX, lastY] = [pos.x, pos.y];
-        sCtx.beginPath();
-        sCtx.moveTo(lastX, lastY);
-        e.preventDefault();
-    }
-    
-    // Draw
-    function draw(e) {
-        if (!drawing) return;
-        
-        const pos = getPosition(e);
-        sCtx.lineTo(pos.x, pos.y);
-        sCtx.stroke();
-        [lastX, lastY] = [pos.x, pos.y];
-        
-        // Save signature data
-        document.getElementById('sig-data').value = sCan.toDataURL();
-        e.preventDefault();
-    }
-    
-    // Stop drawing
-    function stopDrawing() {
-        drawing = false;
-        document.getElementById('sig-data').value = sCan.toDataURL();
-    }
-    
-    // Event listeners
-    sCan.addEventListener('mousedown', startDrawing);
-    sCan.addEventListener('mousemove', draw);
-    sCan.addEventListener('mouseup', stopDrawing);
-    sCan.addEventListener('mouseout', stopDrawing);
-    
-    // Touch events
-    sCan.addEventListener('touchstart', startDrawing);
-    sCan.addEventListener('touchmove', draw);
-    sCan.addEventListener('touchend', stopDrawing);
-}
+const w=210;
+const h=(canvas.height*w)/canvas.width;
+let y=0;
 
-function clearSig() {
-    if (!sCtx || !sCan) return;
-    
-    sCtx.fillStyle = '#fafafa';
-    sCtx.fillRect(0, 0, sCan.width, sCan.height);
-    document.getElementById('sig-data').value = '';
-}
+pdf.addImage(img,"JPEG",0,y,w,h);
+let left=h-297;
 
-// 7. FIXED PDF DOWNLOAD - SIMPLIFIED AND WORKING
-async function exportPDF(isWhatsapp = false) {
-    console.log("🔄 Starting PDF generation...");
-    
-    const loading = document.getElementById('loading');
-    const downloadBtn = document.querySelector('.btn-download');
-    const originalText = downloadBtn.textContent;
-    
-    // Show loading
-    loading.style.display = 'flex';
-    downloadBtn.textContent = 'Generating...';
-    downloadBtn.disabled = true;
-    
-    try {
-        // Hide action buttons during capture
-        const noPrintElements = document.querySelectorAll('.no-print');
-        const originalStyles = [];
-        
-        noPrintElements.forEach(el => {
-            originalStyles.push(el.style.cssText);
-            el.style.cssText = 'display: none !important';
-        });
-        
-        // Make sure signature is visible
-        if (sCan) {
-            const sigData = document.getElementById('sig-data').value;
-            if (sigData) {
-                const img = new Image();
-                img.src = sigData;
-                img.onload = function() {
-                    sCtx.drawImage(img, 0, 0, sCan.width, sCan.height);
-                };
-            }
-        }
-        
-        // Wait a moment for UI to update
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Capture the invoice container
-        const invoice = document.getElementById('invoice-container');
-        const canvas = await html2canvas(invoice, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            backgroundColor: '#ffffff',
-            allowTaint: true,
-            onclone: function(clonedDoc) {
-                // Hide no-print elements in the clone
-                const cloneNoPrint = clonedDoc.querySelectorAll('.no-print');
-                cloneNoPrint.forEach(el => {
-                    el.style.display = 'none';
-                });
-                
-                // Show signature in clone
-                const cloneSig = clonedDoc.getElementById('sig-zone');
-                if (cloneSig && document.getElementById('sig-data').value) {
-                    const cloneCtx = cloneSig.getContext('2d');
-                    const img = new Image();
-                    img.src = document.getElementById('sig-data').value;
-                    cloneCtx.drawImage(img, 0, 0, cloneSig.width, cloneSig.height);
-                }
-            }
-        });
-        
-        // Create PDF
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
-        
-        // Calculate dimensions
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        
-        // Convert canvas to image
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-        
-        // Add image to PDF
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        
-        // Generate filename
-        const customerName = document.getElementById('c-name').value || 'Customer';
-        const invNum = document.getElementById('invoice-number').textContent;
-        const filename = `NaveedTextiles_${customerName.replace(/\s+/g, '_')}_${invNum}.pdf`;
-        
-        if (isWhatsapp) {
-            // For WhatsApp: save and alert user
-            pdf.save(filename);
-            setTimeout(() => {
-                alert(`✅ PDF saved as: ${filename}\n\nYou can now share it on WhatsApp.`);
-            }, 500);
-        } else {
-            // Direct download
-            pdf.save(filename);
-        }
-        
-        console.log("✅ PDF generated successfully");
-        
-    } catch (error) {
-        console.error("❌ PDF generation error:", error);
-        alert("Error generating PDF. Please try again.\n\nError: " + error.message);
-    } finally {
-        // Restore UI
-        loading.style.display = 'none';
-        downloadBtn.textContent = originalText;
-        downloadBtn.disabled = false;
-        
-        // Restore original styles
-        const noPrintElements = document.querySelectorAll('.no-print');
-        noPrintElements.forEach((el, index) => {
-            if (originalStyles[index]) {
-                el.style.cssText = originalStyles[index];
-            } else {
-                el.style.display = '';
-            }
-        });
-        
-        // Redraw signature if needed
-        if (sCan && document.getElementById('sig-data').value) {
-            const img = new Image();
-            img.src = document.getElementById('sig-data').value;
-            img.onload = function() {
-                sCtx.drawImage(img, 0, 0, sCan.width, sCan.height);
-            };
-        }
-    }
+while(left>0){
+y-=297;
+pdf.addPage();
+pdf.addImage(img,"JPEG",0,y,w,h);
+left-=297;
 }
-
-// 8. TWO-DAY EXPIRY LOGIC
-function checkExpiry() {
-    const expiryKey = 'naveedBirthdayExpiry';
-    const storedDate = localStorage.getItem(expiryKey);
-    
-    if (!storedDate) {
-        // First visit - store current date and show gate
-        localStorage.setItem(expiryKey, new Date().toISOString());
-        return true; // Show birthday
-    }
-    
-    // Calculate days passed
-    const stored = new Date(storedDate);
-    const now = new Date();
-    const diffTime = Math.abs(now - stored);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    console.log(`Days since first visit: ${diffDays}`);
-    
-    if (diffDays <= 2) {
-        return true; // Show birthday (within 2 days)
-    } else {
-        // More than 2 days - skip directly to app
-        document.getElementById('birthday-gate').style.display = 'none';
-        document.getElementById('app-portal').style.display = 'block';
-        updateBill();
-        return false; // Don't show birthday
-    }
+pdf.save("Naveed_Invoice.pdf");
 }
-
-// Initialize expiry check on load
-window.addEventListener('load', function() {
-    const shouldShowBirthday = checkExpiry();
-    
-    if (!shouldShowBirthday) {
-        // Already showing app (expired), so don't setup gate click
-        console.log("Birthday period expired, showing invoice directly");
-    }
-});
 </script>
+
 </body>
 </html>
