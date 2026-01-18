@@ -10,266 +10,242 @@
 
     <style>
         :root { --primary: #2196f3; --success: #25d366; --dark: #333; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 5px; color: var(--dark); overflow-x: hidden; }
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--dark); }
         
-        /* Main Bill Container */
         #bill { 
             width: 100%; max-width: 800px; margin: auto; background: #fff; 
-            padding: 15px; box-sizing: border-box; border: 1px solid #ddd;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px; box-sizing: border-box; border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 10px; gap: 10px; }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .my-logo { width: 50px; height: 50px; object-fit: contain; border-radius: 5px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .my-logo { width: 60px; height: 60px; border-radius: 8px; }
 
-        .box { border: 1px solid #eee; padding: 10px; margin-top: 10px; border-radius: 5px; background: #fafafa; }
-        .flex-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-        .flex-grid div { flex: 1; min-width: 120px; display: flex; flex-direction: column; font-size: 11px; font-weight: bold; }
-        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .field { display: flex; flex-direction: column; font-size: 12px; font-weight: bold; color: #666; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-top: 5px; font-size: 14px; width: 100%; box-sizing: border-box; }
 
-        .table-wrap { width: 100%; overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; min-width: 450px; }
-        th { background: #f8f9fa; padding: 8px; border: 1px solid #eee; font-size: 11px; text-align: left; }
-        td { border: 1px solid #eee; padding: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; font-size: 13px; border-bottom: 2px solid #eee; }
+        td { padding: 8px; border-bottom: 1px solid #eee; }
         
-        .totalBox { width: 100%; max-width: 220px; margin-left: auto; margin-top: 15px; }
-        .totalRow { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 14px; }
-        .grand-total { font-weight: bold; color: var(--primary); font-size: 16px; border-bottom: 2px solid var(--primary); }
+        .totals { width: 250px; margin-left: auto; margin-top: 20px; }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+        .grand-total { font-weight: bold; color: var(--primary); font-size: 18px; border-top: 2px solid #eee; margin-top: 5px; padding-top: 10px; }
 
-        #sig { border: 1px dashed #ccc; width: 100%; height: 80px; background: #fff; touch-action: none; margin-top: 5px; }
+        #sig-wrap { margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; }
+        #sig { border: 1px dashed #ccc; width: 100%; height: 100px; background: #fafafa; touch-action: none; }
 
-        .btns { width: 100%; max-width: 800px; margin: 15px auto; display: flex; flex-direction: column; gap: 8px; }
-        .btn-row { display: flex; gap: 8px; }
-        button { flex: 1; padding: 12px; font-weight: bold; border: none; border-radius: 6px; color: #fff; cursor: pointer; font-size: 14px; }
-        .pdf { background: #607d8b; }
-        .wa { background: var(--success); }
-        .new { background: #f44336; }
+        /* Controls hidden in PDF */
+        .no-print-area { width: 100%; max-width: 800px; margin: 20px auto; display: flex; flex-direction: column; gap: 10px; }
+        .btn-group { display: flex; gap: 10px; }
+        button { flex: 1; padding: 15px; font-weight: bold; border: none; border-radius: 8px; color: #fff; cursor: pointer; }
+        .btn-pdf { background: #455a64; }
+        .btn-wa { background: var(--success); }
+        .btn-new { background: #f44336; }
+        .btn-add { background: #eee; color: #333; width: 120px; padding: 8px; font-size: 12px; margin-top: 10px; }
 
-        /* --- Scratch Card Overlay --- */
-        #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 10px; }
-        #card { background: #fff; padding: 20px; border-radius: 20px; text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(33, 150, 243, 0.5); }
-        
-        #scratch-container { position: relative; width: 280px; height: 280px; margin: 15px auto; background: #1a1a1a; border: 3px solid #ffd700; border-radius: 15px; overflow: hidden; }
+        .hidden-for-export { display: none !important; }
+
+        /* Scratch Overlay */
+        #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        #card { background: #fff; padding: 20px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; }
+        #scratch-container { position: relative; width: 280px; height: 300px; margin: 15px auto; background: #1a1a1a; border-radius: 15px; overflow: hidden; }
         #scratch-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; z-index: 2; }
         
         .prize-text { 
             position: absolute; inset: 0; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; font-weight: bold; 
-            padding: 10px; font-size: 14px; line-height: 1.5; z-index: 1;
-            color: white;
-            animation: goldPulse 2s infinite ease-in-out;
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+            padding: 10px; font-size: 14px; line-height: 1.6; z-index: 1; color: white;
+            animation: goldGlow 2s infinite;
         }
-
-        @keyframes goldPulse {
-            0% { transform: scale(1); color: #ffffff; }
-            50% { transform: scale(1.03); color: #ffd700; }
-            100% { transform: scale(1); color: #ffffff; }
-        }
-
-        .close-bd { margin-top: 10px; color: #2196f3; font-weight: bold; cursor: pointer; font-size: 16px; text-transform: uppercase; }
+        @keyframes goldGlow { 0% { color: #fff; } 50% { color: #ffd700; } 100% { color: #fff; } }
     </style>
 </head>
 <body>
 
-<audio id="scratch-sound">
-    <source src="https://assets.mixkit.co/active_storage/sfx/2388/2388-preview.mp3" type="audio/mpeg">
-</audio>
+<audio id="scratch-sfx"><source src="https://assets.mixkit.co/active_storage/sfx/2388/2388-preview.mp3"></audio>
+<audio id="victory-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"></audio>
 
 <div id="bd">
     <div id="card">
-        <h2 style="margin:0; color: #2196f3;">✨ SURPRISE NAVEED ✨</h2>
+        <h3 style="color:var(--primary); margin:0;">✨ Surprise Naveed ✨</h3>
         <div id="scratch-container">
             <div class="prize-text">
                 Bro you didn’t level up…<br>
                 You <b>unlocked a new chapter</b> 😎<br><br>
-                <span>Same attitude ✔</span>
-                <span>Same grind ✔</span>
-                <span>Bigger wins loading… 📈</span><br>
-                <span>Stay real. Stay sharp. 👊</span><br>
-                <span style="font-size: 13px; color: #ffd700;">and don't forget me 😁</span>
+                Same attitude ✔<br>
+                Same grind ✔<br>
+                Bigger wins loading… 📈<br><br>
+                Stay real. Stay sharp. 👊<br>
+                and don't forget me 😁
             </div>
-            <canvas id="scratch-canvas" width="280" height="280"></canvas>
+            <canvas id="scratch-canvas" width="280" height="300"></canvas>
         </div>
-        <div class="close-bd" onclick="closeBD()">Go to My Bill</div>
+        <button onclick="closeBD()" style="background:var(--primary); width:100%; padding:12px;">Go to My Bill</button>
     </div>
 </div>
 
 <div id="bill">
     <div class="header">
         <div class="logo-area">
-            <img src="logo.png" alt="NT" class="my-logo" onerror="this.src='https://via.placeholder.com/50?text=NT'">
+            <img src="logo.png" class="my-logo" onerror="this.src='https://via.placeholder.com/60?text=NT'">
             <div>
-                <h1 style="margin:0; font-size: 18px;">NAVEED TEXTILES</h1>
-                <span style="font-size: 11px;">Ph: 9906403030</span>
+                <h1 style="margin:0; font-size: 22px; color:var(--primary)">NAVEED TEXTILES</h1>
+                <span style="font-size: 12px;">Ph: 9906403030</span>
             </div>
         </div>
         <div style="text-align: right;">
-            <div id="inv-display" style="font-weight: bold; color: var(--primary); font-size: 14px;">NT-1000</div>
-            <input type="date" id="date" style="font-size: 12px; border:none; background:transparent; width:auto;">
+            <div style="font-weight: bold; font-size: 16px;">NT-1042</div>
+            <div id="date-display" style="font-size: 14px; color: #666;"></div>
         </div>
     </div>
 
-    <div class="box flex-grid">
-        <div>NAME <input id="name" placeholder="..."></div>
-        <div>PHONE <input id="phone" placeholder="..."></div>
-        <div>ADDRESS <input id="addr" placeholder="..."></div>
+    <div class="info-grid">
+        <div class="field">CUSTOMER NAME <input id="name" placeholder="..."></div>
+        <div class="field">PHONE <input id="phone" placeholder="..."></div>
+        <div class="field">ADDRESS <input id="addr" placeholder="..."></div>
     </div>
 
-    <div class="table-wrap">
-        <table>
-            <thead>
-                <tr><th width="30">#</th><th>ITEM</th><th width="50">QTY</th><th width="70">RATE</th><th width="70">TOTAL</th></tr>
-            </thead>
-            <tbody id="rows">
-                <tr>
-                    <td>1</td>
-                    <td><input placeholder="Item name"></td>
-                    <td><input type="number" value="1" oninput="calc()"></td>
-                    <td><input type="number" value="0" oninput="calc()"></td>
-                    <td style="text-align: right; font-weight: bold;" class="rt">0</td>
-                </tr>
-            </tbody>
-        </table>
+    <table>
+        <thead>
+            <tr><th width="40">#</th><th>ITEM</th><th width="60">QTY</th><th width="100">RATE</th><th width="100">TOTAL</th></tr>
+        </thead>
+        <tbody id="rows">
+            <tr>
+                <td>1</td>
+                <td><input placeholder="Enter item..."></td>
+                <td><input type="number" value="1" oninput="calc()"></td>
+                <td><input type="number" value="0" oninput="calc()"></td>
+                <td style="text-align: right; font-weight: bold;" class="r-total">0</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="btn-add no-print" onclick="addRow()">+ Add Item</button>
+
+    <div class="totals">
+        <div class="total-row"><span>Sub-Total</span><span id="sub-t">0</span></div>
+        <div class="total-row"><span>Paid</span><input id="paid" value="0" oninput="calc()" style="width:80px; text-align:right;"></div>
+        <div class="total-row grand-total"><span>Balance</span><span id="bal-t">0</span></div>
     </div>
 
-    <button onclick="addRow()" style="background:#eee; color:#333; margin-top:8px; padding: 6px; width: 100px; border-radius: 4px; font-size: 12px;">+ Add row</button>
-
-    <div class="totalBox">
-        <div class="totalRow"><span>Sub-Total</span><span id="sub-total">0</span></div>
-        <div class="totalRow"><span>Paid</span><span><input id="paid" value="0" oninput="calc()" style="width:70px; text-align:right; margin:0; padding:2px; font-size:12px;"></span></div>
-        <div class="totalRow grand-total"><span>Balance</span><span id="bal">0</span></div>
-    </div>
-
-    <div class="box">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:10px; font-weight:bold">AUTHORIZED SIGNATURE</span>
-            <button onclick="clearSig()" style="background:none; color:red; font-size:10px; width:auto;">Clear</button>
+    <div id="sig-wrap">
+        <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:5px;">
+            <span>AUTHORIZED SIGNATURE</span>
+            <span class="no-print" style="color:red; cursor:pointer;" onclick="clearSig()">Clear</span>
         </div>
         <canvas id="sig"></canvas>
     </div>
 </div>
 
-<div class="btns">
-    <div class="btn-row">
-        <button class="pdf" onclick="savePDF()">Save PDF</button>
-        <button class="wa" onclick="shareWA()">WhatsApp</button>
+<div class="no-print-area">
+    <div class="btn-group">
+        <button class="btn-pdf" onclick="exportBill()">Save PDF</button>
+        <button class="btn-wa" onclick="shareWA()">WhatsApp</button>
     </div>
-    <button class="new" onclick="location.reload()">Start New Bill</button>
+    <button class="btn-new" onclick="location.reload()">Start New Bill</button>
 </div>
 
 <script>
-// 1. Birthday Logic (Scratch Sound Only)
-const startDay = new Date("2026-01-18").getTime();
-const now = Date.now();
-const scratchSfx = document.getElementById('scratch-sound');
+    document.getElementById('date-display').innerText = new Date().toISOString().split('T')[0];
+    const victoryMusic = document.getElementById('victory-music');
+    const scratchSfx = document.getElementById('scratch-sfx');
 
-if (now >= startDay && (now - startDay) <= (2 * 24 * 60 * 60 * 1000)) {
-    document.getElementById('bd').style.display = 'flex';
-    initScratch();
-}
-
-function initScratch() {
-    const canvas = document.getElementById('scratch-canvas');
-    const ctx = canvas.getContext('2d');
-    let isDrawing = false;
-    
-    ctx.fillStyle = '#C0C0C0'; 
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = '#444';
-    ctx.font = 'bold 16px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('SCRATCH TO REVEAL 👆', 140, 140);
-    
-    ctx.globalCompositeOperation = 'destination-out';
-
-    function scratch(e) {
-        if (!isDrawing) return;
-        // Scratch Sound Playback
-        if (scratchSfx.paused || scratchSfx.currentTime > 0.1) {
-            scratchSfx.currentTime = 0;
-            scratchSfx.play();
-        }
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX || e.touches[0].clientX) - rect.left;
-        const y = (e.clientY || e.touches[0].clientY) - rect.top;
-        ctx.beginPath();
-        ctx.arc(x, y, 28, 0, Math.PI * 2);
-        ctx.fill();
+    function calc() {
+        let grand = 0;
+        document.querySelectorAll("#rows tr").forEach(row => {
+            const q = row.cells[2].querySelector('input').value || 0;
+            const r = row.cells[3].querySelector('input').value || 0;
+            const sum = q * r;
+            row.querySelector('.r-total').innerText = sum.toLocaleString();
+            grand += sum;
+        });
+        document.getElementById('sub-t').innerText = grand.toLocaleString();
+        const p = document.getElementById('paid').value || 0;
+        document.getElementById('bal-t').innerText = (grand - p).toLocaleString();
     }
-    canvas.addEventListener('mousedown', () => isDrawing = true);
-    canvas.addEventListener('touchstart', (e) => { isDrawing = true; e.preventDefault(); });
-    window.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('touchend', () => isDrawing = false);
-    canvas.addEventListener('mousemove', scratch);
-    canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
-}
 
-function closeBD() { 
-    document.getElementById('bd').style.display = 'none'; 
-}
+    function addRow() {
+        const tbody = document.getElementById('rows');
+        const r = tbody.insertRow();
+        r.innerHTML = `<td>${tbody.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td style="text-align: right; font-weight: bold;" class="r-total">0</td>`;
+    }
 
-// 2. Billing Logic
-let id = Number(localStorage.ntid || 1010) + 1;
-localStorage.ntid = id;
-document.getElementById('inv-display').innerText = "NT-" + id;
-document.getElementById('date').value = new Date().toISOString().split("T")[0];
+    // Signature Logic
+    const sCanvas = document.getElementById('sig');
+    const sCtx = sCanvas.getContext('2d');
+    sCanvas.width = sCanvas.offsetWidth; sCanvas.height = 100;
+    let isSig = false;
 
-function calc() {
-    let t = 0;
-    document.querySelectorAll("#rows tr").forEach(r => {
-        let q = r.cells[2].querySelector('input').value || 0;
-        let p = r.cells[3].querySelector('input').value || 0;
-        let s = q * p;
-        r.querySelector(".rt").innerText = s.toLocaleString();
-        t += s;
+    sCanvas.addEventListener('touchstart', (e) => { isSig = true; sCtx.beginPath(); e.preventDefault(); });
+    sCanvas.addEventListener('touchmove', (e) => {
+        if(!isSig) return;
+        const rect = sCanvas.getBoundingClientRect();
+        sCtx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+        sCtx.stroke(); e.preventDefault();
     });
-    document.getElementById('sub-total').innerText = t.toLocaleString();
-    let pVal = document.getElementById('paid').value || 0;
-    document.getElementById('bal').innerText = (t - pVal).toLocaleString();
-}
+    window.addEventListener('touchend', () => isSig = false);
+    function clearSig() { sCtx.clearRect(0,0,sCanvas.width,sCanvas.height); }
 
-function addRow() {
-    let rows = document.getElementById('rows');
-    let r = rows.insertRow();
-    r.innerHTML = `<td>${rows.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td style="text-align: right; font-weight: bold;" class="rt">0</td>`;
-}
+    // PDF Export with Hidden Controls
+    async function exportBill() {
+        document.querySelectorAll('.no-print, .no-print-area').forEach(el => el.classList.add('hidden-for-export'));
+        const canvas = await html2canvas(document.getElementById('bill'), { scale: 2 });
+        const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+        const w = pdf.internal.pageSize.getWidth();
+        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, (canvas.height * w) / canvas.width);
+        pdf.save('Bill.pdf');
+        document.querySelectorAll('.hidden-for-export').forEach(el => el.classList.remove('hidden-for-export'));
+    }
 
-// 3. Signature Engine (Touch-Friendly)
-const sigC = document.getElementById('sig');
-const sCtx = sigC.getContext("2d");
-sigC.width = sigC.offsetWidth; sigC.height = sigC.offsetHeight;
-let drawing = false;
+    // Scratch Logic + Dynamic Music Trigger
+    const isBirthday = true; // Set to true for testing
+    if(isBirthday) {
+        document.getElementById('bd').style.display = 'flex';
+        initScratch();
+    }
 
-sigC.addEventListener('touchstart', (e) => { drawing = true; sCtx.beginPath(); e.preventDefault(); });
-sigC.addEventListener('touchmove', (e) => {
-    if(!drawing) return;
-    const rect = sigC.getBoundingClientRect();
-    sCtx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
-    sCtx.lineWidth = 2; sCtx.strokeStyle = "#000"; sCtx.stroke();
-    e.preventDefault();
-});
-window.addEventListener('touchend', () => drawing = false);
-function clearSig() { sCtx.clearRect(0,0,sigC.width,sigC.height); }
+    function initScratch() {
+        const sc = document.getElementById('scratch-canvas');
+        const sctx = sc.getContext('2d');
+        sctx.fillStyle = '#C0C0C0';
+        sctx.fillRect(0,0,280,300);
+        sctx.globalCompositeOperation = 'destination-out';
+        
+        let musicStarted = false;
 
-// 4. File Exports
-async function savePDF() {
-    const canvas = await html2canvas(document.getElementById('bill'), {scale: 2});
-    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, (canvas.height * 210) / canvas.width);
-    pdf.save(`Bill_NT_${id}.pdf`);
-}
+        const handleScratch = (e) => {
+            const rect = sc.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            sctx.beginPath(); sctx.arc(x, y, 30, 0, Math.PI*2); sctx.fill();
+            
+            // Play scratch sound
+            scratchSfx.currentTime = 0; scratchSfx.play();
 
-async function shareWA() {
-    const canvas = await html2canvas(document.getElementById('bill'), {scale: 2});
-    const pdf = new jspdf.jsPDF();
-    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, (canvas.height * 210) / canvas.width);
-    const file = new File([pdf.output('blob')], "Bill.pdf", {type: "application/pdf"});
-    if (navigator.share) navigator.share({files: [file]});
-}
+            // Trigger Victory Music after 40% scratched
+            if(!musicStarted) {
+                const pixels = sctx.getImageData(0,0,280,300).data;
+                let cleared = 0;
+                for(let i=3; i<pixels.length; i+=4) if(pixels[i] === 0) cleared++;
+                if(cleared > (280*300)*0.4) {
+                    victoryMusic.play();
+                    musicStarted = true;
+                }
+            }
+        };
+
+        sc.addEventListener('touchmove', (e) => { handleScratch(e); e.preventDefault(); });
+        sc.addEventListener('mousemove', (e) => { if(e.buttons === 1) handleScratch(e); });
+    }
+
+    function closeBD() { 
+        document.getElementById('bd').style.display = 'none'; 
+        victoryMusic.pause(); 
+        victoryMusic.currentTime = 0;
+    }
 </script>
 </body>
 </html>
