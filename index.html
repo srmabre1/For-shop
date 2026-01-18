@@ -3,255 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Naveed Textiles | Professional Portal</title>
+    <title>Naveed Textiles | Professional</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
-        :root { --brand: #121212; --accent: #0061ff; --gold: #d4af37; --bg: #f5f7fa; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', -apple-system, sans-serif; }
+        :root { --brand: #111; --blue: #0061ff; --gold: #c5a059; --bg: #f2f4f7; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; }
         body { margin: 0; background: #000; overflow-x: hidden; }
 
-        /* --- STICKY GATEKEEPER (Prevents Overlap Bug) --- */
-        #gatekeeper { 
-            position: fixed; inset: 0; background: #000; z-index: 99999; 
+        /* --- SURPRISE GATE --- */
+        #gate { 
+            position: fixed; inset: 0; background: #000; z-index: 9999; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
-        #surprise-box { background: #fff; width: 100%; max-width: 360px; border-radius: 24px; padding: 25px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        #card { background: #fff; width: 100%; max-width: 360px; border-radius: 24px; padding: 20px; text-align: center; }
         #canvas-wrap { 
             position: relative; width: 280px; height: 350px; margin: 15px auto; 
             background: #000; border-radius: 16px; overflow: hidden; border: 4px solid var(--gold);
         }
-        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; touch-action: none; cursor: crosshair; }
-        .hidden-msg { 
-            position: absolute; inset: 0; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; color: white; padding: 20px; z-index: 1;
-        }
+        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; touch-action: none; }
+        .msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px; z-index: 1; }
 
-        /* --- PROFESSIONAL BILLING UI --- */
-        #app-root { display: none; background: var(--bg); min-height: 100vh; padding: 15px; }
-        #bill { 
-            background: #fff; width: 100%; max-width: 800px; margin: auto; 
-            border-radius: 16px; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.08); 
-        }
+        /* --- BILL UI --- */
+        #app { display: none; background: var(--bg); min-height: 100vh; padding-bottom: 40px; }
+        #bill { background: #fff; width: 100%; max-width: 800px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
         
-        /* Modern Wavy Header */
-        .header { 
-            background: var(--brand); color: #fff; padding: 40px 30px 60px; position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% 80%, 0% 100%);
+        .wave-top { 
+            background: var(--brand); color: #fff; padding: 40px 30px 60px; 
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
         }
-        .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .logo-area img { width: 75px; height: 75px; border-radius: 12px; background: #fff; padding: 4px; }
-        .inv-tag { background: var(--gold); color: #000; padding: 4px 12px; border-radius: 4px; font-weight: 800; font-size: 12px; }
-
-        .bill-content { padding: 30px; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-        .field { display: flex; flex-direction: column; gap: 6px; }
-        label { font-size: 10px; font-weight: 900; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-        input { 
-            padding: 12px; border: 1.5px solid #eee; border-radius: 8px; font-size: 14px; 
-            background: #fafafa; width: 100%; transition: 0.2s;
-        }
-        input:focus { border-color: var(--accent); background: #fff; outline: none; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-        th { text-align: left; background: #f8f9fa; padding: 14px; font-size: 11px; color: #555; text-transform: uppercase; }
-        td { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .header-flex { display: flex; justify-content: space-between; align-items: flex-start; }
+        .logo img { width: 70px; height: 70px; border-radius: 10px; background: #fff; padding: 4px; }
         
-        .totals-card { margin-top: 35px; width: 240px; margin-left: auto; border-top: 3px solid var(--brand); padding-top: 15px; }
-        .t-row { display: flex; justify-content: space-between; padding: 8px 0; font-weight: 700; }
-        .grand { font-size: 24px; color: var(--accent); padding-top: 10px; border-top: 1px solid #eee; margin-top: 10px; }
+        .body { padding: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        label { font-size: 10px; font-weight: 900; color: #888; text-transform: uppercase; }
+        input { padding: 12px; border: 1.5px solid #eee; border-radius: 8px; font-size: 14px; width: 100%; outline: none; background: #fafafa; }
+        input:focus { border-color: var(--blue); background: #fff; }
 
-        #sig-box { border: 2px dashed #ddd; width: 100%; height: 140px; border-radius: 12px; background: #fcfcfc; margin-top: 10px; touch-action: none; }
-        .btn-group { margin-top: 30px; display: flex; flex-direction: column; gap: 12px; }
-        .btn { padding: 18px; border: none; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; width: 100%; transition: 0.3s; }
-        .btn-dark { background: #222; color: #fff; }
-        .btn-green { background: #25d366; color: #fff; }
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; }
+        th { text-align: left; background: #f8f9fa; padding: 12px; font-size: 11px; color: #555; }
+        td { padding: 10px 0; border-bottom: 1px solid #f1f1f1; }
         
-        @media print { .no-print { display: none; } }
+        .summary { margin-top: 30px; width: 260px; margin-left: auto; border-top: 3px solid var(--brand); padding-top: 15px; }
+        .s-row { display: flex; justify-content: space-between; padding: 6px 0; font-weight: 700; }
+        .total-due { font-size: 24px; color: var(--blue); border-top: 1px solid #eee; margin-top: 5px; padding-top: 10px; }
+
+        #sig { border: 2px dashed #ddd; width: 100%; height: 140px; border-radius: 12px; background: #fcfcfc; margin-top: 10px; touch-action: none; }
+        .btns { padding: 20px; display: flex; flex-direction: column; gap: 10px; max-width: 800px; margin: auto; }
+        .btn { padding: 18px; border: none; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; }
+        .btn-pdf { background: #222; color: #fff; }
+        .btn-wa { background: #25d366; color: #fff; }
     </style>
 </head>
 <body>
 
-<audio id="vibe-music" loop preload="auto">
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
-</audio>
+<audio id="myaudio" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
 
-<div id="gatekeeper">
-    <div id="surprise-box">
-        <h2 style="color:var(--accent); margin:0 0 10px;">BIRTHDAY SURPRISE</h2>
+<div id="gate">
+    <div id="card">
+        <h2 style="color:var(--blue); margin-top:0;">✨ NAVEED ✨</h2>
         <div id="canvas-wrap">
-            <div class="hidden-msg">
-                <p style="font-size: 18px; margin-bottom:12px;"><b>Bro you didn't level up...</b></p>
-                <p>You <b>unlocked a new chapter</b> 😎</p>
-                <div style="text-align:left; font-size:13px; margin:15px 0; opacity:0.8;">
-                    Same attitude ✔ Same grind ✔<br>Bigger wins loading... 📈
-                </div>
-                <p style="font-size:13px;">Stay real. Stay sharp. 👊<br>and don't forget me 😁</p>
+            <div class="msg">
+                <p><b>New Chapter Unlocked!</b> 😎</p>
+                <p style="font-size:12px;">Same attitude ✔ Same grind ✔<br>Bigger wins loading... 📈</p>
             </div>
             <canvas id="scratch-canvas" width="280" height="350"></canvas>
         </div>
-        <button onclick="unlock()" class="btn btn-dark">Open Premium Portal</button>
+        <button onclick="openApp()" class="btn btn-pdf" style="width:100%">ENTER BILLING PORTAL</button>
     </div>
 </div>
 
-<div id="app-root">
+<div id="app">
     <div id="bill">
-        <div class="header">
-            <div class="header-top">
-                <div class="logo-area">
-                    <img src="logo.png" onerror="this.src='https://via.placeholder.com/75?text=NT'">
-                    <h1 style="margin:12px 0 0 0; font-size:26px; letter-spacing:-1px;">NAVEED TEXTILES</h1>
-                    <small style="opacity:0.7;">Premium Fabrics & Bespoke Tailoring</small>
+        <div class="wave-top">
+            <div class="header-flex">
+                <div class="logo">
+                    <img src="logo.png" onerror="this.src='https://via.placeholder.com/70?text=NT'">
+                    <h1 style="margin:10px 0 0; font-size:22px;">NAVEED TEXTILES</h1>
+                    <small>Premium Fabrics & Custom Stitching</small>
                 </div>
                 <div style="text-align: right;">
-                    <div class="inv-tag">INVOICE #NT-2026</div>
-                    <p style="margin:10px 0 0; font-size:14px;" id="live-date"></p>
-                    <small style="opacity:0.6;">Ph: 9906403030</small>
+                    <b style="color:var(--gold);">INV #NT-2026</b><br>
+                    <small id="date-label"></small>
                 </div>
             </div>
         </div>
 
-        <div class="bill-content">
-            <div class="info-grid">
-                <div class="field"><label>Client Name</label><input id="c-name" placeholder="Name"></div>
-                <div class="field"><label>Phone Number</label><input id="c-phone" placeholder="+91 ..."></div>
+        <div class="body">
+            <div class="grid">
+                <div><label>Customer</label><input id="c-name" placeholder="Name"></div>
+                <div><label>Phone</label><input id="c-phone" placeholder="Contact"></div>
             </div>
-            <div class="field" style="margin-bottom:30px;"><label>Shipping Address</label><input id="c-addr" placeholder="Location"></div>
+            <div style="margin-bottom:20px;"><label>Address</label><input id="c-addr" placeholder="Location"></div>
 
-            <table id="item-list">
-                <thead>
-                    <tr><th>DESCRIPTION</th><th width="70">QTY</th><th width="100">RATE</th><th width="100" style="text-align:right">TOTAL</th></tr>
-                </thead>
+            <table>
+                <thead><tr><th>ITEM</th><th width="50">QTY</th><th width="80">RATE</th><th width="80" style="text-align:right">TOTAL</th></tr></thead>
                 <tbody id="rows">
                     <tr>
-                        <td><input placeholder="Item detail..." class="p-desc"></td>
-                        <td><input type="number" value="1" class="p-qty" oninput="calculate()"></td>
-                        <td><input type="number" value="0" class="p-rate" oninput="calculate()"></td>
-                        <td style="text-align:right; font-weight:800;" class="p-total">0</td>
+                        <td><input placeholder="Suit description..." class="i-desc"></td>
+                        <td><input type="number" value="1" class="i-qty" oninput="doCalc()"></td>
+                        <td><input type="number" value="0" class="i-rate" oninput="doCalc()"></td>
+                        <td style="text-align:right; font-weight:700;" class="i-total">0</td>
                     </tr>
                 </tbody>
             </table>
-            <button class="no-print" onclick="addRow()" style="margin-top:20px; background:none; border:2px solid #eee; padding:10px 20px; border-radius:8px; font-weight:700; color:var(--accent); cursor:pointer;">+ ADD ITEM</button>
+            <button onclick="addRow()" style="margin-top:10px; background:none; border:1px solid #ddd; padding:8px; border-radius:5px; font-weight:700; cursor:pointer;">+ Add Item</button>
 
-            <div class="totals-card">
-                <div class="t-row"><span>Sub-Total</span><span id="sub-disp">0</span></div>
-                <div class="t-row"><span>Paid</span><input type="number" id="paid-in" value="0" oninput="calculate()" style="width:100px; text-align:right; border:none; background:none; font-weight:800; padding:0;"></div>
-                <div class="t-row grand"><span>Balance</span><span id="bal-disp">0</span></div>
+            <div class="summary">
+                <div class="s-row"><span>Sub-Total</span><span id="sub-disp">0</span></div>
+                <div class="s-row" style="color:red;"><span>Discount (%)</span><input id="disc" type="number" value="0" oninput="doCalc()" style="width:60px; text-align:right; font-weight:700; border:none; background:none;"></div>
+                <div class="s-row"><span>Paid Amount</span><input id="paid" type="number" value="0" oninput="doCalc()" style="width:80px; text-align:right; font-weight:700; border:none; background:none;"></div>
+                <div class="s-row total-due"><span>Balance</span><span id="bal-disp">0</span></div>
             </div>
 
-            <div style="margin-top:45px;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-                    <label>AUTHORIZED SIGNATURE</label>
-                    <span style="color:#ff4444; font-size:11px; font-weight:900; cursor:pointer;" onclick="clearSig()">[ RESET ]</span>
-                </div>
-                <canvas id="sig-box"></canvas>
+            <div style="margin-top:40px;">
+                <label>Authorized Signature</label>
+                <canvas id="sig"></canvas>
+                <span onclick="clearSig()" style="color:red; font-size:10px; font-weight:bold; cursor:pointer;">[ CLEAR SIGNATURE ]</span>
             </div>
         </div>
     </div>
 
-    <div class="btn-group no-print">
-        <button class="btn btn-dark" onclick="downloadPDF()">DOWNLOAD FULL PDF</button>
-        <button class="btn btn-green" onclick="downloadPDF()">SHARE ON WHATSAPP</button>
+    <div class="btns">
+        <button class="btn btn-pdf" onclick="saveFullPDF()">DOWNLOAD FULL PDF</button>
+        <button class="btn btn-wa" onclick="saveFullPDF()">SHARE ON WHATSAPP</button>
     </div>
 </div>
 
 <script>
-    // 1. Setup Date
-    document.getElementById('live-date').innerText = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
-
-    // 2. Scratch & Music Engine
-    const song = document.getElementById('vibe-music');
-    const canvas = document.getElementById('scratch-canvas');
-    const ctx = canvas.getContext('2d');
+    document.getElementById('date-label').innerText = new Date().toLocaleDateString('en-GB');
+    const audio = document.getElementById('myaudio');
+    const scan = document.getElementById('scratch-canvas');
+    const sctx = scan.getContext('2d');
     
-    ctx.fillStyle = '#C0C0C0';
-    ctx.fillRect(0,0,280,350);
-    ctx.globalCompositeOperation = 'destination-out';
+    sctx.fillStyle = '#C0C0C0';
+    sctx.fillRect(0,0,280,350);
+    sctx.globalCompositeOperation = 'destination-out';
 
-    let isScratching = false;
-    let playing = false;
-
-    function handleScratch(e) {
-        if(!isScratching) return;
-        const rect = canvas.getBoundingClientRect();
+    // Music Fix: Unlocks on scratch
+    let scratching = false;
+    function doScratch(e) {
+        if(!scratching) return;
+        const rect = scan.getBoundingClientRect();
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
-        ctx.beginPath();
-        ctx.arc(x, y, 40, 0, Math.PI*2);
-        ctx.fill();
-        if(!playing) { song.play(); playing = true; }
+        sctx.beginPath(); sctx.arc(x, y, 40, 0, Math.PI*2); sctx.fill();
+        audio.play().catch(()=>{}); 
         e.preventDefault();
     }
+    scan.addEventListener('touchstart', (e)=>{scratching=true; doScratch(e);});
+    scan.addEventListener('touchmove', doScratch);
+    window.addEventListener('touchend', ()=>scratching=false);
 
-    canvas.addEventListener('touchstart', (e) => { isScratching = true; handleScratch(e); });
-    canvas.addEventListener('touchmove', handleScratch);
-    window.addEventListener('touchend', () => isScratching = false);
-
-    function unlock() {
-        document.getElementById('gatekeeper').style.display = 'none';
-        document.getElementById('app-root').style.display = 'block';
-        song.pause();
-        initSig(); // Initialize signature only after unlock
+    function openApp() {
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        audio.pause();
+        initSig();
     }
 
-    // 3. Calculation Engine
-    function calculate() {
+    function doCalc() {
         let sub = 0;
-        document.querySelectorAll('#rows tr').forEach(row => {
-            const q = row.querySelector('.p-qty').value || 0;
-            const r = row.querySelector('.p-rate').value || 0;
-            const t = q * r;
-            row.querySelector('.p-total').innerText = t.toLocaleString();
+        document.querySelectorAll('#rows tr').forEach(r => {
+            const q = r.querySelector('.i-qty').value || 0;
+            const ra = r.querySelector('.i-rate').value || 0;
+            const t = q * ra;
+            r.querySelector('.i-total').innerText = t.toLocaleString();
             sub += t;
         });
-        const p = document.getElementById('paid-in').value || 0;
+        const d = document.getElementById('disc').value || 0;
+        const p = document.getElementById('paid').value || 0;
+        const discAmt = (sub * d) / 100;
+        const afterDisc = sub - discAmt;
         document.getElementById('sub-disp').innerText = sub.toLocaleString();
-        document.getElementById('bal-disp').innerText = (sub - p).toLocaleString();
+        document.getElementById('bal-disp').innerText = (afterDisc - p).toLocaleString();
     }
 
     function addRow() {
         const tr = document.getElementById('rows').insertRow();
-        tr.innerHTML = `<td><input placeholder="Item..." class="p-desc"></td><td><input type="number" value="1" class="p-qty" oninput="calculate()"></td><td><input type="number" value="0" class="p-rate" oninput="calculate()"></td><td style="text-align:right; font-weight:800;" class="p-total">0</td>`;
+        tr.innerHTML = `<td><input class="i-desc"></td><td><input type="number" value="1" class="i-qty" oninput="doCalc()"></td><td><input type="number" value="0" class="i-rate" oninput="doCalc()"></td><td style="text-align:right; font-weight:700;" class="i-total">0</td>`;
     }
 
-    // 4. Signature Mobile Fix
-    let sc, sctx, drawing = false;
+    let pCan, pCtx, drawing = false;
     function initSig() {
-        sc = document.getElementById('sig-box');
-        sctx = sc.getContext('2d');
-        sc.width = sc.offsetWidth; sc.height = 140;
-        sctx.lineWidth = 2.5; sctx.lineCap = 'round'; sctx.strokeStyle = '#000';
-
+        pCan = document.getElementById('sig');
+        pCtx = pCan.getContext('2d');
+        pCan.width = pCan.offsetWidth; pCan.height = 140;
+        pCtx.lineWidth = 2; pCtx.strokeStyle = "#000";
         const getXY = (e) => {
-            const rect = sc.getBoundingClientRect();
-            return { x: (e.clientX || e.touches[0].clientX) - rect.left, y: (e.clientY || e.touches[0].clientY) - rect.top };
+            const r = pCan.getBoundingClientRect();
+            return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top };
         };
-        const start = (e) => { drawing = true; const p = getXY(e); sctx.beginPath(); sctx.moveTo(p.x, p.y); e.preventDefault(); };
-        const move = (e) => { if(!drawing) return; const p = getXY(e); sctx.lineTo(p.x, p.y); sctx.stroke(); e.preventDefault(); };
-
-        sc.addEventListener('touchstart', start);
-        sc.addEventListener('touchmove', move);
-        sc.addEventListener('mousedown', start);
-        sc.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', () => drawing = false);
-        window.addEventListener('touchend', () => drawing = false);
+        const start = (e) => { drawing = true; const p = getXY(e); pCtx.beginPath(); pCtx.moveTo(p.x, p.y); e.preventDefault(); };
+        const move = (e) => { if(!drawing) return; const p = getXY(e); pCtx.lineTo(p.x, p.y); pCtx.stroke(); e.preventDefault(); };
+        pCan.addEventListener('touchstart', start); pCan.addEventListener('touchmove', move);
+        window.addEventListener('mouseup', ()=>drawing=false); window.addEventListener('touchend', ()=>drawing=false);
     }
-    function clearSig() { sctx.clearRect(0,0,sc.width,sc.height); }
+    function clearSig() { pCtx.clearRect(0,0,pCan.width,pCan.height); }
 
-    // 5. Full PDF Fix (Captures all data)
-    async function downloadPDF() {
-        // Sync values to attributes so the capture engine can see them
+    // FULL PDF FIX: Captures entire scroll height
+    async function saveFullPDF() {
         document.querySelectorAll('input').forEach(i => i.setAttribute('value', i.value));
-        
-        const billEl = document.getElementById('bill');
-        const canvasObj = await html2canvas(billEl, { scale: 3, useCORS: true });
+        const element = document.getElementById('bill');
+        const canvasObj = await html2canvas(element, { 
+            scale: 2, 
+            useCORS: true,
+            height: element.scrollHeight,
+            windowHeight: element.scrollHeight 
+        });
         const img = canvasObj.toDataURL('image/png');
         const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
         const w = 210;
         const h = (canvasObj.height * w) / canvasObj.width;
-        
         pdf.addImage(img, 'PNG', 0, 0, w, h);
-        pdf.save(`Naveed_Textiles_Invoice.pdf`);
+        pdf.save('NaveedTextiles_Bill.pdf');
     }
 </script>
 </body>
