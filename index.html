@@ -3,237 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Naveed Textiles - Premium Billing</title>
+    <title>Naveed Textiles | Premium Portal</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        :root { --blue: #1a73e8; --gold: #ffd700; --dark: #121212; --green: #25d366; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { margin: 0; padding: 0; background-color: #f0f2f5; overflow-x: hidden; }
 
-        /* --- STICKY OVERLAY (STOPS OVERLAP) --- */
-        #bday-overlay { 
-            position: fixed; inset: 0; background: var(--dark); z-index: 99999; 
+    <style>
+        :root { --primary: #0061ff; --accent: #ffd700; --bg: #f4f7f6; --text: #2d3436; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', -apple-system, sans-serif; }
+        body { margin: 0; background-color: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        /* --- THE SURPRISE LOCK --- */
+        #surprise-screen { 
+            position: fixed; inset: 0; background: #000; z-index: 10000; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
-        #card { background: #fff; width: 100%; max-width: 380px; border-radius: 24px; padding: 25px; text-align: center; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
-        #scratch-container { 
+        #scratch-card { 
+            background: #fff; width: 100%; max-width: 360px; border-radius: 30px; 
+            padding: 30px; text-align: center; box-shadow: 0 0 50px rgba(0,97,255,0.3);
+        }
+        #canvas-wrap { 
             position: relative; width: 280px; height: 350px; margin: 20px auto; 
-            background: #1a1a1a; border-radius: 16px; overflow: hidden; border: 4px solid var(--gold); 
+            background: #0f0f0f; border-radius: 20px; overflow: hidden; border: 4px solid var(--accent);
         }
-        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; touch-action: none; }
-        .reveal-msg { 
+        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; touch-action: none; cursor: crosshair; }
+        .hidden-content { 
             position: absolute; inset: 0; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; color: white; padding: 20px; z-index: 1; text-align: center;
+            align-items: center; justify-content: center; color: white; padding: 20px; z-index: 1;
         }
 
-        /* --- MAIN BILLING DESIGN (MODERN) --- */
-        #app-content { display: none; padding: 12px; }
-        #bill { background: #fff; width: 100%; max-width: 700px; margin: auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        /* --- THE PREMIUM BILLING PORTAL --- */
+        #app-container { display: none; padding: 15px; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        #bill-ui { 
+            background: #fff; width: 100%; max-width: 800px; margin: auto; 
+            padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+        }
         
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--blue); padding-bottom: 12px; margin-bottom: 20px; }
-        .logo-area { display: flex; align-items: center; gap: 15px; }
-        .logo-img { width: 70px; height: 70px; object-fit: contain; border-radius: 8px; }
-
-        .client-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .field { display: flex; flex-direction: column; gap: 4px; }
-        label { font-size: 11px; font-weight: 800; color: #666; text-transform: uppercase; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #f9f9f9; outline: none; }
-        input:focus { border-color: var(--blue); background: #fff; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; background: #f4f4f4; padding: 12px; font-size: 12px; color: #555; }
-        td { padding: 10px 0; border-bottom: 1px solid #eee; }
+        .bill-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid var(--primary); padding-bottom: 20px; margin-bottom: 25px; }
+        .brand-logo { width: 80px; height: 80px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .brand-info h1 { margin: 0; color: var(--primary); font-size: 24px; letter-spacing: -0.5px; }
         
-        .totals-section { margin-top: 25px; border-top: 2px solid #eee; padding-top: 15px; width: 220px; margin-left: auto; }
-        .total-row { display: flex; justify-content: space-between; padding: 6px 0; font-weight: bold; font-size: 16px; }
-        .balance-row { color: var(--blue); font-size: 22px; border-top: 1px solid #eee; margin-top: 8px; padding-top: 10px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .input-box { display: flex; flex-direction: column; gap: 5px; }
+        .input-box label { font-size: 11px; font-weight: 700; color: #7f8c8d; text-transform: uppercase; }
+        input { padding: 12px; border: 1px solid #dfe6e9; border-radius: 8px; font-size: 15px; transition: 0.3s; width: 100%; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,97,255,0.1); outline: none; }
 
-        #sig-pad { border: 1px dashed #ccc; width: 100%; height: 120px; background: #fafafa; border-radius: 8px; margin-top: 10px; touch-action: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; background: #f8f9fa; padding: 15px; font-size: 12px; color: #636e72; text-transform: uppercase; }
+        td { padding: 12px 0; border-bottom: 1px solid #f1f2f6; }
+        
+        .total-card { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 12px; width: 260px; margin-left: auto; }
+        .total-line { display: flex; justify-content: space-between; padding: 8px 0; font-weight: 600; }
+        .grand-total { border-top: 2px solid #dfe6e9; margin-top: 10px; padding-top: 15px; font-size: 22px; color: var(--primary); }
 
-        .btn-group { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-        button { padding: 18px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .btn-pdf { background: #333; color: #fff; }
-        .btn-wa { background: var(--green); color: #fff; }
-        .no-export { visibility: visible; }
-        .hidden-pdf { display: none !important; }
+        #signature-area { border: 2px dashed #dfe6e9; width: 100%; height: 140px; border-radius: 12px; background: #fafafa; margin-top: 10px; touch-action: none; }
+
+        .action-bar { margin-top: 30px; display: flex; flex-direction: column; gap: 12px; }
+        .btn { padding: 18px; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; text-align: center; }
+        .btn-save { background: var(--primary); color: #fff; box-shadow: 0 8px 20px rgba(0,97,255,0.2); }
+        .btn-wa { background: #25d366; color: #fff; }
+        
+        @media print { .no-print { display: none; } }
     </style>
 </head>
 <body>
 
-<audio id="bday-song" loop preload="auto">
-    <source src="https://open.spotify.com/track/5cjVsWqIkBQC7acTRhL0RO" type="audio/mpeg">
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+<audio id="celebration-music" loop preload="auto">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
 </audio>
 
-<div id="bday-overlay">
-    <div id="card">
-        <h2 style="color:var(--blue); margin:0;">🎂 BIRTHDAY SURPRISE 🎂</h2>
-        <div id="scratch-container">
-            <div class="reveal-msg">
-                <p style="font-size: 18px; margin-bottom:10px;"><b>Bro you didn't level up...</b></p>
-                <p>You <b>unlocked a new chapter</b> 😎</p>
-                <div style="text-align:left; font-size:13px; margin:10px 0;">
+<div id="surprise-screen">
+    <div id="scratch-card">
+        <h2 style="color:var(--primary); margin:0;">✨ UNLOCK YOUR SURPRISE ✨</h2>
+        <div id="canvas-wrap">
+            <div class="hidden-content">
+                <p style="font-size: 16px;">Bro you didn't level up...<br>You <b>unlocked a new chapter</b> 😎</p>
+                <p style="font-size: 13px; line-height: 1.6;">
                     Same attitude ✔<br>Same grind ✔<br>Bigger wins loading... 📈
-                </div>
-                <p style="font-size:13px;">Stay real. Stay sharp. 👊<br>and dont forget me 😁</p>
+                </p>
+                <p style="font-size: 13px;">Stay real. Stay sharp. 👊<br>and dont forget me 😁</p>
             </div>
             <canvas id="scratch-canvas" width="280" height="350"></canvas>
         </div>
-        <button onclick="enterApp()" style="background:var(--blue); color:white; width:100%; border-radius:12px;">Enter Billing Portal</button>
+        <button onclick="revealApp()" class="btn btn-save" style="width:100%">Enter Billing Portal</button>
     </div>
 </div>
 
-<div id="app-content">
-    <div id="bill">
-        <div class="header">
-            <div class="logo-area">
-                <img src="logo.png" class="logo-img" onerror="this.src='https://via.placeholder.com/70?text=NT'">
-                <div>
-                    <h1 style="margin:0; font-size: 20px; color:var(--blue)">NAVEED TEXTILES</h1>
-                    <span style="font-size: 12px; color:#666;">Ph: 9906403030</span>
+<div id="app-container">
+    <div id="bill-ui">
+        <div class="bill-header">
+            <div style="display:flex; align-items:center; gap:20px;">
+                <img src="logo.png" class="brand-logo" onerror="this.src='https://via.placeholder.com/80?text=NT'">
+                <div class="brand-info">
+                    <h1>NAVEED TEXTILES</h1>
+                    <span style="color:#636e72; font-size: 13px;">Ph: 9906403030 | Premium Fabrics</span>
                 </div>
             </div>
             <div style="text-align: right;">
-                <b style="color:var(--blue); font-size:14px;">NT-1048</b><br>
-                <span id="bill-date" style="font-size:12px; color:#888;"></span>
+                <b style="color:var(--primary); font-size: 18px;">INV #NT-2026</b><br>
+                <span id="current-date" style="color:#b2bec3;"></span>
             </div>
         </div>
 
-        <div class="client-info">
-            <div class="field"><label>Customer Name</label><input id="name" placeholder="..."></div>
-            <div class="field"><label>Phone</label><input id="phone" placeholder="..."></div>
+        <div class="form-grid">
+            <div class="input-box"><label>Customer Name</label><input id="name-in" placeholder="Enter name..."></div>
+            <div class="input-box"><label>Phone Number</label><input id="phone-in" placeholder="00000 00000"></div>
         </div>
-        <div class="field" style="margin-bottom:20px;"><label>Address</label><input id="address" placeholder="..."></div>
+        <div class="input-box" style="margin-bottom:25px;"><label>Delivery Address</label><input id="addr-in" placeholder="Enter full address..."></div>
 
-        <table>
-            <thead><tr><th width="30">#</th><th>ITEM DESCRIPTION</th><th width="60">QTY</th><th width="80">RATE</th></tr></thead>
-            <tbody id="bill-rows">
+        <table id="items-table">
+            <thead>
                 <tr>
-                    <td>1</td>
-                    <td><input placeholder="Item name..." style="padding:8px; background:none; border:1px solid #eee;"></td>
-                    <td><input type="number" value="1" oninput="calculate()" style="padding:8px; text-align:center;"></td>
-                    <td><input type="number" value="0" oninput="calculate()" style="padding:8px; text-align:center;"></td>
+                    <th width="40">#</th>
+                    <th>Item Description</th>
+                    <th width="80">Qty</th>
+                    <th width="100">Rate</th>
+                    <th width="100" style="text-align:right">Total</th>
+                </tr>
+            </thead>
+            <tbody id="bill-body">
+                <tr>
+                    <td style="color:#b2bec3;">1</td>
+                    <td><input placeholder="Ex: Cotton Suit" class="item-desc"></td>
+                    <td><input type="number" value="1" class="item-qty" oninput="calculateBill()"></td>
+                    <td><input type="number" value="0" class="item-rate" oninput="calculateBill()"></td>
+                    <td style="text-align:right; font-weight:700;" class="item-total">0</td>
                 </tr>
             </tbody>
         </table>
-        <button class="no-export" onclick="addRow()" style="background:#eee; color:#333; padding:8px 15px; font-size:12px; margin-top:10px;">+ Add row</button>
+        
+        <button class="no-print" onclick="addNewRow()" style="margin-top:15px; border:none; background:#f1f2f6; padding:8px 15px; border-radius:6px; font-weight:600; color:var(--primary); cursor:pointer;">+ Add New Item</button>
 
-        <div class="totals-section">
-            <div class="total-row"><span>Sub-Total</span><span id="sub-total">0</span></div>
-            <div class="total-row"><span>Paid</span><input id="paid-val" type="number" value="0" oninput="calculate()" style="width:80px; text-align:right; border:none; border-bottom:1px solid #ccc; background:none; font-weight:bold;"></div>
-            <div class="total-row balance-row"><span>Balance</span><span id="balance-total">0</span></div>
+        <div class="total-card">
+            <div class="total-line"><span>Sub-Total</span><span id="sub-total">0</span></div>
+            <div class="total-line"><span>Paid Amount</span><input type="number" id="paid-amount" value="0" oninput="calculateBill()" style="width:90px; text-align:right; padding:5px; border:none; background:none; font-weight:700; color:#2ecc71;"></div>
+            <div class="total-line grand-total"><span>Balance</span><span id="balance-due">0</span></div>
         </div>
 
-        <div style="margin-top:30px;">
+        <div style="margin-top:40px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-end;">
-                <label>Authorized Signature</label>
-                <span style="color:red; font-size:12px; font-weight:bold; cursor:pointer;" onclick="clearSig()">Clear</span>
+                <label style="font-size: 11px; font-weight:800; color:#7f8c8d;">AUTHORIZED SIGNATURE</label>
+                <span style="color:#e74c3c; font-size:12px; font-weight:700; cursor:pointer;" onclick="clearSignature()">[ Clear ]</span>
             </div>
-            <canvas id="sig-pad"></canvas>
+            <canvas id="signature-area"></canvas>
         </div>
     </div>
 
-    <div class="btn-group no-export">
-        <button class="btn-pdf" onclick="generatePDF()">DOWNLOAD PDF BILL</button>
-        <button class="btn-wa" onclick="generatePDF()">WHATSAPP BILL</button>
+    <div class="action-bar no-print">
+        <button class="btn btn-save" onclick="generatePDF()">DOWNLOAD PROFESSIONAL PDF</button>
+        <button class="btn btn-wa" onclick="generatePDF()">SHARE ON WHATSAPP</button>
     </div>
 </div>
 
 <script>
-    document.getElementById('bill-date').innerText = new Date().toLocaleDateString('en-GB');
-    const music = document.getElementById('bday-song');
-    const sCanvas = document.getElementById('scratch-canvas');
-    const sCtx = sCanvas.getContext('2d');
+    // 1. DATE SETUP
+    document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
+
+    // 2. SCRATCH CARD ENGINE
+    const audio = document.getElementById('celebration-music');
+    const canvas = document.getElementById('scratch-canvas');
+    const ctx = canvas.getContext('2d');
     
-    // Smooth Scratching Engine
-    sCtx.fillStyle = '#C0C0C0';
-    sCtx.fillRect(0,0,280,350);
-    sCtx.globalCompositeOperation = 'destination-out';
-    sCtx.lineWidth = 45;
-    sCtx.lineJoin = 'round';
-    sCtx.lineCap = 'round';
+    ctx.fillStyle = '#b2bec3';
+    ctx.fillRect(0,0,280,350);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineWidth = 45;
+    ctx.lineCap = 'round';
 
     let isScratching = false;
-    let started = false;
+    let musicStarted = false;
 
-    function getPos(e) {
-        const rect = sCanvas.getBoundingClientRect();
-        return {
-            x: (e.clientX || e.touches[0].clientX) - rect.left,
-            y: (e.clientY || e.touches[0].clientY) - rect.top
-        };
-    }
-
-    function startS(e) { isScratching = true; if(!started){music.play().catch(()=>{}); started=true;} scratch(e); }
-    function scratch(e) {
+    function handleScratch(e) {
         if(!isScratching) return;
-        const pos = getPos(e);
-        sCtx.lineTo(pos.x, pos.y);
-        sCtx.stroke();
-        sCtx.beginPath();
-        sCtx.moveTo(pos.x, pos.y);
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+        
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+
+        if(!musicStarted) { audio.play(); musicStarted = true; }
         e.preventDefault();
     }
 
-    sCanvas.addEventListener('mousedown', startS);
-    sCanvas.addEventListener('touchstart', startS);
-    window.addEventListener('mousemove', scratch);
-    window.addEventListener('touchmove', scratch, {passive: false});
-    window.addEventListener('mouseup', () => {isScratching = false; sCtx.beginPath();});
-    window.addEventListener('touchend', () => {isScratching = false; sCtx.beginPath();});
+    canvas.addEventListener('mousedown', (e) => { isScratching = true; ctx.beginPath(); handleScratch(e); });
+    canvas.addEventListener('touchstart', (e) => { isScratching = true; ctx.beginPath(); handleScratch(e); });
+    window.addEventListener('mousemove', handleScratch);
+    window.addEventListener('touchmove', handleScratch, {passive: false});
+    window.addEventListener('mouseup', () => isScratching = false);
+    window.addEventListener('touchend', () => isScratching = false);
 
-    function enterApp() {
-        document.getElementById('bday-overlay').style.display = 'none';
-        document.getElementById('app-content').style.display = 'block';
-        music.pause();
+    function revealApp() {
+        document.getElementById('surprise-screen').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+        audio.pause();
     }
 
-    // Billing Logic
-    function calculate() {
-        let sub = 0;
-        document.querySelectorAll("#bill-rows tr").forEach(row => {
-            const q = row.cells[2].querySelector('input').value || 0;
-            const r = row.cells[3].querySelector('input').value || 0;
-            sub += (q * r);
+    // 3. BILLING CALCULATIONS
+    function calculateBill() {
+        let subTotal = 0;
+        document.querySelectorAll('#bill-body tr').forEach(row => {
+            const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const rate = parseFloat(row.querySelector('.item-rate').value) || 0;
+            const rowTotal = qty * rate;
+            row.querySelector('.item-total').innerText = rowTotal.toLocaleString();
+            subTotal += rowTotal;
         });
-        const paid = document.getElementById('paid-val').value || 0;
-        document.getElementById('sub-total').innerText = sub.toLocaleString();
-        document.getElementById('balance-total').innerText = (sub - paid).toLocaleString();
+        const paid = parseFloat(document.getElementById('paid-amount').value) || 0;
+        document.getElementById('sub-total').innerText = subTotal.toLocaleString();
+        document.getElementById('balance-due').innerText = (subTotal - paid).toLocaleString();
     }
 
-    function addRow() {
-        const table = document.getElementById('bill-rows');
-        const count = table.rows.length + 1;
-        const tr = table.insertRow();
-        tr.innerHTML = `<td>${count}</td><td><input placeholder="Item name..." style="padding:8px; background:none; border:1px solid #eee;"></td><td><input type="number" value="1" oninput="calculate()" style="padding:8px; text-align:center;"></td><td><input type="number" value="0" oninput="calculate()" style="padding:8px; text-align:center;"></td>`;
+    function addNewRow() {
+        const tbody = document.getElementById('bill-body');
+        const row = tbody.insertRow();
+        row.innerHTML = `<td style="color:#b2bec3;">${tbody.rows.length}</td><td><input class="item-desc"></td><td><input type="number" value="1" class="item-qty" oninput="calculateBill()"></td><td><input type="number" value="0" class="item-rate" oninput="calculateBill()"></td><td style="text-align:right; font-weight:700;" class="item-total">0</td>`;
     }
 
-    // Signature Logic
-    const pad = document.getElementById('sig-pad');
-    const pCtx = pad.getContext('2d');
-    pad.width = pad.offsetWidth; pad.height = 120;
-    let drawing = false;
-    pad.onpointerdown = (e) => { drawing = true; pCtx.beginPath(); pCtx.moveTo(e.offsetX, e.offsetY); };
-    pad.onpointermove = (e) => { if(drawing) { pCtx.lineTo(e.offsetX, e.offsetY); pCtx.stroke(); } };
-    window.onpointerup = () => drawing = false;
-    function clearSig() { pCtx.clearRect(0,0,pad.width,pad.height); }
+    // 4. SIGNATURE PAD
+    const sigCanvas = document.getElementById('signature-area');
+    const sctx = sigCanvas.getContext('2d');
+    sigCanvas.width = sigCanvas.offsetWidth; sigCanvas.height = 140;
+    sctx.lineWidth = 2; sctx.strokeStyle = "#2d3436";
+    let isDrawing = false;
 
-    // PDF Generation Logic
+    sigCanvas.onpointerdown = (e) => { isDrawing = true; sctx.beginPath(); sctx.moveTo(e.offsetX, e.offsetY); };
+    sigCanvas.onpointermove = (e) => { if(isDrawing) { sctx.lineTo(e.offsetX, e.offsetY); sctx.stroke(); } };
+    window.onpointerup = () => isDrawing = false;
+    function clearSignature() { sctx.clearRect(0,0,sigCanvas.width,sigCanvas.height); }
+
+    // 5. PDF EXPORT (WITH INPUT CAPTURE FIX)
     async function generatePDF() {
-        const btns = document.querySelectorAll('.no-export');
-        btns.forEach(b => b.classList.add('hidden-pdf'));
+        const bill = document.getElementById('bill-ui');
         
-        const billElement = document.getElementById('bill');
-        const canvas = await html2canvas(billElement, { scale: 3, useCORS: true });
+        // Fix for html2canvas: Sync input values to "value" attribute so they appear in capture
+        document.querySelectorAll('input').forEach(i => i.setAttribute('value', i.value));
+
+        const canvasObj = await html2canvas(bill, { scale: 3, useCORS: true });
+        const imgData = canvasObj.toDataURL('image/png');
         const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-        const imgWidth = 210;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const width = 210;
+        const height = (canvasObj.height * width) / canvasObj.width;
         
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
-        pdf.save('Naveed_Textiles_Invoice.pdf');
-        
-        btns.forEach(b => b.classList.remove('hidden-pdf'));
+        pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+        pdf.save(`Naveed_Textiles_${Date.now()}.pdf`);
     }
 </script>
 </body>
