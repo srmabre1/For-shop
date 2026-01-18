@@ -3,162 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Naveed Textiles Billing</title>
+<title>Naveed Textiles – Billing</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 body{font-family:Arial;background:#f4f6f8;margin:0;padding:10px}
-#bill{width:794px;background:#fff;margin:auto;padding:25px;border:1px solid #000}
-@media(max-width:850px){
- #bill{transform:scale(.45);transform-origin:top center;margin-bottom:-450px}
-}
-h1{text-align:center;background:#1976d2;color:#fff;padding:10px}
+#bill{width:794px;margin:auto;background:#fff;padding:20px;border:1px solid #000}
+@media(max-width:820px){#bill{transform:scale(.48);transform-origin:top center;margin-bottom:-500px}}
+
+.header{display:flex;align-items:center;gap:15px}
+.logo{width:60px;height:60px;border-radius:8px;background:#2196f3;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.header h1{margin:0;color:#2196f3}
+
+.box{border:1px solid #000;padding:10px;margin-top:10px}
+.flex{display:flex;gap:10px}
+.flex div{flex:1}
 input{width:100%;padding:6px}
+
 table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #000;padding:8px;text-align:center}
-button{padding:12px;font-weight:bold;border:none;border-radius:5px;cursor:pointer}
-.green{background:#4caf50;color:#fff}
-.blue{background:#2196f3;color:#fff}
-.wa{background:#25D366;color:#fff}
-canvas{border:1px solid #000;width:100%;height:120px}
-.popup{
- position:fixed;top:0;left:0;width:100%;height:100%;
- background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:9999
-}
-.popup-box{
- background:#fff;padding:25px;border-radius:10px;max-width:400px;text-align:center
-}
-.popup-box h2{color:#e91e63}
+th,td{border:1px solid #000;padding:6px;text-align:center}
+
+.totalBox{width:300px;margin-left:auto;margin-top:10px}
+.totalRow{display:flex;justify-content:space-between;padding:5px;font-weight:bold}
+
+#sig{border:1px solid #000;width:100%;height:120px;touch-action:none}
+
+.btns{max-width:600px;margin:20px auto;display:flex;flex-direction:column;gap:10px}
+button{padding:14px;font-weight:bold;border:none;border-radius:6px;color:#fff;font-size:16px}
+.pdf{background:#4caf50}
+.wa{background:#25d366}
+.new{background:#2196f3}
+
+/* Birthday overlay */
+#bd{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:9999}
+#card{background:#fff;padding:20px;border-radius:10px;text-align:center;width:280px}
+#scratch{background:#999;color:#999;padding:30px;border-radius:8px;cursor:pointer}
 </style>
 </head>
 
 <body>
 
-<!-- 🎉 BIRTHDAY POPUP -->
-<div id="birthday" class="popup" style="display:none">
-  <div class="popup-box">
-    <h2>🎂 Happy Birthday Naveed 🎉</h2>
-    <p>
-      Bro today you officially upgraded your version 😎<br><br>
-      Still same attitude ✔<br>
-      Still same swag ✔<br>
-      Still same legends stories ✔<br><br>
-      May your bills always calculate correctly😁<br>
-      😁😜<br><br>
-      Stay real. Stay dangerous. 🔥
+<!-- 🎂 Birthday Surprise -->
+<div id="bd">
+  <div id="card">
+    <h2>🎉 Surprise Naveed 😏</h2>
+    <div id="scratch" onclick="reveal()">Scratch here</div>
+    <p id="msg" style="display:none;font-size:14px">
+      Bro you didn’t level up…<br>
+        You **unlocked a new chapter** 😎<br><br>
+        Same attitude ✔<br>
+        Same grind ✔<br>
+        Bigger wins loading… 📈<br><br>
+        Stay real. Stay sharp. 👊 and don't forget me 😁
     </p>
-    <button class="blue" onclick="closeBD()">Got it 👊</button>
   </div>
 </div>
 
 <div id="bill">
-<h1>NAVEED TEXTILES</h1>
+  <div class="header">
+    <div class="logo">NT</div>
+    <div>
+      <h1>NAVEED TEXTILES</h1>
+      <div>Phone: 9906403030</div>
+    </div>
+  </div>
 
-<b>Name</b><input id="name">
-<b>Phone</b><input id="phone">
-<b>Address</b><input id="addr">
+  <div class="box flex">
+    <div>Name<input id="name"></div>
+    <div>Phone<input id="phone"></div>
+    <div>Address<input id="addr"></div>
+  </div>
 
-<br><br>
-<b>Invoice No</b><input id="inv" readonly>
-<b>Date</b><input type="date" id="date">
+  <div class="box flex">
+    <div>Invoice<input id="inv" readonly></div>
+    <div>Date<input type="date" id="date"></div>
+  </div>
 
-<table>
-<thead>
-<tr><th>#</th><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
-</thead>
-<tbody id="rows">
-<tr>
-<td>1</td>
-<td><input></td>
-<td><input type="number" value="1" oninput="calc()"></td>
-<td><input type="number" value="0" oninput="calc()"></td>
-<td class="rt">0</td>
-</tr>
-</tbody>
-</table>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr>
+    </thead>
+    <tbody id="rows">
+      <tr>
+        <td>1</td>
+        <td><input></td>
+        <td><input type="number" value="1" oninput="calc()"></td>
+        <td><input type="number" value="0" oninput="calc()"></td>
+        <td class="rt">0</td>
+      </tr>
+    </tbody>
+  </table>
 
-<button class="blue" onclick="addRow()">+ Add Row</button>
+  <button onclick="addRow()" style="margin-top:8px">+ Add Row</button>
 
-<h3>Total: ₹<span id="total">0</span></h3>
+  <div class="totalBox">
+    <div class="totalRow"><span>Total</span><span id="total">0</span></div>
+    <div class="totalRow"><span>Paid</span><span><input id="paid" value="0" oninput="calc()" style="width:80px"></span></div>
+    <div class="totalRow"><span>Balance / Credit</span><span id="bal">0</span></div>
+  </div>
 
-<b>Signature</b>
-<canvas id="sign"></canvas>
-<button onclick="clearSign()">Clear Sign</button>
-
+  <div class="box">
+    Signature
+    <canvas id="sig"></canvas>
+    <button onclick="clearSig()" style="margin-top:5px;font-size:12px">Clear</button>
+  </div>
 </div>
 
-<br>
-
-<button class="green" onclick="makePDF()">Download PDF</button>
-<button class="wa" onclick="makePDF(true)">Send WhatsApp</button>
+<div class="btns">
+  <button class="pdf" onclick="savePDF()">Download PDF</button>
+  <button class="wa" onclick="shareWA()">Send WhatsApp</button>
+  <button class="new" onclick="location.reload()">New Bill</button>
+</div>
 
 <script>
-/* ===== INVOICE ===== */
-let no = localStorage.getItem("invNo") || 1000
-document.getElementById("inv").value="NT-"+(++no)
-localStorage.setItem("invNo",no)
-document.getElementById("date").value=new Date().toISOString().split("T")[0]
+/* invoice */
+let id=Number(localStorage.ntid||1000)+1
+localStorage.ntid=id
+inv.value="NT-"+id
+date.value=new Date().toISOString().split("T")[0]
 
-/* ===== TABLE ===== */
+/* rows */
 function addRow(){
- let t=document.getElementById("rows")
- let r=t.insertRow()
- r.innerHTML=`<td>${t.rows.length}</td>
+ let r=rows.insertRow()
+ r.innerHTML=`<td>${rows.rows.length}</td>
  <td><input></td>
- <td><input type=number value=1 oninput=calc()></td>
- <td><input type=number value=0 oninput=calc()></td>
- <td class=rt>0</td>`
+ <td><input type="number" value="1" oninput="calc()"></td>
+ <td><input type="number" value="0" oninput="calc()"></td>
+ <td class="rt">0</td>`
 }
 function calc(){
- let sum=0
- document.querySelectorAll(".rt").forEach((c,i)=>{
-  let r=c.parentElement
-  let q=r.cells[2].children[0].value
-  let p=r.cells[3].children[0].value
-  let t=q*p
-  c.innerText=t
-  sum+=t
+ let t=0
+ rows.querySelectorAll("tr").forEach(r=>{
+  let q=r.cells[2].children[0].value||0
+  let p=r.cells[3].children[0].value||0
+  let s=q*p
+  r.querySelector(".rt").innerText=s
+  t+=s
  })
- document.getElementById("total").innerText=sum
+ total.innerText=t
+ bal.innerText=(t-(paid.value||0))
 }
 
-/* ===== SIGN ===== */
-const c=document.getElementById("sign")
-const x=c.getContext("2d")
+/* signature */
+const c=sig,ctx=c.getContext("2d")
+c.width=c.offsetWidth;c.height=c.offsetHeight
 let d=false
-c.width=c.offsetWidth
-c.height=c.offsetHeight
-c.onmousedown=e=>{d=true;x.beginPath();x.moveTo(e.offsetX,e.offsetY)}
-c.onmousemove=e=>{if(d){x.lineTo(e.offsetX,e.offsetY);x.stroke()}}
+c.onmousedown=e=>{d=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY)}
+c.onmousemove=e=>{if(d){ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke()}}
 window.onmouseup=()=>d=false
-c.ontouchstart=e=>{d=true;let t=e.touches[0];x.beginPath();x.moveTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop)}
-c.ontouchmove=e=>{let t=e.touches[0];x.lineTo(t.clientX-c.offsetLeft,t.clientY-c.offsetTop);x.stroke()}
-function clearSign(){x.clearRect(0,0,c.width,c.height)}
+c.ontouchstart=e=>{d=true;let r=c.getBoundingClientRect();ctx.beginPath();ctx.moveTo(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top)}
+c.ontouchmove=e=>{let r=c.getBoundingClientRect();ctx.lineTo(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);ctx.stroke()}
+function clearSig(){ctx.clearRect(0,0,c.width,c.height)}
 
-/* ===== PDF ===== */
-async function makePDF(share=false){
+/* pdf */
+async function savePDF(){
  const {jsPDF}=window.jspdf
- let canvas=await html2canvas(document.getElementById("bill"),{scale:2})
- let pdf=new jsPDF("p","mm","a4")
- pdf.addImage(canvas,"PNG",0,0,210,297)
- if(share && navigator.share){
-  let f=new File([pdf.output("blob")],"Bill.pdf",{type:"application/pdf"})
-  navigator.share({files:[f]})
- }else pdf.save("Bill.pdf")
+ const shot=await html2canvas(bill,{scale:2,width:794})
+ const pdf=new jsPDF("p","mm","a4")
+ pdf.addImage(shot.toDataURL(),"PNG",0,0,210,shot.height*210/shot.width)
+ pdf.save(inv.value+".pdf")
+}
+async function shareWA(){
+ const {jsPDF}=window.jspdf
+ const shot=await html2canvas(bill,{scale:2,width:794})
+ const pdf=new jsPDF()
+ pdf.addImage(shot.toDataURL(),"PNG",0,0,210,shot.height*210/shot.width)
+ const f=new File([pdf.output("blob")],"Bill.pdf",{type:"application/pdf"})
+ navigator.share({files:[f]})
 }
 
-/* ===== 🎂 BIRTHDAY LOGIC (2 DAYS) ===== */
-let start=new Date("2026-01-18") // TODAY
-let now=new Date()
-let diff=(now-start)/(1000*60*60*24)
-if(diff>=0 && diff<2){
- document.getElementById("birthday").style.display="flex"
-}
-function closeBD(){
- document.getElementById("birthday").style.display="none"
-}
+/* 🎂 Birthday – 2 days only */
+const start=new Date("2026-01-18")
+if((Date.now()-start)/(1000*60*60*24)<=2){bd.style.display="flex"}
+function reveal(){scratch.style.display="none";msg.style.display="block"}
 </script>
+
 </body>
 </html>
