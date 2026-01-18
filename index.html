@@ -57,7 +57,11 @@
         .sum-row { display: flex; justify-content: space-between; padding: 8px 0; font-weight: 700; font-size: 15px; }
         .grand-total { font-size: 24px; color: var(--accent); margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
 
-        #sig-zone { border: 2px dashed #ccc; border-radius: 12px; height: 120px; width: 100%; background: #fafafa; touch-action: none; cursor: crosshair; }
+        #sig-zone { 
+            border: 2px dashed #ccc; border-radius: 12px; height: 120px; width: 100%; 
+            background: #fafafa; touch-action: none; cursor: crosshair;
+            display: block; /* Ensure it's visible */
+        }
         
         .action-bar { 
             position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.9);
@@ -67,13 +71,26 @@
         .btn { padding: 15px; border: none; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; }
         .btn-download { background: var(--main); color: #fff; }
         .btn-whatsapp { background: #25d366; color: #fff; }
-        .no-print { display: block; }
+        
+        /* Print-specific styles */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff; }
+            #app-portal { display: block !important; padding-bottom: 0; }
+            .action-bar { display: none; }
+            input { border: none !important; background: transparent !important; }
+            #sig-zone { border: 1px solid #000; }
+        }
+        
+        /* For HTML2Canvas rendering */
+        .print-mode .no-print { display: none; }
+        .print-mode input { border: none !important; background: transparent !important; }
     </style>
 </head>
-<body onclick="startMusic()">
+<body>
 
 <audio id="bday-track" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
+    <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
 </audio>
 
 <div id="birthday-gate">
@@ -101,16 +118,16 @@
             <div style="text-align: right;">
                 <div style="background: var(--accent); color: #000; padding: 5px 12px; border-radius: 5px; font-weight: 900; font-size: 12px;">INVOICE</div>
                 <p style="margin: 10px 0 0; font-size: 14px;" id="today-date"></p>
-                <small>#NT-2026</small>
+                <small>#NT-<span id="invoice-number"></span></small>
             </div>
         </div>
 
         <div class="invoice-body">
             <div class="client-section">
-                <div class="input-box"><label>Bill To</label><input id="c-name" placeholder="Customer Name"></div>
-                <div class="input-box"><label>Contact</label><input id="c-phone" placeholder="Phone Number"></div>
+                <div class="input-box"><label>Bill To</label><input id="c-name" placeholder="Customer Name" value=""></div>
+                <div class="input-box"><label>Contact</label><input id="c-phone" placeholder="Phone Number" value=""></div>
             </div>
-            <div class="input-box" style="margin-bottom: 30px;"><label>Address</label><input id="c-addr" placeholder="Customer Address"></div>
+            <div class="input-box" style="margin-bottom: 30px;"><label>Address</label><input id="c-addr" placeholder="Customer Address" value=""></div>
 
             <table id="items-table">
                 <thead>
@@ -118,7 +135,7 @@
                 </thead>
                 <tbody id="bill-rows">
                     <tr>
-                        <td><input placeholder="Item..." class="item-desc" style="border:none; padding:5px; background:transparent;"></td>
+                        <td><input placeholder="Item..." class="item-desc" style="border:none; padding:5px; background:transparent;" value=""></td>
                         <td><input type="number" value="1" class="item-qty" oninput="updateBill()"></td>
                         <td><input type="number" value="0" class="item-rate" oninput="updateBill()"></td>
                         <td style="text-align:right; font-weight:800;" class="item-total">0</td>
@@ -130,8 +147,14 @@
 
             <div class="totals-area">
                 <div class="sum-row"><span>Sub-Total</span><span id="sub-total">0</span></div>
-                <div class="sum-row" style="color: #d00000;"><span>Discount %</span><input id="disc-per" type="number" value="0" oninput="updateBill()" style="width:50px; text-align:right; border:none; background:none; padding:0; font-weight:bold;"></div>
-                <div class="sum-row"><span>Paid</span><input id="paid-amt" type="number" value="0" oninput="updateBill()" style="width:80px; text-align:right; border:none; background:none; padding:0; font-weight:bold;"></div>
+                <div class="sum-row" style="color: #d00000;">
+                    <span>Discount %</span>
+                    <input id="disc-per" type="number" value="0" oninput="updateBill()" style="width:50px; text-align:right; border:none; background:none; padding:0; font-weight:bold;">
+                </div>
+                <div class="sum-row">
+                    <span>Paid</span>
+                    <input id="paid-amt" type="number" value="0" oninput="updateBill()" style="width:80px; text-align:right; border:none; background:none; padding:0; font-weight:bold;">
+                </div>
                 <div class="sum-row grand-total"><span>Balance</span><span id="balance-val">0</span></div>
             </div>
 
@@ -141,6 +164,7 @@
                     <span class="no-print" onclick="clearSig()" style="color:red; font-size:10px; font-weight:900; cursor:pointer;">[ CLEAR ]</span>
                 </div>
                 <canvas id="sig-zone"></canvas>
+                <input type="hidden" id="sig-data">
             </div>
         </div>
     </div>
@@ -152,110 +176,300 @@
 </div>
 
 <script>
+    // Initialize variables
     const music = document.getElementById('bday-track');
     let hasStarted = false;
-
+    let sCan, sCtx, drawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    
+    // Set today's date and invoice number
+    document.getElementById('today-date').innerText = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit', 
+        month: 'long', 
+        year: 'numeric'
+    });
+    
+    // Generate invoice number (YYYYMMDD-XXXX)
+    const now = new Date();
+    const invoiceNum = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2,'0')}${now.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(4,'0')}`;
+    document.getElementById('invoice-number').innerText = invoiceNum;
+    
+    // Start function with music fix
     function startMusic() {
         if (!hasStarted) {
-            music.play().catch(() => {});
+            // Play music with user interaction
+            music.volume = 0.5;
+            music.play().then(() => {
+                console.log("Music started playing");
+            }).catch(error => {
+                console.log("Music play failed:", error);
+                // Continue anyway even if music fails
+            });
+            
             document.getElementById('birthday-gate').style.display = 'none';
             document.getElementById('app-portal').style.display = 'block';
-            initSig();
+            initSig(); // Initialize signature pad
+            updateBill(); // Initial calculation
             hasStarted = true;
+            
+            // Add click event listener to body for music start (first click)
+            document.body.removeEventListener('click', startMusic);
         }
     }
-
-    document.getElementById('today-date').innerText = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'});
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click listener to gate and body
+        document.getElementById('birthday-gate').addEventListener('click', startMusic);
+        document.body.addEventListener('click', startMusic);
+    });
 
     function updateBill() {
         let sub = 0;
         document.querySelectorAll('#bill-rows tr').forEach(row => {
-            const q = row.querySelector('.item-qty').value || 0;
-            const r = row.querySelector('.item-rate').value || 0;
+            const q = parseFloat(row.querySelector('.item-qty').value) || 0;
+            const r = parseFloat(row.querySelector('.item-rate').value) || 0;
             const t = q * r;
-            row.querySelector('.item-total').innerText = t.toLocaleString();
+            row.querySelector('.item-total').innerText = t.toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
             sub += t;
         });
-        const disc = document.getElementById('disc-per').value || 0;
-        const paid = document.getElementById('paid-amt').value || 0;
+        
+        const disc = parseFloat(document.getElementById('disc-per').value) || 0;
+        const paid = parseFloat(document.getElementById('paid-amt').value) || 0;
         const totalAfterDisc = sub - (sub * disc / 100);
-        document.getElementById('sub-total').innerText = sub.toLocaleString();
-        document.getElementById('balance-val').innerText = (totalAfterDisc - paid).toLocaleString();
+        
+        document.getElementById('sub-total').innerText = sub.toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        
+        document.getElementById('balance-val').innerText = (totalAfterDisc - paid).toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
 
     function addRow() {
         const tbody = document.getElementById('bill-rows');
         const tr = tbody.insertRow();
-        tr.innerHTML = `<td><input placeholder="Item..." class="item-desc" style="border:none; padding:5px; background:transparent;"></td><td><input type="number" value="1" class="item-qty" oninput="updateBill()"></td><td><input type="number" value="0" class="item-rate" oninput="updateBill()"></td><td style="text-align:right; font-weight:800;" class="item-total">0</td>`;
+        tr.innerHTML = `
+            <td><input placeholder="Item..." class="item-desc" style="border:none; padding:5px; background:transparent;" value=""></td>
+            <td><input type="number" value="1" class="item-qty" oninput="updateBill()"></td>
+            <td><input type="number" value="0" class="item-rate" oninput="updateBill()"></td>
+            <td style="text-align:right; font-weight:800;" class="item-total">0</td>
+        `;
     }
 
-    let sCan, sCtx, drawing = false;
     function initSig() {
         sCan = document.getElementById('sig-zone');
         sCtx = sCan.getContext('2d');
+        
+        // Set canvas size correctly
         sCan.width = sCan.offsetWidth;
         sCan.height = 120;
-        sCtx.lineWidth = 2; sCtx.strokeStyle = '#000';
         
-        const getXY = (e) => {
+        sCtx.lineWidth = 2;
+        sCtx.lineCap = 'round';
+        sCtx.lineJoin = 'round';
+        sCtx.strokeStyle = '#000';
+        sCtx.fillStyle = '#fafafa';
+        sCtx.fillRect(0, 0, sCan.width, sCan.height);
+        
+        // Get position function
+        const getPos = (e) => {
             const rect = sCan.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
+            return {
+                x: (e.clientX || e.touches[0].clientX) - rect.left,
+                y: (e.clientY || e.touches[0].clientY) - rect.top
+            };
         };
-
-        const start = (e) => { drawing = true; const p = getXY(e); sCtx.beginPath(); sCtx.moveTo(p.x, p.y); };
-        const move = (e) => { if(!drawing) return; const p = getXY(e); sCtx.lineTo(p.x, p.y); sCtx.stroke(); e.preventDefault(); };
-        const end = () => drawing = false;
-
-        sCan.addEventListener('mousedown', start);
-        sCan.addEventListener('mousemove', move);
-        window.addEventListener('mouseup', end);
-        sCan.addEventListener('touchstart', start);
-        sCan.addEventListener('touchmove', move);
-        window.addEventListener('touchend', end);
+        
+        // Start drawing
+        const startDraw = (e) => {
+            drawing = true;
+            const pos = getPos(e);
+            [lastX, lastY] = [pos.x, pos.y];
+            sCtx.beginPath();
+            sCtx.moveTo(lastX, lastY);
+        };
+        
+        // Draw
+        const draw = (e) => {
+            if (!drawing) return;
+            e.preventDefault();
+            
+            const pos = getPos(e);
+            sCtx.lineTo(pos.x, pos.y);
+            sCtx.stroke();
+            [lastX, lastY] = [pos.x, pos.y];
+        };
+        
+        // Stop drawing
+        const stopDraw = () => {
+            drawing = false;
+            // Save signature data
+            saveSigData();
+        };
+        
+        // Save signature as data URL
+        const saveSigData = () => {
+            document.getElementById('sig-data').value = sCan.toDataURL();
+        };
+        
+        // Event listeners for mouse
+        sCan.addEventListener('mousedown', startDraw);
+        sCan.addEventListener('mousemove', draw);
+        sCan.addEventListener('mouseup', stopDraw);
+        sCan.addEventListener('mouseout', stopDraw);
+        
+        // Event listeners for touch
+        sCan.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startDraw(e);
+        });
+        sCan.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            draw(e);
+        });
+        sCan.addEventListener('touchend', stopDraw);
     }
 
-    function clearSig() { sCtx.clearRect(0, 0, sCan.width, sCan.height); }
+    function clearSig() {
+        sCtx.clearRect(0, 0, sCan.width, sCan.height);
+        sCtx.fillStyle = '#fafafa';
+        sCtx.fillRect(0, 0, sCan.width, sCan.height);
+        document.getElementById('sig-data').value = '';
+    }
 
     async function exportPDF(isWhatsapp = false) {
-        // Prepare UI for capture
-        const hideElems = document.querySelectorAll('.no-print');
-        hideElems.forEach(el => el.style.opacity = '0');
+        // Show loading state
+        const downloadBtn = document.querySelector('.btn-download');
+        const originalText = downloadBtn.textContent;
+        downloadBtn.textContent = 'Generating PDF...';
+        downloadBtn.disabled = true;
         
-        // Ensure all inputs show their text in the canvas
-        document.querySelectorAll('input').forEach(i => i.setAttribute('value', i.value));
-
-        const invoice = document.getElementById('invoice-container');
+        // Store original styles
+        const originalDisplay = [];
+        const noPrintElements = document.querySelectorAll('.no-print');
+        noPrintElements.forEach(el => {
+            originalDisplay.push(el.style.display);
+            el.style.display = 'none';
+        });
+        
+        // Force input values to be visible
+        document.querySelectorAll('input').forEach(input => {
+            if (input.type !== 'hidden') {
+                const value = input.value;
+                // Create a span with the value for html2canvas to capture
+                const span = document.createElement('span');
+                span.textContent = value;
+                span.style.position = 'absolute';
+                span.style.left = '-9999px';
+                document.body.appendChild(span);
+                
+                // Temporarily replace input with text
+                const parent = input.parentNode;
+                const textSpan = document.createElement('span');
+                textSpan.textContent = value || input.placeholder;
+                textSpan.style.display = 'inline-block';
+                textSpan.style.width = '100%';
+                textSpan.style.padding = '12px';
+                textSpan.style.minHeight = '20px';
+                parent.replaceChild(textSpan, input);
+                
+                // Store reference to restore later
+                input._replacement = textSpan;
+                input._parent = parent;
+            }
+        });
         
         try {
+            const invoice = document.getElementById('invoice-container');
+            
+            // Use html2canvas with better settings
             const canvas = await html2canvas(invoice, {
-                scale: 3, // Higher quality
+                scale: 2,
                 useCORS: true,
                 logging: false,
-                backgroundColor: "#ffffff"
+                backgroundColor: '#ffffff',
+                allowTaint: true,
+                foreignObjectRendering: false,
+                onclone: function(clonedDoc) {
+                    // Ensure signature is visible in clone
+                    const sigCanvas = clonedDoc.getElementById('sig-zone');
+                    if (sigCanvas) {
+                        const ctx = sigCanvas.getContext('2d');
+                        ctx.fillStyle = '#fafafa';
+                        ctx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+                        // Redraw signature
+                        const sigData = document.getElementById('sig-data').value;
+                        if (sigData) {
+                            const img = new Image();
+                            img.src = sigData;
+                            ctx.drawImage(img, 0, 0);
+                        }
+                    }
+                }
             });
-
+            
+            // Calculate PDF dimensions
+            const imgWidth = 210; // A4 width in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            // Create PDF
+            const pdf = new jspdf.jsPDF({
+                orientation: imgHeight > 297 ? 'portrait' : 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            // Add image to PDF
             const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-            const pWidth = pdf.internal.pageSize.getWidth();
-            const pHeight = (canvas.height * pWidth) / canvas.width;
+            pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
             
-            pdf.addImage(imgData, 'JPEG', 0, 0, pWidth, pHeight);
+            // Generate filename
+            const customerName = document.getElementById('c-name').value.replace(/\s+/g, '_') || 'Invoice';
+            const filename = `NaveedTextiles_${customerName}_${invoiceNum}.pdf`;
             
-            if(isWhatsapp) {
-                // For WhatsApp, we usually share a link or download and then share.
-                // True "Auto-Share PDF" to WhatsApp from browser requires a server.
-                // This will trigger download and alert user.
-                pdf.save(`NaveedTextiles_${Date.now()}.pdf`);
-                alert("PDF Downloaded! You can now attach it to WhatsApp.");
+            if (isWhatsapp) {
+                // For WhatsApp sharing (simplified approach)
+                pdf.save(filename);
+                alert(`PDF downloaded as ${filename}. You can now share it on WhatsApp.`);
             } else {
-                pdf.save(`NaveedTextiles_Invoice.pdf`);
+                // Direct download
+                pdf.save(filename);
             }
-        } catch (err) {
-            console.error(err);
+            
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            alert('Error generating PDF. Please try again.');
         } finally {
-            hideElems.forEach(el => el.style.opacity = '1');
+            // Restore original state
+            downloadBtn.textContent = originalText;
+            downloadBtn.disabled = false;
+            
+            // Restore input elements
+            document.querySelectorAll('input').forEach(input => {
+                if (input._replacement && input._parent) {
+                    input._parent.replaceChild(input, input._replacement);
+                }
+            });
+            
+            // Remove temporary spans
+            document.querySelectorAll('span[style*="absolute"]').forEach(span => {
+                if (span.style.left === '-9999px') {
+                    span.remove();
+                }
+            });
+            
+            // Restore display of no-print elements
+            noPrintElements.forEach((el, index) => {
+                el.style.display = originalDisplay[index];
+            });
         }
     }
 </script>
