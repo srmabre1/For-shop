@@ -9,203 +9,200 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        :root { --blue: #1a73e8; --gold: #ffd700; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); margin: 0; padding: 10px; }
+        :root { --blue: #1a73e8; --gold: #ffd700; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
         
-        /* --- Professional Bill Design --- */
         #bill { 
             width: 100%; max-width: 800px; margin: auto; background: #fff; 
-            padding: 30px; box-sizing: border-box; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 25px; box-sizing: border-box; border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--blue); padding-bottom: 15px; margin-bottom: 25px; }
-        .logo-box { display: flex; align-items: center; gap: 15px; }
-        /* Professional Textile Logo Placeholder */
-        .logo-img { width: 60px; height: 60px; background: var(--blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--blue); padding-bottom: 15px; margin-bottom: 20px; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        
+        /* Uses your uploaded logo.png */
+        .my-logo { width: 80px; height: 80px; object-fit: contain; }
 
-        .bill-info { text-align: right; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .field { display: flex; flex-direction: column; font-size: 12px; font-weight: bold; color: #666; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-top: 5px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px; font-size: 14px; width: 100%; box-sizing: border-box; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { background: #f1f3f4; padding: 12px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; font-size: 13px; border-bottom: 2px solid #eee; }
         td { padding: 10px; border-bottom: 1px solid #eee; }
         
-        .totals-area { width: 100%; max-width: 300px; margin-left: auto; margin-top: 30px; }
-        .total-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .grand { font-weight: bold; color: var(--blue); font-size: 20px; border-bottom: none; }
+        .grand-total { margin-left: auto; width: 250px; margin-top: 25px; font-size: 20px; font-weight: bold; color: var(--blue); text-align: right; border-top: 2px solid #eee; padding-top: 10px; }
 
-        #sig-area { margin-top: 40px; border-top: 1px solid #eee; padding-top: 10px; }
-        #sig-canvas { border: 1px dashed #bbb; width: 100%; height: 120px; background: #fafafa; border-radius: 6px; touch-action: none; }
+        #sig-wrap { margin-top: 40px; border-top: 1px solid #eee; padding-top: 10px; }
+        #sig-canvas { border: 1px dashed #ccc; width: 100%; height: 120px; background: #fafafa; touch-action: none; border-radius: 8px; }
 
-        /* PDF & App Controls */
-        .controls { width: 100%; max-width: 800px; margin: 20px auto; display: flex; flex-direction: column; gap: 10px; }
+        .no-export { width: 100%; max-width: 800px; margin: 20px auto; display: flex; flex-direction: column; gap: 10px; }
         .btn-row { display: flex; gap: 10px; }
         button { flex: 1; padding: 16px; font-weight: bold; border: none; border-radius: 8px; color: #fff; cursor: pointer; font-size: 15px; }
         .btn-pdf { background: #455a64; }
         .btn-wa { background: #25d366; }
-        .btn-new { background: #d93025; }
-        .hide-in-pdf { display: none !important; }
+        .btn-new { background: #d32f2f; }
+        .btn-add { background: #f1f3f4; color: #333; margin-top: 10px; width: 120px; padding: 8px; font-size: 12px; }
 
-        /* --- Birthday Scratch Card & Animation --- */
-        #bday-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: flex; align-items: center; justify-content: center; z-index: 99999; padding: 20px; }
-        #card-body { background: #fff; padding: 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 380px; box-shadow: 0 0 50px rgba(26,115,232,0.5); }
+        .hidden-pdf { display: none !important; }
+
+        /* --- Birthday Scratch Card --- */
+        #bd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: flex; align-items: center; justify-content: center; z-index: 99999; }
+        #card { background: #fff; padding: 25px; border-radius: 25px; text-align: center; width: 90%; max-width: 380px; }
+        #scratch-container { position: relative; width: 300px; height: 350px; margin: 15px auto; background: #111; border-radius: 15px; overflow: hidden; border: 4px solid var(--gold); }
+        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; touch-action: none; }
         
-        #scratch-wrap { position: relative; width: 300px; height: 350px; margin: 20px auto; background: #000; border-radius: 15px; overflow: hidden; border: 4px solid var(--gold); }
-        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; touch-action: none; cursor: pointer; }
-
-        .hidden-content { 
+        .reveal-msg { 
             position: absolute; inset: 0; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; color: white; padding: 25px; z-index: 1;
-            opacity: 0; transform: scale(0.5); transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            align-items: center; justify-content: center; color: white; padding: 20px; 
+            z-index: 1; opacity: 0;
         }
-        /* The Animation */
-        .show-now { opacity: 1 !important; transform: scale(1) !important; animation: glow-text 2s infinite alternate; }
-        @keyframes glow-text { from { text-shadow: 0 0 10px var(--gold); } to { text-shadow: 0 0 20px var(--blue), 0 0 30px #fff; } }
+        .animate-text { opacity: 1 !important; animation: popGlow 1.2s infinite alternate; }
+        @keyframes popGlow { 
+            0% { transform: scale(1); text-shadow: 0 0 10px var(--gold); } 
+            100% { transform: scale(1.1); text-shadow: 0 0 25px #fff, 0 0 10px var(--blue); } 
+        }
     </style>
 </head>
 <body>
 
-<audio id="bday-song" loop pre-load="auto">
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3" type="audio/mpeg">
+<audio id="bday-music" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
 </audio>
 
-<div id="bday-overlay">
-    <div id="card-body">
-        <h2 style="color:var(--blue); margin:0;">🎂 NAVEED'S BIRTHDAY 🎂</h2>
-        <div id="scratch-wrap">
-            <div class="hidden-content" id="bday-msg">
-                <h1 style="color:var(--gold); margin:0; font-size: 30px;">LEVEL UP! 🚀</h1>
-                <p style="font-size: 18px; margin: 15px 0;">You unlocked a new chapter 😎</p>
-                <div style="text-align: left; font-size: 14px; line-height: 1.8;">
+<div id="bd-overlay">
+    <div id="card">
+        <h2 style="color:var(--blue); margin:0;">🎂 HAPPY BIRTHDAY NAVEED 🎂</h2>
+        <div id="scratch-container">
+            <div class="reveal-msg" id="msg">
+                <h1 style="color:var(--gold); margin:0; font-size: 32px;">LEVEL UP! 🚀</h1>
+                <p style="font-size: 18px;">New Chapter Unlocked 😎</p>
+                <div style="text-align: left; margin: 10px 0; line-height: 1.8;">
                     ⭐ Same Attitude ✔<br>
                     ⭐ Same Grind ✔<br>
-                    ⭐ Bigger Wins Loading... 📈<br>
+                    ⭐ Bigger Wins Loading... 📈
                 </div>
-                <p style="margin-top: 20px; font-weight: bold; color: var(--gold);">Don't forget me! 😉👊</p>
+                <p style="margin-top:15px; font-weight:bold; color: var(--gold);">Keep Shining! 👊</p>
             </div>
             <canvas id="scratch-canvas" width="300" height="350"></canvas>
         </div>
-        <button onclick="unlockBill()" style="background:var(--blue); width:100%; padding:15px; border-radius:12px;">OPEN MY BILLING APP</button>
+        <button onclick="enterApp()" style="background:var(--blue); width:100%; padding:15px; border-radius:10px;">Go to My Bill</button>
     </div>
 </div>
 
 <div id="bill">
     <div class="header">
-        <div class="logo-box">
-            <div class="logo-img">NT</div>
+        <div class="logo-area">
+            <img src="logo.png" alt="Logo" class="my-logo" onerror="this.src='https://via.placeholder.com/80x80?text=Logo'">
             <div>
-                <h1 style="margin:0; font-size: 24px; color:var(--blue);">NAVEED TEXTILES</h1>
-                <span style="font-size: 12px; color: #666;">Premium Quality Fabrics | Ph: 9906403030</span>
+                <h1 style="margin:0; font-size: 24px; color:var(--blue)">NAVEED TEXTILES</h1>
+                <span style="font-size: 12px; color: #777;">Ph: 9906403030</span>
             </div>
         </div>
-        <div class="bill-info">
-            <div style="font-weight: bold; font-size: 18px;">INV #1088</div>
-            <div id="date-now" style="color: #888; font-size: 14px;"></div>
+        <div style="text-align: right;">
+            <div style="font-weight: bold; font-size: 18px; color: var(--blue);">INV-1099</div>
+            <div id="date-str" style="font-size: 13px; color: #888;"></div>
         </div>
     </div>
 
     <div class="info-grid">
-        <div class="field">CUSTOMER NAME <input id="c-name" placeholder="Enter Name"></div>
-        <div class="field">PHONE NUMBER <input id="c-phone" placeholder="Enter Phone"></div>
+        <div class="field">CUSTOMER NAME <input id="name" placeholder="Enter Name"></div>
+        <div class="field">PHONE NUMBER <input id="phone" placeholder="Enter Phone"></div>
     </div>
 
     <table>
         <thead>
-            <tr><th width="50">#</th><th>DESCRIPTION</th><th width="80">QTY</th><th width="100">RATE</th><th width="120">TOTAL</th></tr>
+            <tr><th width="40">#</th><th>ITEM DESCRIPTION</th><th width="60">QTY</th><th width="100">RATE</th><th width="100">TOTAL</th></tr>
         </thead>
-        <tbody id="bill-items">
+        <tbody id="rows">
             <tr>
                 <td>1</td>
-                <td><input placeholder="Item Description"></td>
-                <td><input type="number" value="1" oninput="updateTotal()"></td>
-                <td><input type="number" value="0" oninput="updateTotal()"></td>
-                <td style="text-align: right; font-weight: bold;" class="item-sum">0</td>
+                <td><input placeholder="Item name..."></td>
+                <td><input type="number" value="1" oninput="calc()"></td>
+                <td><input type="number" value="0" oninput="calc()"></td>
+                <td style="text-align: right; font-weight: bold;" class="r-total">0</td>
             </tr>
         </tbody>
     </table>
-    
-    <button class="hide-on-print" style="margin-top:10px; background:#f1f3f4; color:#333; padding:8px 15px; border:1px solid #ddd; border-radius:4px;" onclick="addRow()">+ Add Line</button>
+    <button class="btn-add no-export" onclick="addRow()">+ Add Item</button>
 
-    <div class="totals-area">
-        <div class="total-row"><span>Sub-Total</span><span id="sub-val">0</span></div>
-        <div class="total-row grand"><span>Balance Due</span><span id="total-val">0</span></div>
+    <div class="grand-total">
+        TOTAL: <span id="grand-val">0</span>
     </div>
 
-    <div id="sig-area">
-        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px; font-weight:bold;">
+    <div id="sig-wrap">
+        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:8px; font-weight:bold;">
             <span>AUTHORIZED SIGNATURE</span>
-            <span class="hide-on-print" style="color:red; cursor:pointer;" onclick="clearSig()">Clear</span>
+            <span class="no-export" style="color:red; cursor:pointer;" onclick="clearSig()">Clear</span>
         </div>
         <canvas id="sig-canvas"></canvas>
     </div>
 </div>
 
-<div class="controls">
+<div class="no-export">
     <div class="btn-row">
-        <button class="btn-pdf" onclick="savePDF()">DOWNLOAD FULL PDF</button>
-        <button class="btn-wa" onclick="alert('PDF Generated! You can now share it.')">WHATSAPP</button>
+        <button class="btn-pdf" onclick="saveFullPDF()">DOWNLOAD BILL (PDF)</button>
+        <button class="btn-wa" onclick="alert('PDF Saved! Now share it on WhatsApp.')">WHATSAPP</button>
     </div>
-    <button class="btn-new" onclick="location.reload()">RESET BILL</button>
+    <button class="btn-new" onclick="location.reload()">NEW BILL</button>
 </div>
 
 <script>
-    // Set Current Date
-    document.getElementById('date-now').innerText = new Date().toLocaleDateString('en-GB');
+    document.getElementById('date-str').innerText = new Date().toLocaleDateString('en-GB');
+    const music = document.getElementById('bday-music');
 
-    // Scratch Card Logic
+    function calc() {
+        let grand = 0;
+        document.querySelectorAll("#rows tr").forEach(row => {
+            const q = row.cells[2].querySelector('input').value || 0;
+            const r = row.cells[3].querySelector('input').value || 0;
+            const total = q * r;
+            row.querySelector('.r-total').innerText = total.toLocaleString();
+            grand += total;
+        });
+        document.getElementById('grand-val').innerText = grand.toLocaleString();
+    }
+
+    function addRow() {
+        const tbody = document.getElementById('rows');
+        const row = tbody.insertRow();
+        row.innerHTML = `<td>${tbody.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td style="text-align: right; font-weight: bold;" class="r-total">0</td>`;
+    }
+
+    // --- SMOOTH SCRATCH LOGIC ---
     const canvas = document.getElementById('scratch-canvas');
     const ctx = canvas.getContext('2d');
-    const bdaySong = document.getElementById('bday-song');
-    
     ctx.fillStyle = '#C0C0C0';
     ctx.fillRect(0,0,300,350);
     ctx.globalCompositeOperation = 'destination-out';
 
-    let isPlaying = false;
-    const doScratch = (e) => {
+    let started = false;
+    function scratch(e) {
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
-        ctx.beginPath(); ctx.arc(x, y, 40, 0, Math.PI*2); ctx.fill();
         
-        if(!isPlaying) {
-            bdaySong.play();
-            document.getElementById('bday-msg').classList.add('show-now');
-            isPlaying = true;
+        ctx.beginPath();
+        ctx.arc(x, y, 40, 0, Math.PI * 2); // Larger brush for smoother feel
+        ctx.fill();
+
+        if(!started) {
+            music.play();
+            document.getElementById('msg').classList.add('animate-text');
+            started = true;
         }
-    };
-    canvas.addEventListener('touchmove', (e) => { doScratch(e); e.preventDefault(); });
-    canvas.addEventListener('mousemove', (e) => { if(e.buttons === 1) doScratch(e); });
-
-    function unlockBill() {
-        document.getElementById('bday-overlay').style.display = 'none';
-        bdaySong.pause();
     }
 
-    // Billing Calculations
-    function updateTotal() {
-        let grand = 0;
-        document.querySelectorAll("#bill-items tr").forEach(row => {
-            const q = row.cells[2].querySelector('input').value || 0;
-            const r = row.cells[3].querySelector('input').value || 0;
-            const total = q * r;
-            row.querySelector('.item-sum').innerText = total.toLocaleString();
-            grand += total;
-        });
-        document.getElementById('sub-val').innerText = grand.toLocaleString();
-        document.getElementById('total-val').innerText = grand.toLocaleString();
+    canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); }, {passive: false});
+    canvas.addEventListener('mousemove', (e) => { if(e.buttons === 1) scratch(e); });
+
+    function enterApp() {
+        document.getElementById('bd-overlay').style.display = 'none';
+        music.pause();
     }
 
-    function addRow() {
-        const tbody = document.getElementById('bill-items');
-        const row = tbody.insertRow();
-        row.innerHTML = `<td>${tbody.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="updateTotal()"></td><td><input type="number" value="0" oninput="updateTotal()"></td><td style="text-align: right; font-weight: bold;" class="item-sum">0</td>`;
-    }
-
-    // Signature Area
+    // --- SIGNATURE ---
     const sCanvas = document.getElementById('sig-canvas');
     const sCtx = sCanvas.getContext('2d');
     sCanvas.width = sCanvas.offsetWidth; sCanvas.height = 120;
@@ -215,26 +212,32 @@
         if(!drawing) return;
         const rect = sCanvas.getBoundingClientRect();
         sCtx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
-        sCtx.lineWidth = 2; sCtx.stroke(); e.preventDefault();
+        sCtx.stroke(); e.preventDefault();
     });
     window.addEventListener('touchend', () => drawing = false);
     function clearSig() { sCtx.clearRect(0,0,sCanvas.width,sCanvas.height); }
 
-    // THE FULL PDF FIX
-    async function savePDF() {
-        const buttons = document.querySelectorAll('.controls, .hide-on-print');
-        buttons.forEach(b => b.classList.add('hide-in-pdf'));
+    // --- FULL PDF GENERATION ---
+    async function saveFullPDF() {
+        document.querySelectorAll('.no-export').forEach(el => el.classList.add('hidden-pdf'));
+        const bill = document.getElementById('bill');
         
-        const billElement = document.getElementById('bill');
-        const canvasImage = await html2canvas(billElement, { scale: 3, useCORS: true });
+        // Force scroll to top so html2canvas captures everything
+        window.scrollTo(0,0);
+        
+        const canvasImage = await html2canvas(bill, { 
+            scale: 3, 
+            useCORS: true,
+            windowWidth: 800 // Consistent width for PDF
+        });
+        
         const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
         const imgWidth = 210;
         const imgHeight = (canvasImage.height * imgWidth) / canvasImage.width;
         
         pdf.addImage(canvasImage.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
-        pdf.save('Naveed_Textiles_Invoice.pdf');
-        
-        buttons.forEach(b => b.classList.remove('hide-in-pdf'));
+        pdf.save('Naveed_Textiles.pdf');
+        document.querySelectorAll('.hidden-pdf').forEach(el => el.classList.remove('hidden-pdf'));
     }
 </script>
 </body>
