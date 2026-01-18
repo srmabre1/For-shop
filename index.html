@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Naveed Textiles | Professional</title>
+    <title>Naveed Textiles Pro</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        :root { --brand: #111; --blue: #0061ff; --gold: #c5a059; --bg: #f2f4f7; }
+        :root { --brand: #111; --accent: #0061ff; --gold: #c5a059; --bg: #f2f4f7; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; }
         body { margin: 0; background: #000; overflow-x: hidden; }
 
@@ -27,63 +27,64 @@
         .msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px; z-index: 1; }
 
         /* --- BILL UI --- */
-        #app { display: none; background: var(--bg); min-height: 100vh; padding-bottom: 40px; }
-        #bill { background: #fff; width: 100%; max-width: 800px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        #app { display: none; background: var(--bg); min-height: 100vh; padding: 15px 15px 100px 15px; }
+        #bill { background: #fff; width: 100%; max-width: 800px; margin: 0 auto; border-radius: 12px; overflow: hidden; }
         
-        .wave-top { 
+        .header { 
             background: var(--brand); color: #fff; padding: 40px 30px 60px; 
             clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
         }
-        .header-flex { display: flex; justify-content: space-between; align-items: flex-start; }
-        .logo img { width: 70px; height: 70px; border-radius: 10px; background: #fff; padding: 4px; }
+        .header-top { display: flex; justify-content: space-between; }
+        .logo-img { width: 70px; height: 70px; border-radius: 10px; background: #fff; padding: 4px; }
         
-        .body { padding: 30px; }
+        .content { padding: 30px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         label { font-size: 10px; font-weight: 900; color: #888; text-transform: uppercase; }
         input { padding: 12px; border: 1.5px solid #eee; border-radius: 8px; font-size: 14px; width: 100%; outline: none; background: #fafafa; }
-        input:focus { border-color: var(--blue); background: #fff; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 25px; }
-        th { text-align: left; background: #f8f9fa; padding: 12px; font-size: 11px; color: #555; }
+        th { text-align: left; background: #f8f9fa; padding: 12px; font-size: 11px; }
         td { padding: 10px 0; border-bottom: 1px solid #f1f1f1; }
         
         .summary { margin-top: 30px; width: 260px; margin-left: auto; border-top: 3px solid var(--brand); padding-top: 15px; }
         .s-row { display: flex; justify-content: space-between; padding: 6px 0; font-weight: 700; }
-        .total-due { font-size: 24px; color: var(--blue); border-top: 1px solid #eee; margin-top: 5px; padding-top: 10px; }
+        .final-total { font-size: 24px; color: var(--accent); border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; }
 
-        #sig { border: 2px dashed #ddd; width: 100%; height: 140px; border-radius: 12px; background: #fcfcfc; margin-top: 10px; touch-action: none; }
-        .btns { padding: 20px; display: flex; flex-direction: column; gap: 10px; max-width: 800px; margin: auto; }
-        .btn { padding: 18px; border: none; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; }
+        #sig-pad { border: 2px dashed #ddd; width: 100%; height: 140px; border-radius: 12px; background: #fcfcfc; margin-top: 10px; touch-action: none; }
+        .btns { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
+        .btn { padding: 18px; border: none; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .btn-pdf { background: #222; color: #fff; }
         .btn-wa { background: #25d366; color: #fff; }
     </style>
 </head>
-<body>
+<body onclick="unlockAudio()">
 
-<audio id="myaudio" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg"></audio>
+<audio id="bgMusic" loop>
+    <source src="https://actions.google.com/config/promo/sdk/v1/projects/master-9ef1e/slots/promos/birthday_song.mp3" type="audio/mpeg">
+</audio>
 
 <div id="gate">
     <div id="card">
-        <h2 style="color:var(--blue); margin-top:0;">✨ NAVEED ✨</h2>
+        <h2 style="color:var(--accent); margin:0;">NAVEED TEXTILES</h2>
         <div id="canvas-wrap">
             <div class="msg">
-                <p><b>New Chapter Unlocked!</b> 😎</p>
-                <p style="font-size:12px;">Same attitude ✔ Same grind ✔<br>Bigger wins loading... 📈</p>
+                <p><b>Happy Birthday Naveed!</b></p>
+                <p style="font-size:12px;">Level Up! Same Grind, Better Wins. 📈</p>
             </div>
             <canvas id="scratch-canvas" width="280" height="350"></canvas>
         </div>
-        <button onclick="openApp()" class="btn btn-pdf" style="width:100%">ENTER BILLING PORTAL</button>
+        <p style="font-size:11px; color:#999;">Scratch the card to start music</p>
+        <button onclick="enterApp()" class="btn btn-pdf" style="width:100%; margin-top:10px;">ENTER PORTAL</button>
     </div>
 </div>
 
 <div id="app">
     <div id="bill">
-        <div class="wave-top">
-            <div class="header-flex">
-                <div class="logo">
-                    <img src="logo.png" onerror="this.src='https://via.placeholder.com/70?text=NT'">
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <img src="logo.png" class="logo-img" onerror="this.src='https://via.placeholder.com/70?text=NT'">
                     <h1 style="margin:10px 0 0; font-size:22px;">NAVEED TEXTILES</h1>
-                    <small>Premium Fabrics & Custom Stitching</small>
                 </div>
                 <div style="text-align: right;">
                     <b style="color:var(--gold);">INV #NT-2026</b><br>
@@ -92,104 +93,111 @@
             </div>
         </div>
 
-        <div class="body">
+        <div class="content">
             <div class="grid">
-                <div><label>Customer</label><input id="c-name" placeholder="Name"></div>
-                <div><label>Phone</label><input id="c-phone" placeholder="Contact"></div>
+                <div><label>Customer</label><input id="name" placeholder="Name"></div>
+                <div><label>Phone</label><input id="phone" placeholder="Contact"></div>
             </div>
-            <div style="margin-bottom:20px;"><label>Address</label><input id="c-addr" placeholder="Location"></div>
+            <div><label>Address</label><input id="addr" placeholder="Address"></div>
 
-            <table>
+            <table id="bill-items">
                 <thead><tr><th>ITEM</th><th width="50">QTY</th><th width="80">RATE</th><th width="80" style="text-align:right">TOTAL</th></tr></thead>
                 <tbody id="rows">
                     <tr>
-                        <td><input placeholder="Suit description..." class="i-desc"></td>
-                        <td><input type="number" value="1" class="i-qty" oninput="doCalc()"></td>
-                        <td><input type="number" value="0" class="i-rate" oninput="doCalc()"></td>
+                        <td><input placeholder="Suit..." class="i-desc"></td>
+                        <td><input type="number" value="1" class="i-qty" oninput="calc()"></td>
+                        <td><input type="number" value="0" class="i-rate" oninput="calc()"></td>
                         <td style="text-align:right; font-weight:700;" class="i-total">0</td>
                     </tr>
                 </tbody>
             </table>
-            <button onclick="addRow()" style="margin-top:10px; background:none; border:1px solid #ddd; padding:8px; border-radius:5px; font-weight:700; cursor:pointer;">+ Add Item</button>
+            <button onclick="addRow()" style="margin-top:10px; background:#eee; border:none; padding:8px 12px; border-radius:5px; font-weight:700;">+ Add Row</button>
 
             <div class="summary">
-                <div class="s-row"><span>Sub-Total</span><span id="sub-disp">0</span></div>
-                <div class="s-row" style="color:red;"><span>Discount (%)</span><input id="disc" type="number" value="0" oninput="doCalc()" style="width:60px; text-align:right; font-weight:700; border:none; background:none;"></div>
-                <div class="s-row"><span>Paid Amount</span><input id="paid" type="number" value="0" oninput="doCalc()" style="width:80px; text-align:right; font-weight:700; border:none; background:none;"></div>
-                <div class="s-row total-due"><span>Balance</span><span id="bal-disp">0</span></div>
+                <div class="s-row"><span>Sub-Total</span><span id="sub-val">0</span></div>
+                <div class="s-row" style="color:red;"><span>Discount %</span><input id="disc" type="number" value="0" oninput="calc()" style="width:60px; text-align:right; border:none; background:none; font-weight:700;"></div>
+                <div class="s-row"><span>Paid</span><input id="paid" type="number" value="0" oninput="calc()" style="width:80px; text-align:right; border:none; background:none; font-weight:700;"></div>
+                <div class="s-row final-total"><span>Balance</span><span id="bal-val">0</span></div>
             </div>
 
-            <div style="margin-top:40px;">
+            <div style="margin-top:30px;">
                 <label>Authorized Signature</label>
-                <canvas id="sig"></canvas>
-                <span onclick="clearSig()" style="color:red; font-size:10px; font-weight:bold; cursor:pointer;">[ CLEAR SIGNATURE ]</span>
+                <canvas id="sig-pad"></canvas>
+                <button onclick="clearSig()" style="background:none; border:none; color:red; font-size:10px; font-weight:bold;">[ CLEAR ]</button>
             </div>
         </div>
     </div>
 
     <div class="btns">
-        <button class="btn btn-pdf" onclick="saveFullPDF()">DOWNLOAD FULL PDF</button>
-        <button class="btn btn-wa" onclick="saveFullPDF()">SHARE ON WHATSAPP</button>
+        <button class="btn btn-pdf" onclick="downloadFullPDF()">DOWNLOAD FULL INVOICE</button>
+        <button class="btn btn-wa" onclick="downloadFullPDF()">SEND ON WHATSAPP</button>
     </div>
 </div>
 
 <script>
-    document.getElementById('date-label').innerText = new Date().toLocaleDateString('en-GB');
-    const audio = document.getElementById('myaudio');
-    const scan = document.getElementById('scratch-canvas');
-    const sctx = scan.getContext('2d');
-    
-    sctx.fillStyle = '#C0C0C0';
-    sctx.fillRect(0,0,280,350);
-    sctx.globalCompositeOperation = 'destination-out';
+    const audio = document.getElementById('bgMusic');
+    let audioUnlocked = false;
 
-    // Music Fix: Unlocks on scratch
-    let scratching = false;
-    function doScratch(e) {
-        if(!scratching) return;
-        const rect = scan.getBoundingClientRect();
+    function unlockAudio() {
+        if(!audioUnlocked) {
+            audio.play().then(() => { audio.pause(); audioUnlocked = true; });
+        }
+    }
+
+    // --- Scratch Card ---
+    const sCanvas = document.getElementById('scratch-canvas');
+    const sCtx = sCanvas.getContext('2d');
+    sCtx.fillStyle = '#C0C0C0';
+    sCtx.fillRect(0,0,280,350);
+    sCtx.globalCompositeOperation = 'destination-out';
+
+    let isScratching = false;
+    function scratchMove(e) {
+        if(!isScratching) return;
+        const rect = sCanvas.getBoundingClientRect();
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
-        sctx.beginPath(); sctx.arc(x, y, 40, 0, Math.PI*2); sctx.fill();
-        audio.play().catch(()=>{}); 
-        e.preventDefault();
+        sCtx.beginPath(); sCtx.arc(x, y, 40, 0, Math.PI*2); sCtx.fill();
+        if(audioUnlocked) audio.play();
     }
-    scan.addEventListener('touchstart', (e)=>{scratching=true; doScratch(e);});
-    scan.addEventListener('touchmove', doScratch);
-    window.addEventListener('touchend', ()=>scratching=false);
+    sCanvas.addEventListener('touchstart', (e)=>{ isScratching=true; scratchMove(e); e.preventDefault(); });
+    sCanvas.addEventListener('touchmove', (e)=>{ scratchMove(e); e.preventDefault(); });
+    window.addEventListener('touchend', ()=>isScratching=false);
 
-    function openApp() {
+    function enterApp() {
         document.getElementById('gate').style.display = 'none';
         document.getElementById('app').style.display = 'block';
         audio.pause();
-        initSig();
+        document.getElementById('date-label').innerText = new Date().toLocaleDateString();
+        initSignature();
     }
 
-    function doCalc() {
+    // --- Bill Calculations ---
+    function calc() {
         let sub = 0;
         document.querySelectorAll('#rows tr').forEach(r => {
             const q = r.querySelector('.i-qty').value || 0;
             const ra = r.querySelector('.i-rate').value || 0;
             const t = q * ra;
-            r.querySelector('.i-total').innerText = t.toLocaleString();
+            r.querySelector('.i-total').innerText = t;
             sub += t;
         });
         const d = document.getElementById('disc').value || 0;
         const p = document.getElementById('paid').value || 0;
-        const discAmt = (sub * d) / 100;
-        const afterDisc = sub - discAmt;
-        document.getElementById('sub-disp').innerText = sub.toLocaleString();
-        document.getElementById('bal-disp').innerText = (afterDisc - p).toLocaleString();
+        const final = (sub - (sub * d / 100)) - p;
+        document.getElementById('sub-val').innerText = sub;
+        document.getElementById('bal-val').innerText = final;
     }
 
     function addRow() {
         const tr = document.getElementById('rows').insertRow();
-        tr.innerHTML = `<td><input class="i-desc"></td><td><input type="number" value="1" class="i-qty" oninput="doCalc()"></td><td><input type="number" value="0" class="i-rate" oninput="doCalc()"></td><td style="text-align:right; font-weight:700;" class="i-total">0</td>`;
+        tr.innerHTML = `<td><input placeholder="Item..." class="i-desc"></td><td><input type="number" value="1" class="i-qty" oninput="calc()"></td><td><input type="number" value="0" class="i-rate" oninput="calc()"></td><td style="text-align:right; font-weight:700;" class="i-total">0</td>`;
     }
 
+    // --- Signature ---
     let pCan, pCtx, drawing = false;
-    function initSig() {
-        pCan = document.getElementById('sig');
+    function initSignature() {
+        pCan = document.getElementById('sig-pad');
         pCtx = pCan.getContext('2d');
         pCan.width = pCan.offsetWidth; pCan.height = 140;
         pCtx.lineWidth = 2; pCtx.strokeStyle = "#000";
@@ -197,27 +205,34 @@
             const r = pCan.getBoundingClientRect();
             return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top };
         };
-        const start = (e) => { drawing = true; const p = getXY(e); pCtx.beginPath(); pCtx.moveTo(p.x, p.y); e.preventDefault(); };
-        const move = (e) => { if(!drawing) return; const p = getXY(e); pCtx.lineTo(p.x, p.y); pCtx.stroke(); e.preventDefault(); };
-        pCan.addEventListener('touchstart', start); pCan.addEventListener('touchmove', move);
-        window.addEventListener('mouseup', ()=>drawing=false); window.addEventListener('touchend', ()=>drawing=false);
+        pCan.addEventListener('touchstart', (e)=>{ drawing=true; const p=getXY(e); pCtx.beginPath(); pCtx.moveTo(p.x, p.y); e.preventDefault(); });
+        pCan.addEventListener('touchmove', (e)=>{ if(!drawing) return; const p=getXY(e); pCtx.lineTo(p.x, p.y); pCtx.stroke(); e.preventDefault(); });
+        window.addEventListener('touchend', ()=>drawing=false);
     }
     function clearSig() { pCtx.clearRect(0,0,pCan.width,pCan.height); }
 
-    // FULL PDF FIX: Captures entire scroll height
-    async function saveFullPDF() {
+    // --- PDF FIX (FORCING FULL HEIGHT CAPTURE) ---
+    async function downloadFullPDF() {
+        // Sync values
         document.querySelectorAll('input').forEach(i => i.setAttribute('value', i.value));
-        const element = document.getElementById('bill');
-        const canvasObj = await html2canvas(element, { 
-            scale: 2, 
+        
+        const bill = document.getElementById('bill');
+        
+        // Use html2canvas with explicit height settings to prevent "Half PDF"
+        const canvas = await html2canvas(bill, {
+            scale: 2,
             useCORS: true,
-            height: element.scrollHeight,
-            windowHeight: element.scrollHeight 
+            allowTaint: true,
+            scrollY: -window.scrollY, // Fix offset
+            height: bill.scrollHeight, // Force capture of entire scrolling area
+            windowHeight: bill.scrollHeight
         });
-        const img = canvasObj.toDataURL('image/png');
+
+        const img = canvas.toDataURL('image/png');
         const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
         const w = 210;
-        const h = (canvasObj.height * w) / canvasObj.width;
+        const h = (canvas.height * w) / canvas.width;
+        
         pdf.addImage(img, 'PNG', 0, 0, w, h);
         pdf.save('NaveedTextiles_Bill.pdf');
     }
