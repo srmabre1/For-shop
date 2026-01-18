@@ -12,15 +12,9 @@
         :root { --primary: #2196f3; --success: #25d366; --dark: #333; }
         body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 5px; color: var(--dark); overflow-x: hidden; }
         
-        /* Mobile-First Responsive Design */
         #bill { 
-            width: 100%; 
-            max-width: 800px; 
-            margin: auto;
-            background: #fff; 
-            padding: 15px; 
-            box-sizing: border-box;
-            border: 1px solid #ddd;
+            width: 100%; max-width: 800px; margin: auto; background: #fff; 
+            padding: 15px; box-sizing: border-box; border: 1px solid #ddd;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
@@ -31,10 +25,9 @@
         .box { border: 1px solid #eee; padding: 10px; margin-top: 10px; border-radius: 5px; background: #fafafa; }
         .flex-grid { display: flex; flex-wrap: wrap; gap: 8px; }
         .flex-grid div { flex: 1; min-width: 120px; display: flex; flex-direction: column; font-size: 11px; font-weight: bold; }
-        
         input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }
 
-        .table-wrap { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 5px; }
+        .table-wrap { width: 100%; overflow-x: auto; margin-top: 15px; }
         table { width: 100%; border-collapse: collapse; min-width: 450px; }
         th { background: #f8f9fa; padding: 8px; border: 1px solid #eee; font-size: 11px; text-align: left; }
         td { border: 1px solid #eee; padding: 4px; }
@@ -52,35 +45,50 @@
         .wa { background: var(--success); }
         .new { background: #f44336; }
 
-        /* Scratch Card Overlay */
-        #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
-        #card { background: #fff; padding: 20px; border-radius: 15px; text-align: center; width: 100%; max-width: 320px; animation: popIn 0.4s ease-out; }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* --- ✨ Animated Birthday Overlay ✨ --- */
+        #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 10px; }
+        #card { background: #fff; padding: 20px; border-radius: 20px; text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(33, 150, 243, 0.5); }
         
-        #scratch-container { position: relative; width: 260px; height: 180px; margin: 15px auto; background: #fff; border: 2px dashed #2196f3; border-radius: 10px; overflow: hidden; }
+        #scratch-container { position: relative; width: 280px; height: 220px; margin: 15px auto; background: #000; border: 3px solid #2196f3; border-radius: 15px; overflow: hidden; }
         #scratch-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; z-index: 2; }
-        .prize-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; color: #333; padding: 10px; font-size: 13px; line-height: 1.4; z-index: 1; }
-        .close-bd { margin-top: 15px; color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline; }
+        
+        /* 🌈 Color Animation for Text */
+        .prize-text { 
+            position: absolute; inset: 0; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; font-weight: bold; 
+            padding: 15px; font-size: 14px; line-height: 1.5; z-index: 1;
+            animation: textPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes textPulse {
+            0% { color: #ff0000; transform: scale(1); }
+            25% { color: #00ff00; }
+            50% { color: #2196f3; transform: scale(1.02); }
+            75% { color: #ff00ff; }
+            100% { color: #ff0000; transform: scale(1); }
+        }
+
+        .close-bd { margin-top: 10px; color: #2196f3; font-weight: bold; cursor: pointer; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
 <div id="bd">
     <div id="card">
-        <h2 style="margin:0; color: #2196f3;">✨ Surprise Naveed ✨</h2>
+        <h2 style="margin:0; color: #2196f3; font-family: 'Courier New', Courier, monospace;">✨ LEVEL UP! ✨</h2>
         <div id="scratch-container">
             <div class="prize-text">
                 Bro you didn’t level up…<br>
                 You <b>unlocked a new chapter</b> 😎<br><br>
-                Same attitude ✔<br>
-                Same grind ✔<br>
-                Bigger wins loading… 📈<br><br>
-                Stay real. Stay sharp. 👊<br>
-                and don't forget me 😁
+                <span>Same attitude ✔</span>
+                <span>Same grind ✔</span>
+                <span>Bigger wins loading… 📈</span><br>
+                <span>Stay real. Stay sharp. 👊</span>
+                <span style="font-size: 12px; margin-top: 5px;">and don't forget me 😁</span>
             </div>
-            <canvas id="scratch-canvas" width="260" height="180"></canvas>
+            <canvas id="scratch-canvas" width="280" height="220"></canvas>
         </div>
-        <span class="close-bd" onclick="closeBD()">Go to My Bill</span>
+        <div class="close-bd" onclick="closeBD()">Go to My Bill</div>
     </div>
 </div>
 
@@ -113,7 +121,7 @@
             <tbody id="rows">
                 <tr>
                     <td>1</td>
-                    <td><input placeholder="Product description"></td>
+                    <td><input placeholder="Item name"></td>
                     <td><input type="number" value="1" oninput="calc()"></td>
                     <td><input type="number" value="0" oninput="calc()"></td>
                     <td style="text-align: right; font-weight: bold;" class="rt">0</td>
@@ -148,7 +156,7 @@
 </div>
 
 <script>
-// 1. Birthday Timer & Logic
+// 1. Birthday Timer
 const startDay = new Date("2026-01-18").getTime();
 const now = Date.now();
 if (now >= startDay && (now - startDay) <= (2 * 24 * 60 * 60 * 1000)) {
@@ -160,8 +168,18 @@ function initScratch() {
     const canvas = document.getElementById('scratch-canvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
+    
+    // Silver scratch layer
     ctx.fillStyle = '#C0C0C0'; 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Add some "scratch me" text
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = '#666';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('SCRATCH TO REVEAL 👆', 140, 115);
+    
     ctx.globalCompositeOperation = 'destination-out';
 
     function scratch(e) {
@@ -170,19 +188,20 @@ function initScratch() {
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
         ctx.beginPath();
-        ctx.arc(x, y, 22, 0, Math.PI * 2);
+        ctx.arc(x, y, 25, 0, Math.PI * 2);
         ctx.fill();
     }
     canvas.addEventListener('mousedown', () => isDrawing = true);
     canvas.addEventListener('touchstart', (e) => { isDrawing = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('touchend', () => isDrawing = false);
     canvas.addEventListener('mousemove', scratch);
     canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
 }
 
 function closeBD() { document.getElementById('bd').style.display = 'none'; }
 
-// 2. Billing Data
+// 2. Billing Data Logic
 let id = Number(localStorage.ntid || 1010) + 1;
 localStorage.ntid = id;
 document.getElementById('inv-display').innerText = "NT-" + id;
@@ -208,7 +227,7 @@ function addRow() {
     r.innerHTML = `<td>${rows.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td style="text-align: right; font-weight: bold;" class="rt">0</td>`;
 }
 
-// 3. Signature (Mobile Fixed)
+// 3. Signature Engine
 const sigC = document.getElementById('sig');
 const sCtx = sigC.getContext("2d");
 sigC.width = sigC.offsetWidth; sigC.height = sigC.offsetHeight;
@@ -219,14 +238,13 @@ sigC.addEventListener('touchmove', (e) => {
     if(!drawing) return;
     const rect = sigC.getBoundingClientRect();
     sCtx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
-    sCtx.lineWidth = 2;
-    sCtx.stroke();
+    sCtx.lineWidth = 2; sCtx.strokeStyle = "#000"; sCtx.stroke();
     e.preventDefault();
 });
 window.addEventListener('touchend', () => drawing = false);
 function clearSig() { sCtx.clearRect(0,0,sigC.width,sigC.height); }
 
-// 4. Exports
+// 4. File Exports
 async function savePDF() {
     const canvas = await html2canvas(document.getElementById('bill'), {scale: 2});
     const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
