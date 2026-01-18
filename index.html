@@ -10,181 +10,158 @@
 
     <style>
         :root { --primary: #2196f3; --success: #25d366; --dark: #333; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--dark); }
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 5px; color: var(--dark); overflow-x: hidden; }
         
-        #bill-container { width: 100%; overflow-x: auto; display: flex; justify-content: center; }
-        
+        /* Mobile-First Responsive Design */
         #bill { 
-            width: 750px; min-height: 900px; background: #fff; padding: 30px; 
-            border: 1px solid #ddd; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 800px; 
+            margin: auto;
+            background: #fff; 
+            padding: 15px; 
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
-        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 10px; gap: 10px; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .my-logo { width: 50px; height: 50px; object-fit: contain; border-radius: 5px; }
+
+        .box { border: 1px solid #eee; padding: 10px; margin-top: 10px; border-radius: 5px; background: #fafafa; }
+        .flex-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .flex-grid div { flex: 1; min-width: 120px; display: flex; flex-direction: column; font-size: 11px; font-weight: bold; }
         
-        .logo-circle { 
-            width: 70px; height: 70px; background: var(--primary); 
-            border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; color: white; font-size: 28px; 
-            font-weight: bold; box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
-        }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }
 
-        .box { border: 1px solid #eee; padding: 15px; margin-top: 15px; border-radius: 8px; background: #fafafa; }
-        .flex { display: flex; gap: 15px; }
-        .flex div { flex: 1; display: flex; flex-direction: column; font-size: 12px; color: #666; }
-        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px; font-size: 14px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { background: #f8f9fa; padding: 10px; border: 1px solid #eee; font-size: 13px; text-align: left; }
-        td { border: 1px solid #eee; padding: 8px; }
+        .table-wrap { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; min-width: 450px; }
+        th { background: #f8f9fa; padding: 8px; border: 1px solid #eee; font-size: 11px; text-align: left; }
+        td { border: 1px solid #eee; padding: 4px; }
         
-        .totalBox { width: 250px; margin-left: auto; margin-top: 20px; }
-        .totalRow { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .grand-total { font-weight: bold; color: var(--primary); font-size: 18px; border-bottom: 2px solid var(--primary); }
+        .totalBox { width: 100%; max-width: 220px; margin-left: auto; margin-top: 15px; }
+        .totalRow { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        .grand-total { font-weight: bold; color: var(--primary); font-size: 16px; border-bottom: 2px solid var(--primary); }
 
-        #sig { border: 1px dashed #ccc; width: 100%; height: 100px; background: #fff; cursor: crosshair; touch-action: none; }
+        #sig { border: 1px dashed #ccc; width: 100%; height: 80px; background: #fff; touch-action: none; margin-top: 5px; }
 
-        .btns { max-width: 600px; margin: 20px auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 12px; font-weight: bold; border: none; border-radius: 8px; color: #fff; cursor: pointer; transition: 0.3s; }
+        .btns { width: 100%; max-width: 800px; margin: 15px auto; display: flex; flex-direction: column; gap: 8px; }
+        .btn-row { display: flex; gap: 8px; }
+        button { flex: 1; padding: 12px; font-weight: bold; border: none; border-radius: 6px; color: #fff; cursor: pointer; font-size: 14px; }
         .pdf { background: #607d8b; }
         .wa { background: var(--success); }
-        .new { background: #f44336; grid-column: span 2; }
+        .new { background: #f44336; }
 
-        /* --- Scratch Card Style --- */
-        #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 10000; }
-        #card { background: #fff; padding: 30px; border-radius: 20px; text-align: center; position: relative; width: 300px; }
-        #scratch-container { position: relative; width: 250px; height: 150px; margin: 20px auto; background: #fff3e0; border: 2px dashed #ff9800; border-radius: 10px; }
-        #scratch-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; border-radius: 10px; }
-        .prize-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e65100; font-size: 14px; padding: 10px; }
-        .close-bd { margin-top: 15px; color: #2196f3; font-weight: bold; cursor: pointer; text-decoration: underline; }
+        /* Scratch Card Overlay */
+        #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+        #card { background: #fff; padding: 20px; border-radius: 15px; text-align: center; width: 100%; max-width: 320px; animation: popIn 0.4s ease-out; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        #scratch-container { position: relative; width: 260px; height: 180px; margin: 15px auto; background: #fff; border: 2px dashed #2196f3; border-radius: 10px; overflow: hidden; }
+        #scratch-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; z-index: 2; }
+        .prize-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; color: #333; padding: 10px; font-size: 13px; line-height: 1.4; z-index: 1; }
+        .close-bd { margin-top: 15px; color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div id="bd">
     <div id="card">
-        <h2 style="margin:0">🎉 Surprise Naveed!</h2>
-        <p style="font-size: 13px; color: #666;">Scratch the box to see your message</p>
+        <h2 style="margin:0; color: #2196f3;">✨ Surprise Naveed ✨</h2>
         <div id="scratch-container">
             <div class="prize-text">
                 Bro you didn’t level up…<br>
-        You **unlocked a new chapter** 😎<br><br>
-        Same attitude ✔<br>
-        Same grind ✔<br>
-        Bigger wins loading… 📈<br><br>
-        Stay real. Stay sharp. 👊 and don't forget me 😁
+                You <b>unlocked a new chapter</b> 😎<br><br>
+                Same attitude ✔<br>
+                Same grind ✔<br>
+                Bigger wins loading… 📈<br><br>
+                Stay real. Stay sharp. 👊<br>
+                and don't forget me 😁
             </div>
-            <canvas id="scratch-canvas" width="250" height="150"></canvas>
+            <canvas id="scratch-canvas" width="260" height="180"></canvas>
         </div>
-        <div class="close-bd" onclick="closeBD()">Done! Let's work</div>
+        <span class="close-bd" onclick="closeBD()">Go to My Bill</span>
     </div>
 </div>
 
-<div id="bill-container">
-    <div id="bill">
-        <div class="header">
-            <div class="logo-area">
-                <div class="logo-circle">NT</div>
-                <div>
-                    <h1 style="margin:0; font-size: 26px;">NAVEED TEXTILES</h1>
-                    <strong>Phone: 9906403030</strong>
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div id="inv-display" style="font-weight: bold; color: var(--primary); font-size: 18px;">INV-1000</div>
-                <input type="date" id="date">
+<div id="bill">
+    <div class="header">
+        <div class="logo-area">
+            <img src="logo.png" alt="NT" class="my-logo" onerror="this.src='https://via.placeholder.com/50?text=NT'">
+            <div>
+                <h1 style="margin:0; font-size: 18px;">NAVEED TEXTILES</h1>
+                <span style="font-size: 11px;">Ph: 9906403030</span>
             </div>
         </div>
-
-        <div class="box flex">
-            <div>CUSTOMER NAME <input id="name" placeholder="Name"></div>
-            <div>PHONE <input id="phone" placeholder="Phone"></div>
-            <div>ADDRESS <input id="addr" placeholder="Address"></div>
+        <div style="text-align: right;">
+            <div id="inv-display" style="font-weight: bold; color: var(--primary); font-size: 14px;">NT-1000</div>
+            <input type="date" id="date" style="font-size: 12px; border:none; background:transparent; width:auto;">
         </div>
+    </div>
 
+    <div class="box flex-grid">
+        <div>NAME <input id="name" placeholder="..."></div>
+        <div>PHONE <input id="phone" placeholder="..."></div>
+        <div>ADDRESS <input id="addr" placeholder="..."></div>
+    </div>
+
+    <div class="table-wrap">
         <table>
             <thead>
-                <tr>
-                    <th>#</th>
-                    <th>ITEM</th>
-                    <th>QTY</th>
-                    <th>RATE</th>
-                    <th style="text-align: right;">TOTAL</th>
-                </tr>
+                <tr><th width="30">#</th><th>ITEM</th><th width="50">QTY</th><th width="70">RATE</th><th width="70">TOTAL</th></tr>
             </thead>
             <tbody id="rows">
                 <tr>
                     <td>1</td>
-                    <td><input style="width:90%"></td>
-                    <td><input type="number" value="1" oninput="calc()" style="width:50px"></td>
-                    <td><input type="number" value="0" oninput="calc()" style="width:80px"></td>
+                    <td><input placeholder="Product description"></td>
+                    <td><input type="number" value="1" oninput="calc()"></td>
+                    <td><input type="number" value="0" oninput="calc()"></td>
                     <td style="text-align: right; font-weight: bold;" class="rt">0</td>
                 </tr>
             </tbody>
         </table>
+    </div>
 
-        <button onclick="addRow()" style="background:#eee; color:#333; margin-top:10px; padding: 5px 10px; border-radius: 4px;">+ Add Item</button>
+    <button onclick="addRow()" style="background:#eee; color:#333; margin-top:8px; padding: 6px; width: 100px; border-radius: 4px; font-size: 12px;">+ Add row</button>
 
-        <div class="totalBox">
-            <div class="totalRow"><span>Grand Total</span><span id="sub-total">0</span></div>
-            <div class="totalRow"><span>Paid</span><span><input id="paid" value="0" oninput="calc()" style="width:80px; text-align:right"></span></div>
-            <div class="totalRow grand-total"><span>Balance</span><span id="bal">0</span></div>
+    <div class="totalBox">
+        <div class="totalRow"><span>Sub-Total</span><span id="sub-total">0</span></div>
+        <div class="totalRow"><span>Paid</span><span><input id="paid" value="0" oninput="calc()" style="width:70px; text-align:right; margin:0; padding:2px; font-size:12px;"></span></div>
+        <div class="totalRow grand-total"><span>Balance</span><span id="bal">0</span></div>
+    </div>
+
+    <div class="box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:10px; font-weight:bold">AUTHORIZED SIGNATURE</span>
+            <button onclick="clearSig()" style="background:none; color:red; font-size:10px; width:auto;">Clear</button>
         </div>
-
-        <div class="box" style="margin-top:40px">
-            <div style="display:flex; justify-content:space-between; margin-bottom:5px">
-                <span style="font-size:11px; font-weight:bold">AUTHORIZED SIGNATURE</span>
-                <button onclick="clearSig()" style="background:none; color:var(--primary); font-size:11px; padding:0">Clear</button>
-            </div>
-            <canvas id="sig"></canvas>
-        </div>
+        <canvas id="sig"></canvas>
     </div>
 </div>
 
 <div class="btns">
-    <button class="pdf" onclick="savePDF()">Download PDF</button>
-    <button class="wa" onclick="shareWA()">Send WhatsApp</button>
-    <button class="new" onclick="if(confirm('Clear all and start new bill?')) location.reload()">New Bill</button>
+    <div class="btn-row">
+        <button class="pdf" onclick="savePDF()">Save PDF</button>
+        <button class="wa" onclick="shareWA()">WhatsApp</button>
+    </div>
+    <button class="new" onclick="location.reload()">Start New Bill</button>
 </div>
 
 <script>
-/* --- 1. SETTINGS & INITIALIZATION --- */
-let id = Number(localStorage.ntid || 1000) + 1;
-localStorage.ntid = id;
-document.getElementById('inv-display').innerText = "NT-" + id;
-document.getElementById('date').value = new Date().toISOString().split("T")[0];
-
-/* --- 2. BIRTHDAY SELF-DESTRUCT LOGIC --- */
+// 1. Birthday Timer & Logic
 const startDay = new Date("2026-01-18").getTime();
 const now = Date.now();
-const twoDays = 2 * 24 * 60 * 60 * 1000;
-
-if (now >= startDay && (now - startDay) <= twoDays) {
-    if (!localStorage.getItem('naveed_bd_scratched')) {
-        document.getElementById('bd').style.display = 'flex';
-        initScratch();
-    }
-} else {
-    document.getElementById('bd')?.remove(); // Delete from code after 2 days
+if (now >= startDay && (now - startDay) <= (2 * 24 * 60 * 60 * 1000)) {
+    document.getElementById('bd').style.display = 'flex';
+    initScratch();
 }
 
-function closeBD() {
-    document.getElementById('bd').style.display = 'none';
-    localStorage.setItem('naveed_bd_scratched', 'true');
-}
-
-/* --- 3. SCRATCH CARD ENGINE --- */
 function initScratch() {
     const canvas = document.getElementById('scratch-canvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
-
     ctx.fillStyle = '#C0C0C0'; 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#666';
-    ctx.font = 'bold 16px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('SCRATCH HERE', 125, 80);
     ctx.globalCompositeOperation = 'destination-out';
 
     function scratch(e) {
@@ -193,29 +170,23 @@ function initScratch() {
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
         ctx.beginPath();
-        ctx.arc(x, y, 25, 0, Math.PI * 2);
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
         ctx.fill();
     }
-
     canvas.addEventListener('mousedown', () => isDrawing = true);
     canvas.addEventListener('touchstart', (e) => { isDrawing = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => isDrawing = false);
-    window.addEventListener('touchend', () => isDrawing = false);
     canvas.addEventListener('mousemove', scratch);
-    canvas.addEventListener('touchmove', scratch);
+    canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
 }
 
-/* --- 4. BILLING LOGIC --- */
-function addRow() {
-    let rows = document.getElementById('rows');
-    let r = rows.insertRow();
-    r.innerHTML = `
-        <td>${rows.rows.length}</td>
-        <td><input style="width:90%"></td>
-        <td><input type="number" value="1" oninput="calc()" style="width:50px"></td>
-        <td><input type="number" value="0" oninput="calc()" style="width:80px"></td>
-        <td style="text-align: right; font-weight: bold;" class="rt">0</td>`;
-}
+function closeBD() { document.getElementById('bd').style.display = 'none'; }
+
+// 2. Billing Data
+let id = Number(localStorage.ntid || 1010) + 1;
+localStorage.ntid = id;
+document.getElementById('inv-display').innerText = "NT-" + id;
+document.getElementById('date').value = new Date().toISOString().split("T")[0];
 
 function calc() {
     let t = 0;
@@ -223,66 +194,53 @@ function calc() {
         let q = r.cells[2].querySelector('input').value || 0;
         let p = r.cells[3].querySelector('input').value || 0;
         let s = q * p;
-        r.querySelector(".rt").innerText = s;
+        r.querySelector(".rt").innerText = s.toLocaleString();
         t += s;
     });
-    document.getElementById('sub-total').innerText = t;
-    let paidVal = document.getElementById('paid').value || 0;
-    document.getElementById('bal').innerText = t - paidVal;
+    document.getElementById('sub-total').innerText = t.toLocaleString();
+    let pVal = document.getElementById('paid').value || 0;
+    document.getElementById('bal').innerText = (t - pVal).toLocaleString();
 }
 
-/* --- 5. SIGNATURE ENGINE --- */
+function addRow() {
+    let rows = document.getElementById('rows');
+    let r = rows.insertRow();
+    r.innerHTML = `<td>${rows.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td style="text-align: right; font-weight: bold;" class="rt">0</td>`;
+}
+
+// 3. Signature (Mobile Fixed)
 const sigC = document.getElementById('sig');
 const sCtx = sigC.getContext("2d");
 sigC.width = sigC.offsetWidth; sigC.height = sigC.offsetHeight;
 let drawing = false;
 
-function getPos(e) {
-    const rect = sigC.getBoundingClientRect();
-    return {
-        x: (e.clientX || e.touches[0].clientX) - rect.left,
-        y: (e.clientY || e.touches[0].clientY) - rect.top
-    };
-}
-
-sigC.addEventListener('mousedown', (e) => { drawing = true; sCtx.beginPath(); const p = getPos(e); sCtx.moveTo(p.x, p.y); });
-sigC.addEventListener('touchstart', (e) => { drawing = true; sCtx.beginPath(); const p = getPos(e); sCtx.moveTo(p.x, p.y); e.preventDefault(); });
-window.addEventListener('mouseup', () => drawing = false);
-sigC.addEventListener('mousemove', (e) => {
-    if(!drawing) return;
-    const p = getPos(e);
-    sCtx.lineTo(p.x, p.y);
-    sCtx.lineWidth = 2;
-    sCtx.stroke();
-});
+sigC.addEventListener('touchstart', (e) => { drawing = true; sCtx.beginPath(); e.preventDefault(); });
 sigC.addEventListener('touchmove', (e) => {
     if(!drawing) return;
-    const p = getPos(e);
-    sCtx.lineTo(p.x, p.y);
+    const rect = sigC.getBoundingClientRect();
+    sCtx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+    sCtx.lineWidth = 2;
     sCtx.stroke();
+    e.preventDefault();
 });
-
+window.addEventListener('touchend', () => drawing = false);
 function clearSig() { sCtx.clearRect(0,0,sigC.width,sigC.height); }
 
-/* --- 6. EXPORT PDF & WHATSAPP --- */
+// 4. Exports
 async function savePDF() {
-    const {jsPDF} = window.jspdf;
     const canvas = await html2canvas(document.getElementById('bill'), {scale: 2});
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const w = pdf.internal.pageSize.getWidth();
-    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, (canvas.height * w) / canvas.width);
-    pdf.save(`Bill_${id}.pdf`);
+    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, (canvas.height * 210) / canvas.width);
+    pdf.save(`Bill_NT_${id}.pdf`);
 }
 
 async function shareWA() {
-    const {jsPDF} = window.jspdf;
     const canvas = await html2canvas(document.getElementById('bill'), {scale: 2});
-    const pdf = new jsPDF();
+    const pdf = new jspdf.jsPDF();
     pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, (canvas.height * 210) / canvas.width);
     const file = new File([pdf.output('blob')], "Bill.pdf", {type: "application/pdf"});
-    if (navigator.share) navigator.share({files: [file]}); else alert("Share not supported. Download PDF instead.");
+    if (navigator.share) navigator.share({files: [file]});
 }
 </script>
-
 </body>
 </html>
