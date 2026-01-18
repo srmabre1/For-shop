@@ -66,11 +66,11 @@
 <body>
 
 <audio id="scratch-sfx"><source src="https://assets.mixkit.co/active_storage/sfx/2388/2388-preview.mp3"></audio>
-<audio id="celebration-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"></audio>
+<audio id="celebration-music" loop><source src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Happy+Birthday+To+You&filename=mz/Mzg1ODMxNTIzODU4Mzkw_m_2f_2bWfH6G8D8.MP3"></audio>
 
 <div id="celebration-overlay">
     <div id="card-box">
-        <h2 style="color:var(--primary); margin:0; letter-spacing: 1px;">✨ SURPRISE NAVEED ✨</h2>
+        <h2 style="color:var(--primary); margin:0;">🎂 HAPPY BIRTHDAY NAVEED 🎂</h2>
         <div id="scratch-zone">
             <div class="message-content">
                 Bro you didn’t level up…<br>
@@ -108,7 +108,7 @@
         <div class="field">ADDRESS <input id="addr" placeholder="Enter address..."></div>
     </div>
 
-    <table id="bill-table">
+    <table>
         <thead>
             <tr><th width="40">#</th><th>ITEM DESCRIPTION</th><th width="70">QTY</th><th width="100">RATE</th><th width="100">TOTAL</th></tr>
         </thead>
@@ -173,7 +173,7 @@
         r.innerHTML = `<td>${tbody.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calculate()"></td><td><input type="number" value="0" oninput="calculate()"></td><td style="text-align: right; font-weight: bold;" class="item-total">0</td>`;
     }
 
-    // --- Signature ---
+    // Signature 
     const sigCanvas = document.getElementById('sig');
     const sigCtx = sigCanvas.getContext('2d');
     sigCanvas.width = sigCanvas.offsetWidth; sigCanvas.height = 120;
@@ -189,21 +189,19 @@
     window.addEventListener('touchend', () => isSigning = false);
     function clearSignature() { sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height); }
 
-    // --- FIX: Proper Full PDF Capture ---
+    // FIXED PDF GENERATION
     async function generateCleanPDF() {
-        // 1. Hide interactive elements
         document.querySelectorAll('.no-export').forEach(el => el.classList.add('hidden-for-pdf'));
-        
-        // 2. Capture the bill with higher scale for clarity
         const billEl = document.getElementById('bill');
+        
+        // Use higher scale and fix window width to capture the full container
         const canvas = await html2canvas(billEl, { 
-            scale: 3, 
+            scale: 2, 
             useCORS: true,
-            logging: false,
-            windowWidth: 800 
+            windowWidth: 800,
+            scrollY: -window.scrollY // Fixes cut-off issues
         });
         
-        // 3. Construct PDF
         const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
         const pdfW = pdf.internal.pageSize.getWidth();
         const pdfH = (canvas.height * pdfW) / canvas.width;
@@ -211,12 +209,11 @@
         pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, pdfH);
         pdf.save('Naveed_Textiles_Invoice.pdf');
 
-        // 4. Restore elements
         document.querySelectorAll('.hidden-for-pdf').forEach(el => el.classList.remove('hidden-for-pdf'));
     }
 
-    // --- Celebration Scratch & Music ---
-    const isBirthdayMode = true; // Always on for today
+    // Birthday Logic
+    const isBirthdayMode = true; 
     if(isBirthdayMode) {
         document.getElementById('celebration-overlay').style.display = 'flex';
         setupScratch();
@@ -230,32 +227,24 @@
         ctx.globalCompositeOperation = 'destination-out';
         
         let musicActive = false;
-
         const onScratch = (e) => {
             const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX || e.touches[0].clientX) - rect.left;
-            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
             
-            ctx.beginPath(); 
-            ctx.arc(x, y, 35, 0, Math.PI*2); 
-            ctx.fill();
-            
-            // Scratch SFX
-            scratchSfx.currentTime = 0; 
-            scratchSfx.play();
+            ctx.beginPath(); ctx.arc(x, y, 35, 0, Math.PI*2); ctx.fill();
+            scratchSfx.currentTime = 0; scratchSfx.play();
 
-            // Trigger Victory Music once 35% is scratched
             if(!musicActive) {
                 const imgData = ctx.getImageData(0,0,280,320).data;
                 let transparentCount = 0;
                 for(let i=3; i<imgData.length; i+=4) if(imgData[i] === 0) transparentCount++;
-                if(transparentCount > (280*320)*0.35) {
+                if(transparentCount > (280*320)*0.25) { // Starts music early
                     celebrationMusic.play();
                     musicActive = true;
                 }
             }
         };
-
         canvas.addEventListener('touchmove', (e) => { onScratch(e); e.preventDefault(); });
         canvas.addEventListener('mousemove', (e) => { if(e.buttons === 1) onScratch(e); });
     }
@@ -263,7 +252,6 @@
     function stopCelebration() { 
         document.getElementById('celebration-overlay').style.display = 'none'; 
         celebrationMusic.pause(); 
-        celebrationMusic.currentTime = 0;
     }
 </script>
 </body>
