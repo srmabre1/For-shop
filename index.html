@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naveed Textiles | System by Mautasim</title>
+    <title>Naveed Textiles | Gift by Mautasim</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -18,21 +18,23 @@
             align-items: center; justify-content: center; text-align: center;
         }
         .surprise-card {
-            background: white; padding: 50px; border-radius: 30px; width: 95%; max-width: 500px;
+            background: white; padding: 40px; border-radius: 30px; width: 95%; max-width: 480px;
             box-shadow: 0 0 100px rgba(255, 107, 0, 0.4); border: 2px solid var(--accent);
             animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
+        .gift-msg { font-size: 13px; color: var(--accent); font-weight: 700; margin-top: 10px; letter-spacing: 1px; }
+
         .quote-box {
             background: var(--highlight); border-left: 5px solid var(--accent);
-            padding: 20px; border-radius: 10px; font-size: 16px; color: #222;
-            margin: 25px 0; line-height: 2; text-align: left; font-weight: 600;
+            padding: 20px; border-radius: 10px; font-size: 15px; color: #222;
+            margin: 20px 0; line-height: 1.8; text-align: left; font-weight: 600;
         }
         .unlock-btn {
             background: linear-gradient(45deg, var(--dark), #333); color: #fff;
             border: none; padding: 18px 50px; border-radius: 50px; font-weight: 800;
-            cursor: pointer; font-size: 16px; transition: 0.3s;
+            cursor: pointer; font-size: 16px; transition: 0.3s; width: 100%;
         }
         .unlock-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,107,0,0.3); }
 
@@ -41,6 +43,7 @@
         #invoice-container {
             background: #fff; width: 210mm; min-height: 297mm; margin: auto;
             position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column;
         }
 
         .header-wave {
@@ -53,13 +56,13 @@
         .logo-box img { width: 100%; height: 100%; object-fit: contain; }
         
         .brand-text h1 { margin: 0; font-size: 34px; letter-spacing: 2px; color: var(--accent); }
-        .dev-credit { font-size: 10px; color: #777; letter-spacing: 2px; margin-top: 5px; }
+        .dev-credit { font-size: 9px; color: #777; letter-spacing: 1.5px; margin-top: 5px; }
 
         .invoice-meta { text-align: right; }
         .invoice-meta label { display: block; color: var(--accent); font-size: 10px; font-weight: 900; text-transform: uppercase; }
         .invoice-meta input { background: transparent; border: none; color: white; text-align: right; font-size: 16px; border-bottom: 1px solid #333; outline: none; margin-bottom: 10px; }
 
-        .content-wrap { padding: 20px 60px 50px 100px; position: relative; }
+        .content-wrap { padding: 20px 60px 20px 100px; position: relative; flex-grow: 1; }
         .side-label {
             position: absolute; left: 0; top: 150px; width: 60px; height: 320px;
             background: var(--dark); border-radius: 0 50px 50px 0;
@@ -71,19 +74,24 @@
         .info-cell label { display: block; color: var(--accent); font-weight: 900; font-size: 10px; text-transform: uppercase; margin-bottom: 5px; }
         .info-cell input { width: 100%; border: none; border-bottom: 2px solid #eee; padding: 8px 0; outline: none; font-size: 14px; font-weight: 600; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; }
         th { background: var(--dark); color: #fff; padding: 15px; text-align: left; font-size: 11px; text-transform: uppercase; }
         td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
         .highlight-row { background: var(--highlight); }
         td input { border: none; width: 100%; background: transparent; font-size: 14px; outline: none; }
 
-        .bottom-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; margin-top: 50px; }
+        .bottom-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; margin-top: 40px; }
         .services-tag { font-size: 11px; line-height: 1.8; color: #555; background: #fafafa; padding: 20px; border-radius: 15px; border-left: 4px solid var(--dark); }
         
         .total-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 15px; }
         .grand-total-box { background: var(--dark); color: white; padding: 20px; border-radius: 12px; margin-top: 15px; display: flex; justify-content: space-between; font-weight: 900; font-size: 20px; }
 
-        .big-signature-wrap { margin-top: 60px; text-align: right; }
+        .final-personal-footer {
+            padding: 30px 60px; text-align: center; border-top: 1px solid #eee; margin-top: 20px;
+        }
+        .personal-note { font-style: italic; color: #888; font-size: 13px; margin-bottom: 5px; }
+
+        .big-signature-wrap { text-align: center; margin: 20px 0; }
         #sig-canvas { border-bottom: 3px solid var(--dark); background: #fdfdfd; cursor: crosshair; touch-action: none; width: 300px; height: 120px; }
 
         .actions { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; z-index: 9999; }
@@ -103,7 +111,7 @@
     <div id="birthday-gate">
         <div class="surprise-card">
             <h1 style="color:var(--dark); margin:0;">🎉 Happy Birthday Naveed</h1>
-            <p style="color:#666; font-weight: 600;">System Architect & Dev: <strong>Mautasim</strong></p>
+            <div class="gift-msg">THIS IS MY SMALL GIFT FOR YA ❤️</div>
             
             <div class="quote-box">
                 ⭐ Same Attitude ✔<br>
@@ -111,8 +119,8 @@
                 ⭐ Bigger Wins Loading... 📈
             </div>
             
-            <button class="unlock-btn" onclick="unlockApp()">ACCESS PREMIUM SYSTEM</button>
-            <p style="font-size: 10px; color: #aaa; margin-top: 15px;">Note: Music will play on access</p>
+            <button class="unlock-btn" onclick="unlockApp()">ACCESS YOUR SYSTEM</button>
+            <p style="font-size: 12px; color: #555; margin-top: 20px; font-weight: 600;">I hope you liked it! 😉</p>
         </div>
     </div>
 
@@ -125,7 +133,7 @@
                     </div>
                     <div class="brand-text">
                         <h1>NAVEED TEXTILES</h1>
-                        <div class="dev-credit">SYSTEMS BY MAUTASIM</div>
+                        <div class="dev-credit">DEVELOPED BY MAUTASIM • A GIFT FOR YOU</div>
                         <p style="font-size: 11px; opacity: 0.8; margin: 10px 0 0 0;">
                             Warnow Road Takiya Khurhama Lolab<br>
                             +91 99064 03030 | 99068 51124
@@ -168,19 +176,22 @@
                     
                     <div class="totals-area">
                         <div class="total-item"><span>Sub-Total:</span><span id="sub-total">₹ 0</span></div>
-                        <div class="total-item"><span>Discount (%)</span><input type="number" id="in-discount" value="0" oninput="calc()" style="width:60px; text-align:right;"></div>
-                        <div class="total-item"><span>Paid Amt</span><input type="number" id="in-paid" value="0" oninput="calc()" style="width:100px; text-align:right;"></div>
+                        <div class="total-item"><span>Discount (%)</span><input type="number" id="in-discount" value="0" oninput="calc()" style="width:60px; text-align:right; border: 1px solid #eee;"></div>
+                        <div class="total-item"><span>Paid Amt</span><input type="number" id="in-paid" value="0" oninput="calc()" style="width:100px; text-align:right; border: 1px solid #eee;"></div>
                         <div class="grand-total-box"><span>BALANCE</span><span id="final-balance">₹ 0</span></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="big-signature-wrap">
-                    <div class="sig-container" style="text-align: center;">
-                        <canvas id="sig-canvas"></canvas>
-                        <div style="font-size: 12px; font-weight: 900; margin-top: 10px;">AUTHORIZED SIGNATURE</div>
-                        <button class="no-print" onclick="clearSig()" style="font-size: 10px; opacity: 0.5; border:none; background:none; cursor:pointer;">Clear</button>
-                    </div>
-                </div>
+            <div class="big-signature-wrap">
+                <canvas id="sig-canvas"></canvas>
+                <div style="font-size: 12px; font-weight: 900; margin-top: 10px;">AUTHORIZED SIGNATURE</div>
+                <button class="no-print" onclick="clearSig()" style="font-size: 10px; color: #999; border:none; background:none; cursor:pointer;">(Clear Sign)</button>
+            </div>
+
+            <div class="final-personal-footer">
+                <p class="personal-note">"I hope you liked it. This is my small gift for ya."</p>
+                <div style="font-size: 10px; color: #bbb; font-weight: 800; letter-spacing: 2px;">CRAFTED BY MAUTASIM</div>
             </div>
         </div>
     </div>
@@ -204,8 +215,7 @@
 
         function unlockApp() {
             document.getElementById('birthday-gate').style.display = 'none';
-            const music = document.getElementById('bday-music');
-            music.play().catch(() => console.log("Music blocked by browser policy"));
+            document.getElementById('bday-music').play().catch(() => {});
         }
 
         function addRow() {
