@@ -7,11 +7,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --accent: #ff6b00; --dark: #1a1a1a; --soft: #f8f9fa; }
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { margin: 0; background: #222; overflow-x: hidden; }
+        :root { --accent: #ff6b00; --dark: #1a1a1a; --gray: #f8f9fa; }
+        * { box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        body { margin: 0; background: #222; }
 
-        /* --- GATE --- */
+        /* --- SURPRISE GATE --- */
         #birthday-gate {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95);
             z-index: 10000; display: flex; align-items: center; justify-content: center;
@@ -25,60 +25,68 @@
             border-radius: 50px; font-weight: 800; cursor: pointer; margin-top: 25px;
         }
 
-        /* --- LAYOUT --- */
+        /* --- INVOICE LAYOUT --- */
         #app-portal { display: none; padding: 20px; }
         #invoice-container {
             background: #fff; width: 210mm; min-height: 297mm; margin: auto;
-            position: relative; display: flex; box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* SIDEBAR (Artful Dodger Style) */
-        .side-bar {
-            width: 33%; background: var(--dark); color: #fff; padding: 40px 25px;
-            border-bottom-right-radius: 100px; z-index: 2;
+        /* Top Curvy Header */
+        .header-wave {
+            height: 250px; background: var(--dark); color: white;
+            padding: 40px; clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 80%);
+            position: relative;
         }
-        .logo-area { width: 70px; height: 70px; background: #fff; border-radius: 12px; margin-bottom: 20px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .logo-area img { max-width: 80%; max-height: 80%; object-fit: contain; }
-        
-        .side-bar label { color: var(--accent); font-size: 10px; font-weight: 800; display: block; margin-top: 20px; letter-spacing: 1px; text-transform: uppercase;}
-        .side-bar input { background: transparent; border: none; color: #fff; width: 100%; border-bottom: 1px solid #333; padding: 6px 0; outline: none; font-size: 13px;}
-        
-        /* Flex group for Bill No and Date */
-        .side-row { display: flex; gap: 15px; margin-top: 5px; }
-        .side-row div { flex: 1; }
+        .company-info h1 { margin: 0; letter-spacing: 2px; font-size: 28px; color: var(--accent); }
+        .company-info p { font-size: 12px; opacity: 0.8; margin: 5px 0; }
 
-        /* MAIN CONTENT */
-        .main-content { width: 67%; padding: 50px 40px; position: relative; display: flex; flex-direction: column; }
-        .bg-title { font-size: 100px; font-weight: 900; color: #f2f2f2; position: absolute; top: 20px; right: 40px; z-index: 1; pointer-events: none; }
-        
-        .header-top { position: relative; z-index: 2; margin-top: 30px; margin-bottom: 40px; }
-        .balance-label { color: #999; font-weight: 800; font-size: 11px; text-transform: uppercase; }
-        .balance-value { font-size: 44px; font-weight: 900; color: var(--dark); margin: 5px 0; }
+        .meta-info { position: absolute; top: 40px; right: 40px; text-align: right; }
+        .meta-info div { margin-bottom: 10px; }
+        .meta-info label { color: var(--accent); font-size: 10px; font-weight: 800; text-transform: uppercase; display: block; }
+        .meta-info input { background: transparent; border: none; color: white; text-align: right; font-size: 14px; outline: none; border-bottom: 1px solid #333; }
 
-        table { width: 100%; border-collapse: collapse; z-index: 2; }
+        /* Side Ghost Text */
+        .ghost-side {
+            position: absolute; left: 0; top: 350px; width: 60px; height: 300px;
+            background: var(--dark); border-top-right-radius: 40px; border-bottom-right-radius: 40px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ghost-side span {
+            transform: rotate(-90deg); color: var(--accent); font-weight: 900;
+            font-size: 30px; letter-spacing: 5px; text-transform: uppercase; white-space: nowrap;
+        }
+
+        /* Content Area */
+        .main-body { padding: 20px 60px 40px 100px; }
+        
+        .bill-to { margin-bottom: 30px; }
+        .bill-to label { color: var(--accent); font-weight: 800; font-size: 11px; display: block; margin-bottom: 5px; }
+        .bill-to input { width: 300px; font-size: 18px; border: none; border-bottom: 2px solid #eee; padding: 5px 0; outline: none; }
+
+        /* Table Design */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: var(--dark); color: #fff; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
+        td { padding: 12px; border-bottom: 1px solid #eee; background: #fff; }
+        .row-alt td { background: var(--gray); }
         td input { border: none; width: 100%; outline: none; font-size: 14px; background: transparent; }
 
-        /* CALCULATION BLOCK */
-        .calc-area { margin-top: 30px; display: flex; justify-content: flex-end; }
-        .calc-table { width: 260px; }
-        .calc-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; align-items: center; }
-        .calc-row input { width: 80px; text-align: right; border: 1px solid #eee; border-radius: 4px; padding: 4px; }
-        .grand-total { background: var(--accent); color: #fff; padding: 15px; border-radius: 10px; margin-top: 10px; text-align: center; }
+        /* Summary & Signature */
+        .bottom-section { display: flex; justify-content: space-between; margin-top: 40px; align-items: flex-start; }
+        
+        .calc-box { width: 280px; }
+        .calc-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; border-bottom: 1px solid #eee; }
+        .calc-row input { width: 70px; text-align: right; border: 1px solid #ddd; border-radius: 4px; }
+        .grand-total-row { background: var(--dark); color: #fff; padding: 15px; margin-top: 10px; border-radius: 8px; display: flex; justify-content: space-between; }
 
-        /* SIGNATURE AREA */
-        .footer-flex { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
-        .sig-container { text-align: center; width: 220px; }
-        #sig-canvas { border-bottom: 2px solid var(--dark); background: #fafafa; cursor: crosshair; touch-action: none; width: 220px; height: 80px; }
-        .sig-text { font-size: 12px; font-weight: 800; margin-top: 10px; text-transform: uppercase; }
+        .signature-area { text-align: center; }
+        #sig-canvas { border-bottom: 2px solid var(--dark); background: #fdfdfd; cursor: crosshair; touch-action: none; }
 
-        /* ACTIONS */
+        /* Controls */
         .action-bar { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; z-index: 5000; }
-        .btn { padding: 15px 30px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.2s; }
+        .btn { padding: 15px 30px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         .btn-add { background: var(--accent); color: #fff; }
         .btn-dl { background: #000; color: #fff; }
-        .btn-clear { background: #eee; color: #444; font-size: 10px; padding: 8px 15px; margin-top: 5px;}
 
         @media print { .no-print { display: none !important; } }
     </style>
@@ -88,88 +96,82 @@
     <div id="birthday-gate">
         <div class="surprise-card">
             <h2>🎉 Surprise Naveed 😉</h2>
-            <p>You <strong>unlocked a new chapter</strong> 😎</p>
-            <button class="unlock-btn" onclick="unlockApp()">OPEN INVOICE SYSTEM</button>
+            <p>You <strong>unlocked a new chapter  ⭐ Same Attitude ✔<br>
+                    ⭐ Same Grind ✔<br>
+                    ⭐ Bigger Wins Loading... 📈
+        </div>
+            </strong> 😎</p>
+            <button class="unlock-btn" onclick="unlockApp()">OPEN PREMIUM SYSTEM</button>
         </div>
     </div>
 
     <div id="app-portal">
         <div id="invoice-container">
-            <div class="side-bar">
-                <div class="logo-area"><img src="logo.png" alt="Logo"></div>
-                <h2 style="margin:0;">NAVEED</h2>
-                <p style="font-size: 10px; opacity: 0.6; margin-bottom: 20px;">TEXTILES & CO.</p>
-
-                <div class="side-row">
+            <div class="header-wave">
+                <div class="company-info">
+                    <h1>NAVEED TEXTILES</h1>
+                    <p>Premium Industrial Hub, Suite 402</p>
+                    <p>Phone: +92 300 0000000 | Web: srmabre1.github.io</p>
+                </div>
+                <div class="meta-info">
                     <div>
-                        <label>Bill No.</label>
-                        <input placeholder="#001" id="bill-no">
+                        <label>Invoice No</label>
+                        <input id="bill-no" readonly>
                     </div>
                     <div>
                         <label>Date</label>
-                        <input type="text" id="invoice-date">
+                        <input id="bill-date">
                     </div>
                 </div>
-
-                <label>INVOICE TO</label>
-                <input placeholder="Client Name" style="font-weight: 700; font-size: 16px;">
-                <input placeholder="Phone Number">
-                <input placeholder="Address">
-
-                <label>PAYMENT INFO</label>
-                <p style="font-size: 11px; opacity: 0.7; line-height: 1.6;">
-                    Bank: HBL Bank<br>A/C: 1234 5678 9012<br>Branch: Industrial Area
-                </p>
             </div>
 
-            <div class="main-content">
-                <div class="bg-title">INVOICE</div>
-                <div class="header-top">
-                    <div class="balance-label">Total Balance Due</div>
-                    <div class="balance-value" id="top-balance">₹ 0.00</div>
-                    <select id="currency" class="no-print" onchange="calc()" style="padding:5px; border-radius:5px;">
-                        <option value="₹">PKR (₹)</option>
-                        <option value="$">USD ($)</option>
-                    </select>
+            <div class="ghost-side">
+                <span>INVOICE</span>
+            </div>
+
+            <div class="main-body">
+                <div class="bill-to">
+                    <label>Bill To:</label>
+                    <input placeholder="Client Name / Business Name">
+                    <input placeholder="Address & Contact" style="font-size: 12px; margin-top: 5px; width: 100%;">
                 </div>
 
-                <table>
+                <table id="invoice-table">
                     <thead>
                         <tr>
-                            <th width="50">Qty</th>
+                            <th width="40">S.No</th>
                             <th>Description</th>
-                            <th width="120" style="text-align: right;">Price</th>
+                            <th width="80">Price</th>
+                            <th width="60">Qty</th>
+                            <th width="100" style="text-align: right;">Total</th>
                         </tr>
                     </thead>
                     <tbody id="rows">
-                        <tr>
-                            <td><input type="number" value="1" oninput="calc()"></td>
-                            <td><input placeholder="Item description..."></td>
-                            <td><input type="number" value="0" oninput="calc()" style="text-align: right; font-weight: 800;"></td>
-                        </tr>
-                    </tbody>
+                        </tbody>
                 </table>
 
-                <div class="calc-area">
-                    <div class="calc-table">
-                        <div class="calc-row"><span>Sub-Total:</span><span id="label-subtotal">0.00</span></div>
+                <div class="bottom-section">
+                    <div style="font-size: 11px; color: #888; max-width: 250px;">
+                        <label style="color:var(--dark); font-weight:800; display:block; margin-bottom:5px;">TERMS & CONDITIONS</label>
+                        built by mautasim.
+                    </div>
+
+                    <div class="calc-box">
+                        <div class="calc-row"><span>Sub Total:</span><span id="sub-total">₹ 0</span></div>
                         <div class="calc-row"><span>Discount (%):</span><input type="number" id="in-discount" value="0" oninput="calc()"></div>
                         <div class="calc-row"><span>Paid Amt:</span><input type="number" id="in-paid" value="0" oninput="calc()"></div>
-                        <div class="grand-total">
-                            <div style="font-size: 10px; opacity: 0.8;">BALANCE DUE</div>
-                            <div id="label-balance" style="font-size: 24px; font-weight: 900;">₹ 0.00</div>
+                        <div class="grand-total-row">
+                            <span style="font-weight: 800;">BALANCE DUE</span>
+                            <span id="final-balance" style="font-weight: 900; font-size: 18px;">₹ 0</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="footer-flex">
-                    <div style="font-size: 11px; color: #999; max-width: 200px;">
-                        <strong>Terms:</strong> Payment due within 15 days. Thank you for your business!
-                    </div>
-                    <div class="sig-container">
-                        <canvas id="sig-canvas" width="220" height="80"></canvas>
-                        <div class="sig-text">Authorized Signature</div>
-                        <button class="btn-clear no-print" onclick="clearSig()">Clear Signature</button>
+                <div style="margin-top: 50px; display: flex; justify-content: flex-end;">
+                    <div class="signature-area">
+                        <canvas id="sig-canvas" width="200" height="80"></canvas>
+                        <div style="font-size: 12px; font-weight: 800; margin-top: 10px;">AUTHORIZED SIGNATURE</div>
+                        <button class="no-print" onclick="clearSig()" style="font-size: 9px; cursor: pointer;">Clear</button>
                     </div>
                 </div>
             </div>
@@ -186,67 +188,79 @@
             document.getElementById('birthday-gate').style.display = 'none';
             document.getElementById('app-portal').style.display = 'block';
             
-            // Set Auto Date
-            const today = new Date().toLocaleDateString();
-            document.getElementById('invoice-date').value = today;
+            // Auto Bill Number (e.g., #NT-12345)
+            const randomID = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('bill-no').value = "#NT-" + randomID;
             
+            // Auto Date
+            document.getElementById('bill-date').value = new Date().toLocaleDateString();
+            
+            addRow(); // Start with one row
             initSignature();
         }
 
         function addRow() {
-            const tr = `<tr><td><input type="number" value="1" oninput="calc()"></td><td><input placeholder="Item description..."></td><td><input type="number" value="0" oninput="calc()" style="text-align: right; font-weight: 800;"></td></tr>`;
-            document.getElementById('rows').insertAdjacentHTML('beforeend', tr);
+            const tbody = document.getElementById('rows');
+            const sNo = tbody.children.length + 1;
+            const rowClass = sNo % 2 === 0 ? 'row-alt' : '';
+            
+            const tr = `<tr class="${rowClass}">
+                <td style="font-size: 12px; font-weight: 800; color: #999;">${sNo}</td>
+                <td><input placeholder="Product Name/Service"></td>
+                <td><input type="number" class="price" value="0" oninput="calc()"></td>
+                <td><input type="number" class="qty" value="1" oninput="calc()"></td>
+                <td style="text-align: right; font-weight: 800;" class="row-total">₹ 0</td>
+            </tr>`;
+            tbody.insertAdjacentHTML('beforeend', tr);
+            calc();
         }
 
         function calc() {
-            let sub = 0;
-            const sym = document.getElementById('currency').value;
+            let subtotal = 0;
             document.querySelectorAll('#rows tr').forEach(row => {
-                const q = row.cells[0].querySelector('input').value || 0;
-                const p = row.cells[2].querySelector('input').value || 0;
-                sub += (q * p);
+                const p = parseFloat(row.querySelector('.price').value) || 0;
+                const q = parseFloat(row.querySelector('.qty').value) || 0;
+                const total = p * q;
+                row.querySelector('.row-total').innerText = "₹ " + total.toLocaleString();
+                subtotal += total;
             });
-            const disc = (sub * (document.getElementById('in-discount').value || 0)) / 100;
-            const bal = (sub - disc) - (document.getElementById('in-paid').value || 0);
-            document.getElementById('label-subtotal').innerText = sym + " " + sub.toLocaleString();
-            document.getElementById('top-balance').innerText = sym + " " + bal.toLocaleString();
-            document.getElementById('label-balance').innerText = sym + " " + bal.toLocaleString();
+
+            const discPerc = parseFloat(document.getElementById('in-discount').value) || 0;
+            const paid = parseFloat(document.getElementById('in-paid').value) || 0;
+            
+            const discAmt = (subtotal * discPerc) / 100;
+            const balance = (subtotal - discAmt) - paid;
+
+            document.getElementById('sub-total').innerText = "₹ " + subtotal.toLocaleString();
+            document.getElementById('final-balance').innerText = "₹ " + balance.toLocaleString();
         }
 
+        // Signature Logic
         let canvas, ctx, drawing = false;
         function initSignature() {
             canvas = document.getElementById('sig-canvas');
             ctx = canvas.getContext('2d');
-            ctx.strokeStyle = "#1a1a1a";
-            ctx.lineWidth = 2;
-
-            const start = (e) => { drawing = true; ctx.beginPath(); move(e); };
-            const move = (e) => {
-                if (!drawing) return;
+            ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 2;
+            const getXY = (e) => {
                 const rect = canvas.getBoundingClientRect();
-                const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-                const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
-                ctx.lineTo(x, y);
-                ctx.stroke();
+                return { x: (e.clientX || e.touches[0].clientX) - rect.left, y: (e.clientY || e.touches[0].clientY) - rect.top };
             };
-            const end = () => drawing = false;
-
-            canvas.addEventListener('mousedown', start);
-            canvas.addEventListener('mousemove', move);
-            window.addEventListener('mouseup', end);
+            const start = (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); };
+            const move = (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move);
+            window.addEventListener('mouseup', () => drawing = false);
             canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
             canvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); });
-            canvas.addEventListener('touchend', end);
         }
         function clearSig() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
         async function makePDF() {
             document.querySelectorAll('input').forEach(i => i.setAttribute('value', i.value));
             const el = document.getElementById('invoice-container');
-            const canvasImg = await html2canvas(el, { scale: 3, useCORS: true });
+            const canvasImg = await html2canvas(el, { scale: 3 });
             const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
             pdf.addImage(canvasImg.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
-            pdf.save('Naveed_Invoice.pdf');
+            pdf.save(`Invoice_${document.getElementById('bill-no').value}.pdf`);
         }
     </script>
 </body>
