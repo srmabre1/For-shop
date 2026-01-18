@@ -3,90 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naveed Textiles - Ultra Premium</title>
+    <title>Naveed Textiles - Developed by Mautasim</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --accent: #ff6b00; --dark: #1a1a1a; --gray: #f8f9fa; }
-        * { box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
-        body { margin: 0; background: #222; }
+        :root { --accent: #ff6b00; --dark: #1a1a1a; --gray: #f2f2f2; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { margin: 0; background: #333; }
 
-        /* --- SURPRISE GATE --- */
+        /* --- AUTO-EXPIRING GATE --- */
         #birthday-gate {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-            z-index: 10000; display: flex; align-items: center; justify-content: center;
+            z-index: 10000; display: none; align-items: center; justify-content: center;
         }
         .surprise-card {
             background: #fff; padding: 40px; border-radius: 25px; width: 90%; max-width: 400px;
             text-align: center; box-shadow: 0 20px 60px rgba(255,107,0,0.3);
         }
+        .quote-box {
+            background: #fff8f4; border: 1px dashed var(--accent); padding: 15px;
+            border-radius: 15px; font-size: 14px; color: #444; margin: 20px 0; line-height: 1.8;
+        }
         .unlock-btn {
             background: var(--dark); color: #fff; border: none; padding: 15px 40px;
-            border-radius: 50px; font-weight: 800; cursor: pointer; margin-top: 25px;
+            border-radius: 50px; font-weight: 800; cursor: pointer;
         }
 
-        /* --- INVOICE LAYOUT --- */
-        #app-portal { display: none; padding: 20px; }
+        /* --- INVOICE CONTAINER --- */
+        #app-portal { display: block; padding: 20px; }
         #invoice-container {
             background: #fff; width: 210mm; min-height: 297mm; margin: auto;
             position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        /* Top Curvy Header */
         .header-wave {
-            height: 250px; background: var(--dark); color: white;
-            padding: 40px; clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 80%);
+            height: 280px; background: var(--dark); color: white;
+            padding: 40px; clip-path: polygon(0 0, 100% 0, 100% 75%, 65% 100%, 0 85%);
             position: relative;
         }
-        .company-info h1 { margin: 0; letter-spacing: 2px; font-size: 28px; color: var(--accent); }
-        .company-info p { font-size: 12px; opacity: 0.8; margin: 5px 0; }
+        .header-wave h1 { margin: 0; font-size: 32px; color: var(--accent); letter-spacing: 2px; }
+        .dev-tag { font-size: 11px; color: #aaa; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .contact-info { margin-top: 15px; font-size: 12px; line-height: 1.6; opacity: 0.8; }
+        .invoice-meta { position: absolute; top: 40px; right: 40px; text-align: right; }
+        .invoice-meta label { display: block; color: var(--accent); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .invoice-meta input { background: transparent; border: none; color: white; text-align: right; font-size: 14px; margin-bottom: 10px; border-bottom: 1px solid #444; outline: none; }
 
-        .meta-info { position: absolute; top: 40px; right: 40px; text-align: right; }
-        .meta-info div { margin-bottom: 10px; }
-        .meta-info label { color: var(--accent); font-size: 10px; font-weight: 800; text-transform: uppercase; display: block; }
-        .meta-info input { background: transparent; border: none; color: white; text-align: right; font-size: 14px; outline: none; border-bottom: 1px solid #333; }
-
-        /* Side Ghost Text */
-        .ghost-side {
-            position: absolute; left: 0; top: 350px; width: 60px; height: 300px;
-            background: var(--dark); border-top-right-radius: 40px; border-bottom-right-radius: 40px;
+        .side-label {
+            position: absolute; left: 0; top: 380px; width: 55px; height: 280px;
+            background: var(--dark); border-radius: 0 40px 40px 0;
             display: flex; align-items: center; justify-content: center;
         }
-        .ghost-side span {
-            transform: rotate(-90deg); color: var(--accent); font-weight: 900;
-            font-size: 30px; letter-spacing: 5px; text-transform: uppercase; white-space: nowrap;
-        }
+        .side-label span { transform: rotate(-90deg); color: var(--accent); font-weight: 900; font-size: 32px; letter-spacing: 8px; white-space: nowrap; }
 
-        /* Content Area */
-        .main-body { padding: 20px 60px 40px 100px; }
-        
-        .bill-to { margin-bottom: 30px; }
-        .bill-to label { color: var(--accent); font-weight: 800; font-size: 11px; display: block; margin-bottom: 5px; }
-        .bill-to input { width: 300px; font-size: 18px; border: none; border-bottom: 2px solid #eee; padding: 5px 0; outline: none; }
+        .main-content { padding: 20px 60px 40px 100px; }
+        .client-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .info-group label { color: var(--accent); font-weight: 800; font-size: 11px; display: block; margin-bottom: 5px; }
+        .info-group input { width: 250px; border: none; border-bottom: 1px solid #ddd; padding: 5px 0; outline: none; font-size: 14px; }
 
-        /* Table Design */
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th { background: var(--dark); color: #fff; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid #eee; background: #fff; }
-        .row-alt td { background: var(--gray); }
-        td input { border: none; width: 100%; outline: none; font-size: 14px; background: transparent; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .row-alt { background: var(--gray); }
+        td input { border: none; width: 100%; outline: none; background: transparent; font-size: 14px; }
 
-        /* Summary & Signature */
-        .bottom-section { display: flex; justify-content: space-between; margin-top: 40px; align-items: flex-start; }
+        .footer-flex { display: flex; justify-content: space-between; margin-top: 40px; }
+        .services-list { width: 300px; font-size: 11px; color: #666; }
+        .services-list b { color: var(--dark); display: block; margin-bottom: 5px; }
         
-        .calc-box { width: 280px; }
-        .calc-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; border-bottom: 1px solid #eee; }
-        .calc-row input { width: 70px; text-align: right; border: 1px solid #ddd; border-radius: 4px; }
-        .grand-total-row { background: var(--dark); color: #fff; padding: 15px; margin-top: 10px; border-radius: 8px; display: flex; justify-content: space-between; }
+        .totals-box { width: 260px; }
+        .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #eee; }
+        .total-row input { width: 70px; text-align: right; border: 1px solid #ddd; border-radius: 4px; }
+        .grand-total { background: var(--dark); color: #fff; padding: 15px; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-between; font-weight: 800; }
 
-        .signature-area { text-align: center; }
-        #sig-canvas { border-bottom: 2px solid var(--dark); background: #fdfdfd; cursor: crosshair; touch-action: none; }
+        .sig-box { text-align: center; margin-top: 30px; }
+        #sig-canvas { border-bottom: 2px solid var(--dark); background: #fafafa; cursor: crosshair; touch-action: none; }
 
-        /* Controls */
-        .action-bar { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 15px; z-index: 5000; }
+        .action-bar { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 10px; z-index: 5000; }
         .btn { padding: 15px 30px; border-radius: 50px; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        .btn-add { background: var(--accent); color: #fff; }
-        .btn-dl { background: #000; color: #fff; }
+        .btn-add { background: var(--accent); color: white; }
+        .btn-dl { background: #000; color: white; }
 
         @media print { .no-print { display: none !important; } }
     </style>
@@ -95,13 +91,17 @@
 
     <div id="birthday-gate">
         <div class="surprise-card">
-            <h2>🎉 Surprise Naveed 😉</h2>
-            <p>You <strong>unlocked a new chapter  ⭐ Same Attitude ✔<br>
-                    ⭐ Same Grind ✔<br>
-                    ⭐ Bigger Wins Loading... 📈
-        </div>
-            </strong> 😎</p>
-            <button class="unlock-btn" onclick="unlockApp()">OPEN PREMIUM SYSTEM</button>
+            <h2 style="color:var(--dark); margin-bottom:10px;">🎉 Surprise Naveed 😉</h2>
+            <p style="color:#666; font-size:14px;">Bro you didn't level up...<br>You <strong>unlocked a new chapter</strong> 😎</p>
+            
+            <div class="quote-box">
+                ⭐ Same Attitude ✔<br>
+                ⭐ Same Grind ✔<br>
+                ⭐ Bigger Wins Loading... 📈
+            </div>
+            
+            <button class="unlock-btn" onclick="unlockApp()">OPEN SYSTEM</button>
+            <p style="font-size: 10px; margin-top: 15px; color: #999;">Crafted with ⚡ by Mautasim</p>
         </div>
     </div>
 
@@ -110,106 +110,116 @@
             <div class="header-wave">
                 <div class="company-info">
                     <h1>NAVEED TEXTILES</h1>
-                    <p>Premium Industrial Hub, Suite 402</p>
-                    <p>Phone: +92 300 0000000 | Web: srmabre1.github.io</p>
+                    <div class="dev-tag">Web & System by: Mautasim</div>
+                    <div class="contact-info">
+                        Warnow Road Takiya Khurhama Lolab<br>
+                        Contact: +91 99064 03030<br>
+                        99068 51124
+                    </div>
                 </div>
-                <div class="meta-info">
-                    <div>
-                        <label>Invoice No</label>
-                        <input id="bill-no" readonly>
-                    </div>
-                    <div>
-                        <label>Date</label>
-                        <input id="bill-date">
-                    </div>
+                <div class="invoice-meta">
+                    <label>Invoice No</label>
+                    <input id="bill-no" readonly>
+                    <label>Date</label>
+                    <input id="bill-date">
                 </div>
             </div>
 
-            <div class="ghost-side">
-                <span>INVOICE</span>
-            </div>
+            <div class="side-label"><span>INVOICE</span></div>
 
-            <div class="main-body">
-                <div class="bill-to">
-                    <label>Bill To:</label>
-                    <input placeholder="Client Name / Business Name">
-                    <input placeholder="Address & Contact" style="font-size: 12px; margin-top: 5px; width: 100%;">
+            <div class="main-content">
+                <div class="client-section">
+                    <div class="info-group">
+                        <label>Bill To:</label>
+                        <input placeholder="Client Name">
+                    </div>
+                    <div class="info-group">
+                        <label>Phone / Address:</label>
+                        <input placeholder="Contact Details">
+                    </div>
                 </div>
 
-                <table id="invoice-table">
+                <table>
                     <thead>
                         <tr>
                             <th width="40">S.No</th>
-                            <th>Description</th>
-                            <th width="80">Price</th>
+                            <th>Description of Goods</th>
+                            <th width="80">Rate</th>
                             <th width="60">Qty</th>
                             <th width="100" style="text-align: right;">Total</th>
                         </tr>
                     </thead>
-                    <tbody id="rows">
-                        </tbody>
+                    <tbody id="rows"></tbody>
                 </table>
 
-                <div class="bottom-section">
-                    <div style="font-size: 11px; color: #888; max-width: 250px;">
-                        <label style="color:var(--dark); font-weight:800; display:block; margin-bottom:5px;">TERMS & CONDITIONS</label>
-                        built by mautasim.
+                <div class="footer-flex">
+                    <div class="services-list">
+                        <b>DEALS IN:</b>
+                        Shirting, Suiting, Cottons, Piece Packing, Kurta, All Over Suits, Gown, Makhmal, Ladies Wear, Gents Wear & Kids Wear.
                     </div>
 
-                    <div class="calc-box">
-                        <div class="calc-row"><span>Sub Total:</span><span id="sub-total">₹ 0</span></div>
-                        <div class="calc-row"><span>Discount (%):</span><input type="number" id="in-discount" value="0" oninput="calc()"></div>
-                        <div class="calc-row"><span>Paid Amt:</span><input type="number" id="in-paid" value="0" oninput="calc()"></div>
-                        <div class="grand-total-row">
-                            <span style="font-weight: 800;">BALANCE DUE</span>
-                            <span id="final-balance" style="font-weight: 900; font-size: 18px;">₹ 0</span>
+                    <div class="totals-box">
+                        <div class="total-row"><span>Sub Total:</span><span id="sub-total">₹ 0</span></div>
+                        <div class="total-row"><span>Discount (%):</span><input type="number" id="in-discount" value="0" oninput="calc()"></div>
+                        <div class="total-row"><span>Paid Amt:</span><input type="number" id="in-paid" value="0" oninput="calc()"></div>
+                        <div class="grand-total">
+                            <span>BALANCE</span>
+                            <span id="final-balance">₹ 0</span>
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-top: 50px; display: flex; justify-content: flex-end;">
-                    <div class="signature-area">
-                        <canvas id="sig-canvas" width="200" height="80"></canvas>
-                        <div style="font-size: 12px; font-weight: 800; margin-top: 10px;">AUTHORIZED SIGNATURE</div>
-                        <button class="no-print" onclick="clearSig()" style="font-size: 9px; cursor: pointer;">Clear</button>
+                <div style="display:flex; justify-content: flex-end; margin-top: 40px;">
+                    <div class="sig-box">
+                        <canvas id="sig-canvas" width="200" height="70"></canvas>
+                        <div style="font-size: 11px; font-weight: 800; margin-top: 8px;">AUTHORIZED SIGNATURE</div>
+                        <button class="no-print" onclick="clearSig()" style="font-size: 9px; margin-top: 5px; cursor:pointer;">Clear Sign</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="action-bar no-print">
-            <button class="btn btn-add" onclick="addRow()">+ ITEM</button>
+            <button class="btn btn-add" onclick="addRow()">+ ADD ITEM</button>
             <button class="btn btn-dl" onclick="makePDF()">DOWNLOAD PDF</button>
         </div>
     </div>
 
     <script>
+        // --- 2 DAY EXPIRY LOGIC ---
+        window.onload = function() {
+            const expiryDate = new Date('2026-01-20T23:59:59'); // Gate expires after Jan 20
+            const now = new Date();
+            const gate = document.getElementById('birthday-gate');
+
+            if (now < expiryDate) {
+                gate.style.display = 'flex'; // Still showing the surprise
+            } else {
+                gate.style.display = 'none'; // Surprise period over, go straight to app
+            }
+            
+            // Setup Bill Details
+            const billId = "NT-" + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('bill-no').value = billId;
+            document.getElementById('bill-date').value = new Date().toLocaleDateString();
+            addRow();
+            initSignature();
+        };
+
         function unlockApp() {
             document.getElementById('birthday-gate').style.display = 'none';
-            document.getElementById('app-portal').style.display = 'block';
-            
-            // Auto Bill Number (e.g., #NT-12345)
-            const randomID = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('bill-no').value = "#NT-" + randomID;
-            
-            // Auto Date
-            document.getElementById('bill-date').value = new Date().toLocaleDateString();
-            
-            addRow(); // Start with one row
-            initSignature();
         }
 
         function addRow() {
             const tbody = document.getElementById('rows');
             const sNo = tbody.children.length + 1;
             const rowClass = sNo % 2 === 0 ? 'row-alt' : '';
-            
             const tr = `<tr class="${rowClass}">
-                <td style="font-size: 12px; font-weight: 800; color: #999;">${sNo}</td>
-                <td><input placeholder="Product Name/Service"></td>
-                <td><input type="number" class="price" value="0" oninput="calc()"></td>
+                <td style="font-size:11px; font-weight:bold; color:#888;">${sNo}</td>
+                <td><input placeholder="Enter product name..."></td>
+                <td><input type="number" class="rate" value="0" oninput="calc()"></td>
                 <td><input type="number" class="qty" value="1" oninput="calc()"></td>
-                <td style="text-align: right; font-weight: 800;" class="row-total">₹ 0</td>
+                <td style="text-align: right; font-weight: 700;" class="row-total">₹ 0</td>
             </tr>`;
             tbody.insertAdjacentHTML('beforeend', tr);
             calc();
@@ -218,24 +228,19 @@
         function calc() {
             let subtotal = 0;
             document.querySelectorAll('#rows tr').forEach(row => {
-                const p = parseFloat(row.querySelector('.price').value) || 0;
+                const r = parseFloat(row.querySelector('.rate').value) || 0;
                 const q = parseFloat(row.querySelector('.qty').value) || 0;
-                const total = p * q;
+                const total = r * q;
                 row.querySelector('.row-total').innerText = "₹ " + total.toLocaleString();
                 subtotal += total;
             });
-
-            const discPerc = parseFloat(document.getElementById('in-discount').value) || 0;
+            const disc = parseFloat(document.getElementById('in-discount').value) || 0;
             const paid = parseFloat(document.getElementById('in-paid').value) || 0;
-            
-            const discAmt = (subtotal * discPerc) / 100;
-            const balance = (subtotal - discAmt) - paid;
-
+            const final = (subtotal - (subtotal * disc / 100)) - paid;
             document.getElementById('sub-total').innerText = "₹ " + subtotal.toLocaleString();
-            document.getElementById('final-balance').innerText = "₹ " + balance.toLocaleString();
+            document.getElementById('final-balance').innerText = "₹ " + final.toLocaleString();
         }
 
-        // Signature Logic
         let canvas, ctx, drawing = false;
         function initSignature() {
             canvas = document.getElementById('sig-canvas');
@@ -243,24 +248,23 @@
             ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 2;
             const getXY = (e) => {
                 const rect = canvas.getBoundingClientRect();
-                return { x: (e.clientX || e.touches[0].clientX) - rect.left, y: (e.clientY || e.touches[0].clientY) - rect.top };
+                return { x: (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left, y: (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top };
             };
-            const start = (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); };
-            const move = (e) => { if(!drawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move);
+            canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); });
+            canvas.addEventListener('mousemove', (e) => { if(drawing) { const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } });
             window.addEventListener('mouseup', () => drawing = false);
-            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
-            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e); });
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing = true; ctx.beginPath(); const p = getXY(e); ctx.moveTo(p.x, p.y); });
+            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(drawing) { const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } });
         }
         function clearSig() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
         async function makePDF() {
             document.querySelectorAll('input').forEach(i => i.setAttribute('value', i.value));
             const el = document.getElementById('invoice-container');
-            const canvasImg = await html2canvas(el, { scale: 3 });
+            const canvasImg = await html2canvas(el, { scale: 2 });
             const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
             pdf.addImage(canvasImg.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
-            pdf.save(`Invoice_${document.getElementById('bill-no').value}.pdf`);
+            pdf.save(`NaveedTextiles_${document.getElementById('bill-no').value}.pdf`);
         }
     </script>
 </body>
