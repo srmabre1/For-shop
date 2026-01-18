@@ -3,221 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Naveed Textiles - Billing</title>
+    <title>Naveed Textiles - Birthday Edition</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        :root { --primary: #2196f3; --dark: #333; }
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 10px; color: var(--dark); }
+        :root { --primary: #2196f3; --gold: #ffd700; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
         
-        #bill { 
-            width: 100%; max-width: 800px; margin: auto; background: #fff; 
-            padding: 20px; box-sizing: border-box; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+        /* Bill Styles */
+        #bill { width: 100%; max-width: 800px; margin: auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
+        input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #eee; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .grand-total { font-weight: bold; color: var(--primary); font-size: 20px; border-top: 2px solid #eee; margin-top: 10px; padding-top: 10px; display: flex; justify-content: space-between; }
 
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 15px; }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .my-logo { width: 60px; height: 60px; border-radius: 5px; }
-
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .field { display: flex; flex-direction: column; font-size: 11px; font-weight: bold; color: #555; }
-        input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 4px; font-size: 14px; width: 100%; box-sizing: border-box; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #f8f9fa; padding: 10px; text-align: left; font-size: 12px; border-bottom: 2px solid #eee; }
-        td { padding: 8px; border-bottom: 1px solid #eee; }
-        
-        .totals { width: 100%; max-width: 250px; margin-left: auto; margin-top: 20px; }
-        .total-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
-        .grand-total { font-weight: bold; color: var(--primary); font-size: 18px; border-top: 2px solid #eee; padding-top: 10px; }
-
-        #sig-wrap { margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; }
-        #sig { border: 1px dashed #ccc; width: 100%; height: 100px; background: #fafafa; touch-action: none; }
-
-        .no-export { width: 100%; max-width: 800px; margin: 20px auto; display: flex; flex-direction: column; gap: 10px; }
+        /* PDF Export Fix */
+        .no-export { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
         .btn-row { display: flex; gap: 10px; }
-        button { flex: 1; padding: 15px; font-weight: bold; border: none; border-radius: 6px; color: #fff; cursor: pointer; font-size: 14px; }
+        button { flex: 1; padding: 15px; font-weight: bold; border: none; border-radius: 8px; color: #fff; cursor: pointer; }
         .btn-pdf { background: #455a64; }
         .btn-wa { background: #25d366; }
         .btn-new { background: #f44336; }
-        .btn-add { background: #eee; color: #333; width: 110px; padding: 8px; font-size: 12px; margin-top: 10px; }
-        
         .hidden-pdf { display: none !important; }
 
-        /* Birthday Pop-up */
-        #bd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: none; align-items: center; justify-content: center; z-index: 99999; }
-        #card { background: #fff; padding: 20px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; }
-        #scratch-box { position: relative; width: 280px; height: 320px; margin: 15px auto; background: #000; border-radius: 15px; overflow: hidden; border: 3px solid #ffd700; }
-        #scratch-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; z-index: 2; }
-        .msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 20px; font-size: 14px; line-height: 1.6; z-index: 1; }
+        /* --- Birthday Animation Styles --- */
+        #bd-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        #card { background: #fff; padding: 20px; border-radius: 20px; text-align: center; width: 90%; max-width: 380px; }
+        
+        #scratch-container { position: relative; width: 300px; height: 350px; margin: 15px auto; background: #111; border-radius: 15px; overflow: hidden; border: 3px solid var(--gold); }
+        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; touch-action: none; cursor: crosshair; }
+
+        .birthday-text { 
+            position: absolute; inset: 0; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; color: white; padding: 20px; 
+            text-align: center; z-index: 1;
+        }
+
+        /* The Animation you asked for */
+        .animate-msg { animation: popIn 1.5s ease-out forwards, glow 2s infinite alternate; }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes glow { from { text-shadow: 0 0 5px #fff, 0 0 10px var(--gold); } to { text-shadow: 0 0 10px #fff, 0 0 20px var(--primary); } }
+
+        #sig { border: 1px dashed #ccc; width: 100%; height: 100px; background: #fafafa; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <audio id="bday-music" loop>
-    <source src="https://www.soundboard.com/handler/DownLoadTrack.ashx?cliptitle=Happy+Birthday+To+You&filename=mz/Mzg1ODMxNTIzODU4Mzkw_m_2f_2bWfH6G8D8.MP3" type="audio/mpeg">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
 </audio>
 
 <div id="bd-overlay">
     <div id="card">
-        <h2 style="color:var(--primary); margin:0;">🎂 HAPPY BIRTHDAY 🎂</h2>
-        <div id="scratch-box">
-            <div class="msg">
-                Bro you didn’t level up…<br>
-                You <b>unlocked a new chapter</b> 😎<br><br>
-                Same attitude ✔ Same grind ✔<br>
-                Bigger wins loading… 📈<br><br>
-                Stay real. Stay sharp. 👊<br>
-                <span style="color: #ffd700;">and don't forget me 😁</span>
+        <h2 style="color:var(--primary); margin:0;">🎂 NAVEED'S DAY 🎂</h2>
+        <div id="scratch-container">
+            <div class="birthday-text" id="revealed-msg">
+                <h3 style="color:var(--gold); margin:0;">Level Up! 🚀</h3>
+                <p>Bro, you didn't just age...<br>You <b>unlocked a new chapter</b> 😎</p>
+                <p>Same Attitude ✔<br>Same Grind ✔<br>Bigger Wins Loading... 📈</p>
+                <p style="font-size: 12px;">Stay real. Stay sharp. 👊</p>
             </div>
-            <canvas id="scratch-canvas" width="280" height="320"></canvas>
+            <canvas id="scratch-canvas" width="300" height="350"></canvas>
         </div>
-        <button onclick="closeBday()" style="background:var(--primary); width:100%">Go to My Bill</button>
+        <button onclick="closeBday()" style="background:var(--primary); width:100%">Open My Bill</button>
     </div>
 </div>
 
 <div id="bill">
     <div class="header">
-        <div class="logo-area">
-            <img src="logo.png" class="my-logo" onerror="this.src='https://via.placeholder.com/60?text=NT'">
-            <div>
-                <h1 style="margin:0; font-size: 20px; color:var(--primary)">NAVEED TEXTILES</h1>
-                <span style="font-size: 11px;">Ph: 9906403030</span>
-            </div>
+        <div>
+            <h1 style="margin:0; color:var(--primary)">NAVEED TEXTILES</h1>
+            <span style="font-size: 12px;">Ph: 9906403030</span>
         </div>
         <div style="text-align: right;">
-            <div style="font-weight: bold; font-size: 16px;">NT-1050</div>
-            <div id="cur-date" style="font-size: 12px; color: #777;"></div>
+            <div style="font-weight: bold;">NT-1060</div>
+            <div id="date"></div>
         </div>
     </div>
 
-    <div class="info-grid">
-        <div class="field">NAME <input id="name" placeholder="..."></div>
-        <div class="field">PHONE <input id="phone" placeholder="..."></div>
-        <div class="field">ADDRESS <input id="addr" placeholder="..."></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>NAME <input id="name"></div>
+        <div>PHONE <input id="phone"></div>
     </div>
 
     <table>
-        <thead>
-            <tr><th width="30">#</th><th>ITEM</th><th width="50">QTY</th><th width="80">RATE</th><th width="80">TOTAL</th></tr>
-        </thead>
+        <thead><tr><th>ITEM</th><th width="60">QTY</th><th width="80">RATE</th><th width="80">TOTAL</th></tr></thead>
         <tbody id="rows">
             <tr>
-                <td>1</td>
                 <td><input placeholder="Item..."></td>
                 <td><input type="number" value="1" oninput="calc()"></td>
                 <td><input type="number" value="0" oninput="calc()"></td>
-                <td style="text-align: right; font-weight: bold;" class="r-total">0</td>
+                <td style="text-align: right;" class="row-total">0</td>
             </tr>
         </tbody>
     </table>
+    <button class="no-export" style="background:#eee; color:#333; width:100px; padding:5px; margin-top:10px;" onclick="addRow()">+ Add</button>
 
-    <button class="btn-add no-export" onclick="addRow()">+ Add Item</button>
-
-    <div class="totals">
-        <div class="total-row"><span>Sub-Total</span><span id="sub">0</span></div>
-        <div class="total-row"><span>Paid</span><input id="paid" value="0" oninput="calc()" style="width:70px; text-align:right;"></div>
-        <div class="total-row grand-total"><span>Balance</span><span id="bal">0</span></div>
+    <div style="width: 200px; margin-left: auto; margin-top: 20px;">
+        <div class="grand-total"><span>Total:</span><span id="total-val">0</span></div>
     </div>
 
-    <div id="sig-wrap">
-        <div style="display:flex; justify-content:space-between; font-size:10px; margin-bottom:5px;">
-            <span>AUTHORIZED SIGNATURE</span>
-            <span class="no-export" style="color:red; cursor:pointer;" onclick="clearSig()">Clear</span>
-        </div>
+    <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px;">
+        <span style="font-size: 10px;">SIGNATURE:</span>
         <canvas id="sig"></canvas>
     </div>
 </div>
 
-<div class="no-export">
+<div class="no-export" style="max-width:800px; margin: 20px auto;">
     <div class="btn-row">
         <button class="btn-pdf" onclick="saveFullPDF()">Save PDF</button>
-        <button class="btn-wa" onclick="shareWA()">WhatsApp</button>
+        <button class="btn-wa">WhatsApp</button>
     </div>
     <button class="btn-new" onclick="location.reload()">New Bill</button>
 </div>
 
 <script>
-    document.getElementById('cur-date').innerText = new Date().toISOString().split('T')[0];
+    document.getElementById('date').innerText = new Date().toLocaleDateString();
     const music = document.getElementById('bday-music');
 
     function calc() {
-        let total = 0;
-        document.querySelectorAll("#rows tr").forEach(r => {
-            const q = r.cells[2].querySelector('input').value || 0;
-            const rt = r.cells[3].querySelector('input').value || 0;
-            const sum = q * rt;
-            r.querySelector('.r-total').innerText = sum.toLocaleString();
-            total += sum;
+        let grand = 0;
+        document.querySelectorAll("#rows tr").forEach(row => {
+            const q = row.cells[1].querySelector('input').value || 0;
+            const r = row.cells[2].querySelector('input').value || 0;
+            const sum = q * r;
+            row.querySelector('.row-total').innerText = sum;
+            grand += sum;
         });
-        document.getElementById('sub').innerText = total.toLocaleString();
-        const p = document.getElementById('paid').value || 0;
-        document.getElementById('bal').innerText = (total - p).toLocaleString();
+        document.getElementById('total-val').innerText = grand;
     }
 
     function addRow() {
-        const tbody = document.getElementById('rows');
-        const r = tbody.insertRow();
-        r.innerHTML = `<td>${tbody.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td style="text-align: right; font-weight: bold;" class="r-total">0</td>`;
+        const tr = document.getElementById('rows').insertRow();
+        tr.innerHTML = `<td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td style="text-align: right;" class="row-total">0</td>`;
     }
 
-    // Signature 
-    const sc = document.getElementById('sig');
-    const sctx = sc.getContext('2d');
-    sc.width = sc.offsetWidth; sc.height = 100;
-    let drawing = false;
-    sc.addEventListener('touchstart', (e) => { drawing = true; sctx.beginPath(); e.preventDefault(); });
-    sc.addEventListener('touchmove', (e) => {
-        if(!drawing) return;
-        const rect = sc.getBoundingClientRect();
-        sctx.lineTo(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
-        sctx.stroke(); e.preventDefault();
-    });
-    window.addEventListener('touchend', () => drawing = false);
-    function clearSig() { sctx.clearRect(0,0,sc.width,sc.height); }
-
-    // THE FULL PDF FIX
-    async function saveFullPDF() {
-        document.querySelectorAll('.no-export').forEach(el => el.classList.add('hidden-pdf'));
-        const bill = document.getElementById('bill');
-        const canvas = await html2canvas(bill, { scale: 3, useCORS: true }); // High scale for full detail
-        const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-        const w = pdf.internal.pageSize.getWidth();
-        const h = (canvas.height * w) / canvas.width;
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, w, h);
-        pdf.save('Naveed_Textiles_Bill.pdf');
-        document.querySelectorAll('.hidden-pdf').forEach(el => el.classList.remove('hidden-pdf'));
-    }
-
-    // Birthday Scratch Logic
-    document.getElementById('bd-overlay').style.display = 'flex';
-    const c = document.getElementById('scratch-canvas');
-    const ctx = c.getContext('2d');
+    // Scratch Logic
+    const canvas = document.getElementById('scratch-canvas');
+    const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#C0C0C0';
-    ctx.fillRect(0,0,280,320);
+    ctx.fillRect(0,0,300,350);
     ctx.globalCompositeOperation = 'destination-out';
-    
-    let musicOn = false;
+
+    let started = false;
     const scratch = (e) => {
-        const rect = c.getBoundingClientRect();
+        const rect = canvas.getBoundingClientRect();
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
         ctx.beginPath(); ctx.arc(x, y, 35, 0, Math.PI*2); ctx.fill();
         
-        if(!musicOn) {
+        if(!started) {
             music.play();
-            musicOn = true;
+            document.getElementById('revealed-msg').classList.add('animate-msg');
+            started = true;
         }
     };
-    c.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
-    c.addEventListener('mousemove', (e) => { if(e.buttons==1) scratch(e); });
+    canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
+    canvas.addEventListener('mousemove', (e) => { if(e.buttons==1) scratch(e); });
 
     function closeBday() { 
         document.getElementById('bd-overlay').style.display = 'none'; 
         music.pause(); 
+    }
+
+    async function saveFullPDF() {
+        document.querySelectorAll('.no-export').forEach(el => el.classList.add('hidden-pdf'));
+        const canvasPDF = await html2canvas(document.getElementById('bill'), { scale: 3 });
+        const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+        pdf.addImage(canvasPDF.toDataURL('image/png'), 'PNG', 0, 0, 210, (canvasPDF.height * 210) / canvasPDF.width);
+        pdf.save('Naveed_Bill.pdf');
+        document.querySelectorAll('.hidden-pdf').forEach(el => el.classList.remove('hidden-pdf'));
     }
 </script>
 </body>
