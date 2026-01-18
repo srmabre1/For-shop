@@ -12,6 +12,7 @@
         :root { --primary: #2196f3; --success: #25d366; --dark: #333; }
         body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 5px; color: var(--dark); overflow-x: hidden; }
         
+        /* Main Bill Container */
         #bill { 
             width: 100%; max-width: 800px; margin: auto; background: #fff; 
             padding: 15px; box-sizing: border-box; border: 1px solid #ddd;
@@ -45,17 +46,17 @@
         .wa { background: var(--success); }
         .new { background: #f44336; }
 
-        /* --- ✨ Scratch Card Overlay ✨ --- */
+        /* --- Scratch Card Overlay --- */
         #bd { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 10px; }
         #card { background: #fff; padding: 20px; border-radius: 20px; text-align: center; width: 100%; max-width: 340px; box-shadow: 0 0 30px rgba(33, 150, 243, 0.5); }
         
-        #scratch-container { position: relative; width: 280px; height: 260px; margin: 15px auto; background: #1a1a1a; border: 3px solid #ffd700; border-radius: 15px; overflow: hidden; }
+        #scratch-container { position: relative; width: 280px; height: 280px; margin: 15px auto; background: #1a1a1a; border: 3px solid #ffd700; border-radius: 15px; overflow: hidden; }
         #scratch-canvas { position: absolute; top: 0; left: 0; cursor: crosshair; touch-action: none; z-index: 2; }
         
         .prize-text { 
             position: absolute; inset: 0; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; font-weight: bold; 
-            padding: 10px; font-size: 14px; line-height: 1.4; z-index: 1;
+            padding: 10px; font-size: 14px; line-height: 1.5; z-index: 1;
             color: white;
             animation: goldPulse 2s infinite ease-in-out;
             text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
@@ -72,9 +73,6 @@
 </head>
 <body>
 
-<audio id="bd-music" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-</audio>
 <audio id="scratch-sound">
     <source src="https://assets.mixkit.co/active_storage/sfx/2388/2388-preview.mp3" type="audio/mpeg">
 </audio>
@@ -92,7 +90,7 @@
                 <span>Stay real. Stay sharp. 👊</span><br>
                 <span style="font-size: 13px; color: #ffd700;">and don't forget me 😁</span>
             </div>
-            <canvas id="scratch-canvas" width="280" height="260"></canvas>
+            <canvas id="scratch-canvas" width="280" height="280"></canvas>
         </div>
         <div class="close-bd" onclick="closeBD()">Go to My Bill</div>
     </div>
@@ -162,17 +160,13 @@
 </div>
 
 <script>
-// 1. Birthday Logic & Sound
+// 1. Birthday Logic (Scratch Sound Only)
 const startDay = new Date("2026-01-18").getTime();
 const now = Date.now();
-const music = document.getElementById('bd-music');
 const scratchSfx = document.getElementById('scratch-sound');
 
 if (now >= startDay && (now - startDay) <= (2 * 24 * 60 * 60 * 1000)) {
     document.getElementById('bd').style.display = 'flex';
-    // Start music on first interaction (required by browsers)
-    window.addEventListener('click', () => music.play(), {once: true});
-    window.addEventListener('touchstart', () => music.play(), {once: true});
     initScratch();
 }
 
@@ -188,14 +182,14 @@ function initScratch() {
     ctx.fillStyle = '#444';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('SCRATCH TO REVEAL 👆', 140, 130);
+    ctx.fillText('SCRATCH TO REVEAL 👆', 140, 140);
     
     ctx.globalCompositeOperation = 'destination-out';
 
     function scratch(e) {
         if (!isDrawing) return;
-        // Trigger scratch sound only while moving
-        if (scratchSfx.paused || scratchSfx.currentTime > 0.2) {
+        // Scratch Sound Playback
+        if (scratchSfx.paused || scratchSfx.currentTime > 0.1) {
             scratchSfx.currentTime = 0;
             scratchSfx.play();
         }
@@ -209,16 +203,16 @@ function initScratch() {
     canvas.addEventListener('mousedown', () => isDrawing = true);
     canvas.addEventListener('touchstart', (e) => { isDrawing = true; e.preventDefault(); });
     window.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('touchend', () => isDrawing = false);
     canvas.addEventListener('mousemove', scratch);
     canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
 }
 
 function closeBD() { 
-    document.getElementById('bd').style.display = 'none';
-    music.pause(); // Stops music when card is closed
+    document.getElementById('bd').style.display = 'none'; 
 }
 
-// 2. Billing Data Logic
+// 2. Billing Logic
 let id = Number(localStorage.ntid || 1010) + 1;
 localStorage.ntid = id;
 document.getElementById('inv-display').innerText = "NT-" + id;
@@ -244,7 +238,7 @@ function addRow() {
     r.innerHTML = `<td>${rows.rows.length}</td><td><input></td><td><input type="number" value="1" oninput="calc()"></td><td><input type="number" value="0" oninput="calc()"></td><td style="text-align: right; font-weight: bold;" class="rt">0</td>`;
 }
 
-// 3. Signature Engine
+// 3. Signature Engine (Touch-Friendly)
 const sigC = document.getElementById('sig');
 const sCtx = sigC.getContext("2d");
 sigC.width = sigC.offsetWidth; sigC.height = sigC.offsetHeight;
